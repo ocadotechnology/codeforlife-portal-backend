@@ -2,7 +2,6 @@
 © Ocado Group
 Created on 09/02/2024 at 16:14:00(+00:00).
 """
-
 from codeforlife.permissions import AllowAny, AllowNone
 from codeforlife.request import Request
 from codeforlife.user.models import User
@@ -13,7 +12,10 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from ..models import SchoolTeacherInvitation
-from ..serializers import SchoolTeacherInvitationSerializer, UserSerializer
+from ..serializers import (
+    CreateTeacherSerializer,
+    SchoolTeacherInvitationSerializer,
+)
 
 
 # pylint: disable-next=missing-class-docstring,too-many-ancestors
@@ -103,7 +105,7 @@ class SchoolTeacherInvitationViewSet(ModelViewSet[SchoolTeacherInvitation]):
                 },
             }
 
-            serializer = UserSerializer(data=data, context=context)
+            serializer = CreateTeacherSerializer(data=data, context=context)
             serializer.is_valid(raise_exception=True)
             serializer.save()
 

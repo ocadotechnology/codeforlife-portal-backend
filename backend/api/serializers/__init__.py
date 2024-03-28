@@ -19,8 +19,9 @@ from .teacher import (
     SetSchoolTeacherAdminAccessSerializer,
 )
 from .user import (
+    CreateUserSerializer,
     HandleIndependentUserJoinClassRequestSerializer,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
-    UserSerializer,
+    UpdateUserSerializer,
 )

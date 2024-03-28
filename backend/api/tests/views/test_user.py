@@ -16,6 +16,7 @@ from codeforlife.user.models import (
     TypedUser,
     User,
 )
+from codeforlife.user.serializers import UserSerializer
 from codeforlife.user.permissions import IsIndependent, IsTeacher
 from django.contrib.auth.tokens import (
     PasswordResetTokenGenerator,
@@ -23,10 +24,11 @@ from django.contrib.auth.tokens import (
 )
 
 from ...serializers import (
+    CreateUserSerializer,
     HandleIndependentUserJoinClassRequestSerializer,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
-    UserSerializer,
+    UpdateUserSerializer,
 )
 from ...views import UserViewSet
 
@@ -66,10 +68,7 @@ class TestUserViewSet(ModelViewSetTestCase[User]):
 
     def test_get_permissions__bulk(self):
         """No one can perform bulk actions."""
-        self.assert_get_permissions(
-            permissions=[AllowNone()],
-            action="bulk",
-        )
+        self.assert_get_permissions(permissions=[AllowNone()], action="bulk")
 
     def test_get_permissions__partial_update__requesting_to_join_class(
         self,
@@ -94,6 +93,10 @@ class TestUserViewSet(ModelViewSetTestCase[User]):
             action="handle_join_class_request",
             request=self.client.request_factory.patch(data={"accept": False}),
         )
+
+    def test_get_permissions__create(self):
+        """Anyone can create an independent-user."""
+        self.assert_get_permissions(permissions=[AllowAny()], action="create")
 
     def test_get_permissions__destroy(self):
         """Only independents can destroy."""
@@ -178,6 +181,15 @@ class TestUserViewSet(ModelViewSetTestCase[User]):
             action="reset_password",
         )
 
+    # test: get serializer context
+
+    def test_get_serializer_context__create(self):
+        """Need to give context to the type of user being created."""
+        self.assert_get_serializer_context(
+            serializer_context={"user_type": "independent"},
+            action="create",
+        )
+
     # test: get serializer class
 
     def test_get_serializer_class__request_password_reset(self):
@@ -205,18 +217,18 @@ class TestUserViewSet(ModelViewSetTestCase[User]):
             action="handle_join_class_request",
         )
 
+    def test_get_serializer_class__create(self):
+        """Creating a user uses the create user serializer."""
+        self.assert_get_serializer_class(
+            serializer_class=CreateUserSerializer,
+            action="create",
+        )
+
     def test_get_serializer_class__partial_update(self):
         """Partially updating a user uses the general serializer."""
         self.assert_get_serializer_class(
-            serializer_class=UserSerializer,
+            serializer_class=UpdateUserSerializer,
             action="partial_update",
-        )
-
-    def test_get_serializer_class__destroy(self):
-        """Destroying a user uses the general serializer."""
-        self.assert_get_serializer_class(
-            serializer_class=UserSerializer,
-            action="destroy",
         )
 
     def test_get_serializer_class__retrieve(self):

@@ -3,6 +3,7 @@
 Created on 18/01/2024 at 15:14:32(+00:00).
 """
 import typing as t
+from datetime import date
 
 from codeforlife.types import DataDict
 from codeforlife.user.models import (
@@ -13,7 +14,6 @@ from codeforlife.user.models import (
     StudentUser,
     Teacher,
     User,
-    UserProfile,
 )
 from codeforlife.user.serializers import (
     BaseUserSerializer as _BaseUserSerializer,
@@ -70,6 +70,8 @@ class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
             if user_type == "teacher":
                 Teacher(new_user=user)
             elif user_type == "student":
+                Student(new_user=user, class_field=Class())
+            elif user_type == "independent":
                 Student(new_user=user)
 
         try:
@@ -92,29 +94,55 @@ class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
 # ------------------------------------------------------------------------------
 
 
-class UserSerializer(BaseUserSerializer[User], _UserSerializer):
+class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
+    date_of_birth = serializers.DateField(write_only=True)
+    add_to_newsletter = serializers.BooleanField(write_only=True)
+
+    class Meta(_UserSerializer.Meta):
+        fields = [
+            *_UserSerializer.Meta.fields,
+            "password",
+            "date_of_birth",
+            "add_to_newsletter",
+        ]
+        extra_kwargs = {
+            **_UserSerializer.Meta.extra_kwargs,
+            "first_name": {"min_length": 1},
+            "last_name": {"min_length": 1},
+            "password": {"write_only": True},
+            "email": {"read_only": False},
+        }
+
+    def create(self, validated_data):
+        add_to_newsletter: bool = validated_data.pop("add_to_newsletter")
+        date_of_birth: date = validated_data.pop("date_of_birth")
+
+        # TODO: Use date of birth in post email save signal to send
+        #  appropriate verification email depending on age, cf
+        #  https://github.com/ocadotechnology/codeforlife-portal/blob/master/portal/views/home.py#L192
+
+        independent_user = IndependentUser.objects.create_user(**validated_data)
+        if add_to_newsletter:
+            independent_user.add_contact_to_dot_digital()
+
+        return independent_user
+
+
+class UpdateUserSerializer(BaseUserSerializer[User], _UserSerializer):
     requesting_to_join_class = serializers.CharField(
         source="new_student.pending_class_request",
-        required=False,
         allow_null=True,
     )
-    current_password = serializers.CharField(
-        write_only=True,
-        required=False,
-    )
+    current_password = serializers.CharField(write_only=True)
 
     class Meta(_UserSerializer.Meta):
         fields = [*_UserSerializer.Meta.fields, "password", "current_password"]
         extra_kwargs = {
             **_UserSerializer.Meta.extra_kwargs,
-            "first_name": {"read_only": False},
-            "last_name": {
-                "read_only": False,
-                "required": False,
-                "min_length": 1,
-            },
-            "email": {"read_only": False},
-            "password": {"write_only": True, "required": False},
+            "first_name": {"min_length": 1},
+            "last_name": {"min_length": 1},
+            "email": {},
+            "password": {"write_only": True},
         }
 
     def validate_requesting_to_join_class(self, value: str):
@@ -170,7 +198,7 @@ class UserSerializer(BaseUserSerializer[User], _UserSerializer):
 
         return attrs
 
-    def update(self, instance: User, validated_data: DataDict):
+    def update(self, instance, validated_data):
         if "new_student" in validated_data:
             new_student = t.cast(DataDict, validated_data.pop("new_student"))
             if "pending_class_request" in new_student:

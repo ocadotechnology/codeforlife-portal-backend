@@ -2,7 +2,6 @@
 © Ocado Group
 Created on 23/01/2024 at 17:53:44(+00:00).
 """
-
 from codeforlife.permissions import OR, AllowAny, AllowNone
 from codeforlife.request import Request
 from codeforlife.response import Response
@@ -14,10 +13,11 @@ from rest_framework import status
 from rest_framework.serializers import ValidationError
 
 from ..serializers import (
+    CreateUserSerializer,
     HandleIndependentUserJoinClassRequestSerializer,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
-    UserSerializer,
+    UpdateUserSerializer,
 )
 
 
@@ -29,7 +29,11 @@ class UserViewSet(_UserViewSet):
     def get_permissions(self):
         if self.action == "bulk":
             return [AllowNone()]
-        if self.action in ["request_password_reset", "reset_password"]:
+        if self.action in [
+            "create",
+            "request_password_reset",
+            "reset_password",
+        ]:
             return [AllowAny()]
         if self.action == "handle_join_class_request":
             return [OR(IsTeacher(is_admin=True), IsTeacher(in_class=True))]
@@ -41,7 +45,18 @@ class UserViewSet(_UserViewSet):
 
         return super().get_permissions()
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        if self.action == "create":
+            context["user_type"] = "independent"
+
+        return context
+
     def get_serializer_class(self):
+        if self.action == "create":
+            return CreateUserSerializer
+        if self.action == "partial_update":
+            return UpdateUserSerializer
         if self.action == "request_password_reset":
             return RequestUserPasswordResetSerializer
         if self.action == "reset_password":
@@ -49,7 +64,7 @@ class UserViewSet(_UserViewSet):
         if self.action == "handle_join_class_request":
             return HandleIndependentUserJoinClassRequestSerializer
 
-        return UserSerializer
+        return super().get_serializer_class()
 
     def get_queryset(self, user_class=User):
         if self.action == "reset_password":

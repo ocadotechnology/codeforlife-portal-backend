@@ -2,7 +2,6 @@
 © Ocado Group
 Created on 29/01/2024 at 10:13:58(+00:00).
 """
-
 import typing as t
 
 from codeforlife.types import DataDict
@@ -48,7 +47,7 @@ class CreateTeacherSerializer(TeacherSerializer[Teacher]):
 
     def create(self, validated_data):
         user_fields = t.cast(DataDict, validated_data["new_user"])
-        add_to_newsletter = user_fields.pop("add_to_newsletter")
+        add_to_newsletter: bool = user_fields.pop("add_to_newsletter")
 
         teacher_user = TeacherUser.objects.create_user(**user_fields)
         if add_to_newsletter:

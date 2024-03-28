@@ -54,3 +54,5 @@ def user__pre_save__email(
 def user__post_save__email(sender, instance: User, *args, **kwargs):
     """After a user's email field is updated."""
     # TODO: send verification email
+    # TODO: ensure that the correct verification email is sent depending on
+    #  the user's age if they're independent
