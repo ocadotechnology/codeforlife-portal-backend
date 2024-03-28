@@ -23,10 +23,11 @@ from django.contrib.auth.tokens import (
 )
 
 from ...serializers import (
+    CreateUserSerializer,
     HandleIndependentUserJoinClassRequestSerializer,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
-    UserSerializer,
+    UpdateUserSerializer,
 )
 from ...views import UserViewSet
 
@@ -216,37 +217,37 @@ class TestUserViewSet(ModelViewSetTestCase[User]):
         )
 
     def test_get_serializer_class__create(self):
-        """Creating a user uses the general serializer."""
+        """Creating a user uses the create user serializer."""
         self.assert_get_serializer_class(
-            serializer_class=UserSerializer,
+            serializer_class=CreateUserSerializer,
             action="create",
         )
 
     def test_get_serializer_class__partial_update(self):
         """Partially updating a user uses the general serializer."""
         self.assert_get_serializer_class(
-            serializer_class=UserSerializer,
+            serializer_class=UpdateUserSerializer,
             action="partial_update",
         )
 
     def test_get_serializer_class__destroy(self):
         """Destroying a user uses the general serializer."""
         self.assert_get_serializer_class(
-            serializer_class=UserSerializer,
+            serializer_class=UpdateUserSerializer,
             action="destroy",
         )
 
     def test_get_serializer_class__retrieve(self):
         """Retrieving a user uses the general serializer."""
         self.assert_get_serializer_class(
-            serializer_class=UserSerializer,
+            serializer_class=UpdateUserSerializer,
             action="retrieve",
         )
 
     def test_get_serializer_class__list(self):
         """Listing users uses the general serializer."""
         self.assert_get_serializer_class(
-            serializer_class=UserSerializer,
+            serializer_class=UpdateUserSerializer,
             action="list",
         )
 

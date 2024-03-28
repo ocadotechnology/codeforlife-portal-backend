@@ -13,10 +13,11 @@ from rest_framework import status
 from rest_framework.serializers import ValidationError
 
 from ..serializers import (
+    CreateUserSerializer,
     HandleIndependentUserJoinClassRequestSerializer,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
-    UserSerializer,
+    UpdateUserSerializer,
 )
 
 
@@ -52,6 +53,8 @@ class UserViewSet(_UserViewSet):
         return context
 
     def get_serializer_class(self):
+        if self.action == "create":
+            return CreateUserSerializer
         if self.action == "request_password_reset":
             return RequestUserPasswordResetSerializer
         if self.action == "reset_password":
@@ -59,7 +62,7 @@ class UserViewSet(_UserViewSet):
         if self.action == "handle_join_class_request":
             return HandleIndependentUserJoinClassRequestSerializer
 
-        return UserSerializer
+        return UpdateUserSerializer
 
     def get_queryset(self, user_class=User):
         if self.action == "reset_password":

@@ -17,14 +17,13 @@ from django.contrib.auth.tokens import (
     PasswordResetTokenGenerator,
     default_token_generator,
 )
-
 from ...serializers.user import (
     BaseUserSerializer,
+    CreateUserSerializer,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
-    UserSerializer,
+    UpdateUserSerializer,
 )
-from ...views import UserViewSet
 
 # NOTE: type hint to help Intellisense.
 password_reset_token_generator: PasswordResetTokenGenerator = (
@@ -61,8 +60,36 @@ class TestBaseUserSerializer(ModelSerializerTestCase[User]):
         raise NotImplementedError()  # TODO
 
 
-class TestUserSerializer(ModelSerializerTestCase[User]):
-    model_serializer_class = UserSerializer
+class TestCreateTeacherSerializer(ModelSerializerTestCase[IndependentUser]):
+    model_serializer_class = CreateUserSerializer
+
+    @patch.object(IndependentUser, "add_contact_to_dot_digital")
+    def test_create(self, add_contact_to_dot_digital: Mock):
+        """Can successfully create an independent user."""
+        password = "N3wPassword!"
+
+        with patch(
+            "django.contrib.auth.models.make_password",
+            return_value=make_password(password),
+        ) as user_make_password:
+            self.assert_create(
+                validated_data={
+                    "first_name": "Anakin",
+                    "last_name": "Skywalker",
+                    "password": password,
+                    "email": "anakin.skywalker@jedi.academy",
+                    "add_to_newsletter": True,
+                },
+                new_data={"password": user_make_password.return_value},
+                non_model_fields={"add_to_newsletter"},
+            )
+
+            user_make_password.assert_called_once_with(password)
+        add_contact_to_dot_digital.assert_called_once()
+
+
+class TestUpdateUserSerializer(ModelSerializerTestCase[User]):
+    model_serializer_class = UpdateUserSerializer
     fixtures = ["independent", "school_1"]
 
     def setUp(self):
@@ -135,30 +162,6 @@ class TestUserSerializer(ModelSerializerTestCase[User]):
             value=self.class_3.access_code,
             error_code="no_longer_accepts_requests",
         )
-
-    @patch.object(IndependentUser, "add_contact_to_dot_digital")
-    def test_create(self, add_contact_to_dot_digital: Mock):
-        """Can successfully create an independent user."""
-        password = "N3wPassword!"
-
-        with patch(
-            "django.contrib.auth.models.make_password",
-            return_value=make_password(password),
-        ) as user_make_password:
-            self.assert_create(
-                validated_data={
-                    "first_name": "Anakin",
-                    "last_name": "Skywalker",
-                    "password": password,
-                    "email": "anakin.skywalker@jedi.academy",
-                    "add_to_newsletter": True,
-                },
-                new_data={"password": user_make_password.return_value},
-                non_model_fields={"add_to_newsletter"},
-            )
-
-            user_make_password.assert_called_once_with(password)
-        add_contact_to_dot_digital.assert_called_once()
 
 
 class TestRequestUserPasswordResetSerializer(ModelSerializerTestCase[User]):
