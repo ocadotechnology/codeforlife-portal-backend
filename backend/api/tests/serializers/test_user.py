@@ -2,6 +2,7 @@
 © Ocado Group
 Created on 31/01/2024 at 16:07:32(+00:00).
 """
+from datetime import date
 from unittest.mock import Mock, patch
 
 from codeforlife.tests import ModelSerializerTestCase
@@ -17,6 +18,7 @@ from django.contrib.auth.tokens import (
     PasswordResetTokenGenerator,
     default_token_generator,
 )
+
 from ...serializers.user import (
     BaseUserSerializer,
     CreateUserSerializer,
@@ -79,9 +81,10 @@ class TestCreateTeacherSerializer(ModelSerializerTestCase[IndependentUser]):
                     "password": password,
                     "email": "anakin.skywalker@jedi.academy",
                     "add_to_newsletter": True,
+                    "date_of_birth": date(419, 10, 31),
                 },
                 new_data={"password": user_make_password.return_value},
-                non_model_fields={"add_to_newsletter"},
+                non_model_fields={"add_to_newsletter", "date_of_birth"},
             )
 
             user_make_password.assert_called_once_with(password)

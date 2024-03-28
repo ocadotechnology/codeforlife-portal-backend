@@ -3,6 +3,7 @@
 Created on 18/01/2024 at 15:14:32(+00:00).
 """
 import typing as t
+from datetime import date
 
 from codeforlife.types import DataDict
 from codeforlife.user.models import (
@@ -94,7 +95,7 @@ class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
 
 
 class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
-    date_of_birth = serializers.DateField(required=False)
+    date_of_birth = serializers.DateField(write_only=True)
     add_to_newsletter = serializers.BooleanField(write_only=True)
 
     class Meta(_UserSerializer.Meta):
@@ -113,7 +114,12 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
         }
 
     def create(self, validated_data):
-        add_to_newsletter = validated_data.pop("add_to_newsletter")
+        add_to_newsletter: bool = validated_data.pop("add_to_newsletter")
+        date_of_birth: date = validated_data.pop("date_of_birth")
+
+        # TODO: Use date of birth in post email save signal to send
+        #  appropriate verification email depending on age, cf
+        #  https://github.com/ocadotechnology/codeforlife-portal/blob/master/portal/views/home.py#L192
 
         independent_user = IndependentUser.objects.create_user(**validated_data)
         if add_to_newsletter:
@@ -125,30 +131,18 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
 class UpdateUserSerializer(BaseUserSerializer[User], _UserSerializer):
     requesting_to_join_class = serializers.CharField(
         source="new_student.pending_class_request",
-        required=False,
         allow_null=True,
     )
-    current_password = serializers.CharField(
-        write_only=True,
-        required=False,
-    )
+    current_password = serializers.CharField(write_only=True)
 
     class Meta(_UserSerializer.Meta):
         fields = [*_UserSerializer.Meta.fields, "password", "current_password"]
         extra_kwargs = {
             **_UserSerializer.Meta.extra_kwargs,
-            "first_name": {
-                "read_only": False,
-                "required": False,
-                "min_length": 1,
-            },
-            "last_name": {
-                "read_only": False,
-                "required": False,
-                "min_length": 1,
-            },
-            "email": {"read_only": False, "required": False},
-            "password": {"write_only": True, "required": False},
+            "first_name": {"min_length": 1},
+            "last_name": {"min_length": 1},
+            "email": {},
+            "password": {"write_only": True},
         }
 
     def validate_requesting_to_join_class(self, value: str):

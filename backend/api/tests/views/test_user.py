@@ -16,6 +16,7 @@ from codeforlife.user.models import (
     TypedUser,
     User,
 )
+from codeforlife.user.serializers import UserSerializer
 from codeforlife.user.permissions import IsIndependent, IsTeacher
 from django.contrib.auth.tokens import (
     PasswordResetTokenGenerator,
@@ -230,24 +231,17 @@ class TestUserViewSet(ModelViewSetTestCase[User]):
             action="partial_update",
         )
 
-    def test_get_serializer_class__destroy(self):
-        """Destroying a user uses the general serializer."""
-        self.assert_get_serializer_class(
-            serializer_class=UpdateUserSerializer,
-            action="destroy",
-        )
-
     def test_get_serializer_class__retrieve(self):
         """Retrieving a user uses the general serializer."""
         self.assert_get_serializer_class(
-            serializer_class=UpdateUserSerializer,
+            serializer_class=UserSerializer,
             action="retrieve",
         )
 
     def test_get_serializer_class__list(self):
         """Listing users uses the general serializer."""
         self.assert_get_serializer_class(
-            serializer_class=UpdateUserSerializer,
+            serializer_class=UserSerializer,
             action="list",
         )
 

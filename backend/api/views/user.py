@@ -55,6 +55,8 @@ class UserViewSet(_UserViewSet):
     def get_serializer_class(self):
         if self.action == "create":
             return CreateUserSerializer
+        if self.action == "partial_update":
+            return UpdateUserSerializer
         if self.action == "request_password_reset":
             return RequestUserPasswordResetSerializer
         if self.action == "reset_password":
@@ -62,7 +64,7 @@ class UserViewSet(_UserViewSet):
         if self.action == "handle_join_class_request":
             return HandleIndependentUserJoinClassRequestSerializer
 
-        return UpdateUserSerializer
+        return super().get_serializer_class()
 
     def get_queryset(self, user_class=User):
         if self.action == "reset_password":
