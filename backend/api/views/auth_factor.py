@@ -17,7 +17,14 @@ class AuthFactorViewSet(ModelViewSet[AuthFactor]):
     serializer_class = AuthFactorSerializer
 
     def get_queryset(self):
-        return AuthFactor.objects.filter(user=self.request.auth_user)
+        queryset = AuthFactor.objects.all()
+        user = self.request.teacher_user
+        if user.teacher.school and user.teacher.is_admin:
+            return queryset.filter(
+                user__new_teacher__school=user.teacher.school
+            )
+
+        return queryset.filter(user=user)
 
     def get_permissions(self):
         if self.action in ["retrieve", "bulk"]:

@@ -5,38 +5,61 @@ Created on 23/01/2024 at 11:22:16(+00:00).
 
 from codeforlife.permissions import AllowNone
 from codeforlife.tests import ModelViewSetTestCase
-from codeforlife.user.models import AuthFactor, TeacherUser
+from codeforlife.user.models import (
+    AdminSchoolTeacherUser,
+    AuthFactor,
+    NonAdminSchoolTeacherUser,
+    TeacherUser,
+)
 from codeforlife.user.permissions import IsTeacher
 
 from ...views import AuthFactorViewSet
 
+# pylint: disable=missing-class-docstring
+# pylint: disable=too-many-ancestors
 
-# pylint: disable-next=missing-class-docstring
+
 class TestAuthFactorViewSet(ModelViewSetTestCase[AuthFactor]):
     basename = "auth-factor"
     model_view_set_class = AuthFactorViewSet
     fixtures = ["school_2", "non_school_teacher"]
 
     def setUp(self):
-        self.multi_auth_factor_teacher_user = TeacherUser.objects.get(
-            email="teacher@school2.com"
+        self.mfa_non_admin_school_teacher_user = (
+            NonAdminSchoolTeacherUser.objects.get(email="teacher@school2.com")
         )
-        assert self.multi_auth_factor_teacher_user.auth_factors.exists()
-
-        self.uni_auth_factor_teacher_user = TeacherUser.objects.get(
-            email="teacher@noschool.com"
-        )
-        assert not self.uni_auth_factor_teacher_user.auth_factors.exists()
+        assert self.mfa_non_admin_school_teacher_user.auth_factors.exists()
 
     # test: get queryset
 
-    def test_get_queryset(self):
-        """Can only access your own auth factors."""
+    def test_get_queryset__admin(self):
+        """
+        Can query the author factors of all teachers in your school if you are
+        an admin.
+        """
+        user = self.mfa_non_admin_school_teacher_user
+        admin_school_teacher_user = AdminSchoolTeacherUser.objects.filter(
+            new_teacher__school=user.teacher.school
+        ).first()
+        assert admin_school_teacher_user
+
         self.assert_get_queryset(
-            list(self.multi_auth_factor_teacher_user.auth_factors.all()),
-            request=self.client.request_factory.get(
-                user=self.multi_auth_factor_teacher_user
+            values=list(
+                user.auth_factors.all()
+                | admin_school_teacher_user.auth_factors.all()
             ),
+            request=self.client.request_factory.get(
+                user=admin_school_teacher_user
+            ),
+        )
+
+    def test_get_queryset__non_admin(self):
+        """Can only query your own auth factors if you are not an admin."""
+        user = self.mfa_non_admin_school_teacher_user
+
+        self.assert_get_queryset(
+            values=list(user.auth_factors.all()),
+            request=self.client.request_factory.get(user=user),
         )
 
     # test: get permissions
@@ -65,23 +88,27 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[AuthFactor]):
 
     def test_list(self):
         """Can list enabled auth-factors."""
-        self.client.login_as(self.multi_auth_factor_teacher_user)
+        user = self.mfa_non_admin_school_teacher_user
 
-        self.client.list(
-            list(self.multi_auth_factor_teacher_user.auth_factors.all())
-        )
+        self.client.login_as(user)
+        self.client.list(user.auth_factors.all())
 
     def test_create__otp(self):
         """Can enable OTP."""
-        self.client.login_as(self.uni_auth_factor_teacher_user)
+        teacher_user = TeacherUser.objects.filter(
+            auth_factors__isnull=True
+        ).first()
+        assert teacher_user
 
+        # TODO: set password="password" on all user fixtures
+        self.client.login_as(teacher_user, password="abc123")
         self.client.create({"type": "otp"})
 
     def test_destroy(self):
         """Can disable an auth-factor."""
-        self.client.login_as(self.multi_auth_factor_teacher_user)
-
-        auth_factor = self.multi_auth_factor_teacher_user.auth_factors.first()
+        user = self.mfa_non_admin_school_teacher_user
+        auth_factor = user.auth_factors.first()
         assert auth_factor
 
+        self.client.login_as(user)
         self.client.destroy(auth_factor)
