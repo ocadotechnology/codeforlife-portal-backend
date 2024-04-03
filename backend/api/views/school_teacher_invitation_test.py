@@ -9,8 +9,8 @@ from codeforlife.user.models import User
 from codeforlife.user.permissions import IsTeacher
 from rest_framework import status
 
-from ...models import SchoolTeacherInvitation
-from ...views import SchoolTeacherInvitationViewSet
+from ..models import SchoolTeacherInvitation
+from .school_teacher_invitation import SchoolTeacherInvitationViewSet
 
 
 # pylint: disable-next=missing-class-docstring

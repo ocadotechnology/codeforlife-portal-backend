@@ -12,7 +12,7 @@ from codeforlife.user.permissions import IsStudent, IsTeacher
 from django.utils import timezone
 from rest_framework import status
 
-from ...views import ClassViewSet
+from .klass import ClassViewSet
 
 
 # pylint: disable-next=missing-class-docstring,too-many-ancestors

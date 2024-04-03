@@ -17,13 +17,13 @@ from codeforlife.user.models import (
 )
 from codeforlife.user.permissions import IsTeacher
 
-from ...serializers import (
+from ..serializers import (
     CreateStudentSerializer,
     ReleaseStudentSerializer,
     ResetStudentPasswordSerializer,
     TransferStudentSerializer,
 )
-from ...views import StudentViewSet
+from .student import StudentViewSet
 
 # pylint: disable=missing-class-docstring
 # pylint: disable=too-many-ancestors

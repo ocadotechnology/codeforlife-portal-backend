@@ -22,12 +22,12 @@ from django.contrib.auth.hashers import make_password
 from django.db.models.query import QuerySet
 from rest_framework import status
 
-from ...serializers import (
+from ..serializers import (
     CreateTeacherSerializer,
     RemoveTeacherFromSchoolSerializer,
     SetSchoolTeacherAdminAccessSerializer,
 )
-from ...views import TeacherViewSet
+from .teacher import TeacherViewSet
 
 # pylint: disable=missing-class-docstring
 # pylint: disable=too-many-ancestors

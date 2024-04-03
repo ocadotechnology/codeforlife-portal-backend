@@ -9,7 +9,7 @@ from codeforlife.tests import ModelViewSetTestCase
 from codeforlife.user.models import OtpBypassToken, User
 from rest_framework import status
 
-from ...views import OtpBypassTokenViewSet
+from .otp_bypass_token import OtpBypassTokenViewSet
 
 
 # pylint: disable-next=missing-class-docstring

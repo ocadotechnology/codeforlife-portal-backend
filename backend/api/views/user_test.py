@@ -16,21 +16,21 @@ from codeforlife.user.models import (
     TypedUser,
     User,
 )
-from codeforlife.user.serializers import UserSerializer
 from codeforlife.user.permissions import IsIndependent, IsTeacher
+from codeforlife.user.serializers import UserSerializer
 from django.contrib.auth.tokens import (
     PasswordResetTokenGenerator,
     default_token_generator,
 )
 
-from ...serializers import (
+from ..serializers import (
     CreateUserSerializer,
     HandleIndependentUserJoinClassRequestSerializer,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
     UpdateUserSerializer,
 )
-from ...views import UserViewSet
+from .user import UserViewSet
 
 # NOTE: type hint to help Intellisense.
 default_token_generator: PasswordResetTokenGenerator = default_token_generator

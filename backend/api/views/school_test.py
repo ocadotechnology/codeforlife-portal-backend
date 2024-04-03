@@ -8,7 +8,7 @@ from codeforlife.tests import ModelViewSetTestCase
 from codeforlife.user.models import School
 from codeforlife.user.permissions import IsStudent, IsTeacher
 
-from ...views import SchoolViewSet
+from .school import SchoolViewSet
 
 
 # pylint: disable-next=missing-class-docstring

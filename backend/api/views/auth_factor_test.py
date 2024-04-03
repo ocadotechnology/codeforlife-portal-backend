@@ -13,7 +13,7 @@ from codeforlife.user.models import (
 )
 from codeforlife.user.permissions import IsTeacher
 
-from ...views import AuthFactorViewSet
+from .auth_factor import AuthFactorViewSet
 
 # pylint: disable=missing-class-docstring
 # pylint: disable=too-many-ancestors
