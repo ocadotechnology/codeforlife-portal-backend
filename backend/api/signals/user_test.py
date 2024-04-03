@@ -1,3 +1,8 @@
+"""
+© Ocado Group
+Created on 03/04/2024 at 14:44:42(+01:00).
+"""
+
 from codeforlife.user.models import User, UserProfile
 from django.test import TestCase
 
