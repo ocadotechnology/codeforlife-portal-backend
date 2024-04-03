@@ -17,7 +17,7 @@ from codeforlife.user.models import (
 )
 from django.contrib.auth.hashers import make_password
 
-from ...serializers.student import (
+from .student import (
     BaseStudentListSerializer,
     BaseStudentPasswordSerializer,
     BaseStudentSerializer,

@@ -6,8 +6,8 @@ Created on 02/02/2024 at 15:38:51(+00:00).
 from codeforlife.tests import ModelSerializerTestCase
 from codeforlife.user.models import School
 
-from ...serializers.school import SchoolSerializer
-from ...views.school import SchoolViewSet
+from ..views.school import SchoolViewSet
+from .school import SchoolSerializer
 
 
 # pylint: disable-next=missing-class-docstring

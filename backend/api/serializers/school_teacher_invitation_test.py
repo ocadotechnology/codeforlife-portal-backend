@@ -9,10 +9,8 @@ from codeforlife.tests import ModelSerializerTestCase
 from codeforlife.user.models import AdminSchoolTeacherUser
 from django.utils import timezone
 
-from ...models import SchoolTeacherInvitation
-from ...serializers.school_teacher_invitation import (
-    SchoolTeacherInvitationSerializer,
-)
+from ..models import SchoolTeacherInvitation
+from .school_teacher_invitation import SchoolTeacherInvitationSerializer
 
 
 # pylint: disable-next=missing-class-docstring

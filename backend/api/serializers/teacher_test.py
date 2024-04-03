@@ -14,7 +14,7 @@ from codeforlife.user.models import (
 )
 from django.contrib.auth.hashers import make_password
 
-from ...serializers.teacher import (
+from .teacher import (
     CreateTeacherSerializer,
     RemoveTeacherFromSchoolSerializer,
     SetSchoolTeacherAdminAccessSerializer,

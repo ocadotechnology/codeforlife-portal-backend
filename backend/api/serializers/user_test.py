@@ -19,7 +19,7 @@ from django.contrib.auth.tokens import (
     default_token_generator,
 )
 
-from ...serializers.user import (
+from .user import (
     BaseUserSerializer,
     CreateUserSerializer,
     RequestUserPasswordResetSerializer,

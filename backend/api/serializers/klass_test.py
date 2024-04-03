@@ -6,7 +6,7 @@ Created on 05/02/2024 at 15:31:59(+00:00).
 from codeforlife.tests import ModelSerializerTestCase
 from codeforlife.user.models import Class, SchoolTeacher, SchoolTeacherUser
 
-from ...serializers.klass import ClassSerializer
+from .klass import ClassSerializer
 
 # pylint: disable=missing-class-docstring
 

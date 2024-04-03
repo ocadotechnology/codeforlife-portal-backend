@@ -3,14 +3,11 @@
 Created on 15/02/2024 at 15:44:25(+00:00).
 """
 
-from unittest.mock import patch
-
-import pyotp
 from codeforlife.tests import ModelSerializerTestCase
 from codeforlife.user.models import AuthFactor, TeacherUser
 
-from ...serializers.auth_factor import AuthFactorSerializer
-from ...views import AuthFactorViewSet
+from ..views import AuthFactorViewSet
+from .auth_factor import AuthFactorSerializer
 
 
 # pylint: disable-next=missing-class-docstring
