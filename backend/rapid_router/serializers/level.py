@@ -39,15 +39,16 @@ class LockLevelListSerializer(ModelListSerializer[User, Level]):
         return instance
 
 
+class LockedForClassField(serializers.ListField):
+    child = serializers.CharField()
+
+    def to_representation(
+        self, data: QuerySet[Class]  # type: ignore[override]
+    ):
+        return list(data.values_list("access_code", flat=True))
+
+
 class LockLevelSerializer(BaseLevelSerializer):
-    class LockedForClassField(serializers.ListField):
-        child = serializers.CharField()
-
-        def to_representation(
-            self, data: QuerySet[Class]  # type: ignore[override]
-        ):
-            return list(data.values_list("access_code", flat=True))
-
     locked_for_class = LockedForClassField()
 
     class Meta(BaseLevelSerializer.Meta):
@@ -56,6 +57,8 @@ class LockLevelSerializer(BaseLevelSerializer):
 
 
 class ListLevelSerializer(BaseLevelSerializer):
+    locked_for_class = LockedForClassField()
+
     class Meta(BaseLevelSerializer.Meta):
         fields = [*BaseLevelSerializer.Meta.fields, "name", "locked_for_class"]
 

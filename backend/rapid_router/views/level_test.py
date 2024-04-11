@@ -135,6 +135,8 @@ class TestLevelViewSet(ModelViewSetTestCase[User, Level]):
         user = self.school_teacher_user
         klass = t.cast(t.Optional[Class], user.teacher.class_teacher.first())
         assert klass
+        assert self.level_1.default
+        assert self.level_2.default
         levels = [self.level_1, self.level_2]
 
         self.client.login_as(user)
@@ -156,6 +158,16 @@ class TestLevelViewSet(ModelViewSetTestCase[User, Level]):
             models=Level.objects.filter(default=True)
             | user.shared_levels.all()
             | user.levels.all(),
+        )
+
+    def test_list__default(self):
+        """Can successfully list only default levels."""
+        user = self.user_with_custom_and_shared_levels
+
+        self.client.login(email=user.email, password="Password1")
+        self.client.list(
+            models=Level.objects.filter(default=True),
+            filters={"default": "true"},
         )
 
     def test_retrieve(self):
