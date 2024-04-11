@@ -1,0 +1,64 @@
+[
+  {
+    "model": "game.level",
+    "pk": 113,
+    "fields": {
+      "name": "113",
+      "path": "[]",
+      "traffic_lights": "[]",
+      "cows": "[]",
+      "origin": "{}",
+      "destinations": "[]",
+      "default": false,
+      "owner": 1,
+      "fuel_gauge": true,
+      "max_fuel": 99,
+      "direct_drive": false,
+      "next_level": 92,
+      "model_solution": "[]",
+      "disable_route_score": true,
+      "disable_algorithm_score": false,
+      "threads": 1,
+      "blocklyEnabled": true,
+      "pythonEnabled": false,
+      "pythonViewEnabled": false,
+      "theme_name": "city",
+      "character_name": "Phil",
+      "anonymous": false,
+      "shared_with": [],
+      "locked_for_class": []
+    }
+  },
+  {
+    "model": "game.level",
+    "pk": 114,
+    "fields": {
+      "name": "114",
+      "path": "[]",
+      "traffic_lights": "[]",
+      "cows": "[]",
+      "origin": "{}",
+      "destinations": "[]",
+      "default": false,
+      "owner": 2,
+      "fuel_gauge": true,
+      "max_fuel": 99,
+      "direct_drive": false,
+      "next_level": 92,
+      "model_solution": "[]",
+      "disable_route_score": true,
+      "disable_algorithm_score": false,
+      "threads": 1,
+      "blocklyEnabled": true,
+      "pythonEnabled": false,
+      "pythonViewEnabled": false,
+      "theme_name": "city",
+      "character_name": "Phil",
+      "anonymous": false,
+      "shared_with": [
+        2
+      ],
+      "locked_for_class": []
+    }
+  }
+]

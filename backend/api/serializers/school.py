@@ -409,7 +409,7 @@ class SchoolSerializer(_SchoolSerializer):
         if "uk_county" in attrs:
             country = attrs.get(
                 "country",
-                self.instance.country if self.view.action != "create" else None,
+                self.instance.country if self.instance else None,
             )
             if country != "GB":
                 raise serializers.ValidationError(

@@ -6,6 +6,7 @@ Created on 09/02/2024 at 16:14:00(+00:00).
 from datetime import timedelta
 
 from codeforlife.serializers import ModelSerializer
+from codeforlife.user.models import User
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -16,7 +17,7 @@ from ..models import SchoolTeacherInvitation
 
 # pylint: disable-next=missing-class-docstring,too-many-ancestors
 class SchoolTeacherInvitationSerializer(
-    ModelSerializer[SchoolTeacherInvitation]
+    ModelSerializer[User, SchoolTeacherInvitation]
 ):
     first_name = serializers.CharField(source="invited_teacher_first_name")
     last_name = serializers.CharField(source="invited_teacher_last_name")
