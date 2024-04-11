@@ -11,7 +11,7 @@ from codeforlife.views import ModelViewSet
 from ..serializers import AuthFactorSerializer
 
 
-# pylint: disable-next=missing-class-docstring,too-ma,ny-ancestors
+# pylint: disable-next=missing-class-docstring,too-many-ancestors
 class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
     http_method_names = ["get", "post", "delete"]
     serializer_class = AuthFactorSerializer
