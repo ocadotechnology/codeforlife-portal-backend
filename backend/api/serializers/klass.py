@@ -6,7 +6,7 @@ Created on 24/01/2024 at 12:14:21(+00:00).
 import string
 
 from codeforlife.serializers import ModelListSerializer
-from codeforlife.user.models import Class, Teacher
+from codeforlife.user.models import Class, Teacher, User
 from codeforlife.user.serializers import ClassSerializer as _ClassSerializer
 from django.utils.crypto import get_random_string
 from rest_framework import serializers
@@ -16,7 +16,7 @@ from rest_framework import serializers
 # pylint: disable=too-many-ancestors
 
 
-class ClassListSerializer(ModelListSerializer[Class]):
+class ClassListSerializer(ModelListSerializer[User, Class]):
     def update(self, instance, validated_data):
         for klass, data in zip(instance, validated_data):
             klass.name = data.get("name", klass.name)

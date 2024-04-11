@@ -15,7 +15,7 @@ from .school_teacher_invitation import SchoolTeacherInvitationViewSet
 
 # pylint: disable-next=missing-class-docstring
 class TestSchoolTeacherInvitationViewSet(
-    ModelViewSetTestCase[SchoolTeacherInvitation]
+    ModelViewSetTestCase[User, SchoolTeacherInvitation]
 ):
     basename = "school-teacher-invitation"
     model_view_set_class = SchoolTeacherInvitationViewSet

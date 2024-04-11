@@ -14,6 +14,7 @@ from codeforlife.user.models import (
     NonAdminSchoolTeacherUser,
     SchoolTeacherUser,
     Student,
+    User,
 )
 from codeforlife.user.permissions import IsTeacher
 
@@ -30,7 +31,7 @@ from .student import StudentViewSet
 # pylint: disable=too-many-public-methods
 
 
-class TestStudentViewSet(ModelViewSetTestCase[Student]):
+class TestStudentViewSet(ModelViewSetTestCase[User, Student]):
     basename = "student"
     model_view_set_class = StudentViewSet
     fixtures = ["school_1"]

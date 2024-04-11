@@ -13,7 +13,7 @@ from .otp_bypass_token import OtpBypassTokenViewSet
 
 
 # pylint: disable-next=missing-class-docstring
-class TestOtpBypassTokenViewSet(ModelViewSetTestCase[OtpBypassToken]):
+class TestOtpBypassTokenViewSet(ModelViewSetTestCase[User, OtpBypassToken]):
     basename = "otp-bypass-token"
     model_view_set_class = OtpBypassTokenViewSet
 

@@ -6,7 +6,7 @@ import datetime
 from unittest.mock import patch
 
 from codeforlife.tests import ModelSerializerTestCase
-from codeforlife.user.models import AdminSchoolTeacherUser
+from codeforlife.user.models import AdminSchoolTeacherUser, User
 from django.utils import timezone
 
 from ..models import SchoolTeacherInvitation
@@ -15,7 +15,7 @@ from .school_teacher_invitation import SchoolTeacherInvitationSerializer
 
 # pylint: disable-next=missing-class-docstring
 class TestSchoolTeacherInvitationSerializer(
-    ModelSerializerTestCase[SchoolTeacherInvitation]
+    ModelSerializerTestCase[User, SchoolTeacherInvitation]
 ):
     model_serializer_class = SchoolTeacherInvitationSerializer
     fixtures = ["school_1", "school_1_teacher_invitations"]
@@ -27,7 +27,7 @@ class TestSchoolTeacherInvitationSerializer(
         self.invitation = SchoolTeacherInvitation.objects.get(pk=1)
 
     @patch(
-        "backend.api.serializers.school_teacher_invitation.make_password",
+        "api.serializers.school_teacher_invitation.make_password",
         return_value="token",
     )
     def test_create(self, _):

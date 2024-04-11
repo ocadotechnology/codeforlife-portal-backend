@@ -5,14 +5,14 @@ Created on 02/02/2024 at 15:31:21(+00:00).
 
 from codeforlife.permissions import OR, AllowNone
 from codeforlife.tests import ModelViewSetTestCase
-from codeforlife.user.models import School
+from codeforlife.user.models import School, User
 from codeforlife.user.permissions import IsStudent, IsTeacher
 
 from .school import SchoolViewSet
 
 
 # pylint: disable-next=missing-class-docstring
-class TestSchoolViewSet(ModelViewSetTestCase[School]):
+class TestSchoolViewSet(ModelViewSetTestCase[User, School]):
     basename = "school"
     model_view_set_class = SchoolViewSet
     fixtures = ["non_school_teacher", "school_1"]

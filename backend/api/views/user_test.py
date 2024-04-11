@@ -37,7 +37,7 @@ default_token_generator: PasswordResetTokenGenerator = default_token_generator
 
 
 # pylint: disable-next=missing-class-docstring,too-many-public-methods,too-many-ancestors
-class TestUserViewSet(ModelViewSetTestCase[User]):
+class TestUserViewSet(ModelViewSetTestCase[User, User]):
     basename = "user"
     model_view_set_class = UserViewSet
     fixtures = ["independent", "non_school_teacher", "school_1", "school_2"]

@@ -16,6 +16,7 @@ from codeforlife.user.models import (
     Student,
     Teacher,
     TeacherUser,
+    User,
 )
 from codeforlife.user.permissions import IsTeacher
 from django.contrib.auth.hashers import make_password
@@ -34,7 +35,7 @@ from .teacher import TeacherViewSet
 # pylint: disable=too-many-public-methods
 
 
-class TestTeacherViewSet(ModelViewSetTestCase[Teacher]):
+class TestTeacherViewSet(ModelViewSetTestCase[User, Teacher]):
     basename = "teacher"
     model_view_set_class = TeacherViewSet
     fixtures = ["school_1", "school_3"]

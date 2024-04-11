@@ -4,7 +4,7 @@ Created on 08/03/2024 at 09:23:26(+00:00).
 """
 
 from codeforlife.permissions import OR, AllowNone
-from codeforlife.user.models import Student
+from codeforlife.user.models import Student, User
 from codeforlife.user.permissions import IsTeacher
 from codeforlife.views import ModelViewSet
 
@@ -17,7 +17,7 @@ from ..serializers import (
 
 
 # pylint: disable-next=missing-class-docstring,too-many-ancestors
-class StudentViewSet(ModelViewSet[Student]):
+class StudentViewSet(ModelViewSet[User, Student]):
     http_method_names = ["post", "put", "delete"]
 
     def get_permissions(self):

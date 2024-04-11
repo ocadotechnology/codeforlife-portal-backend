@@ -11,6 +11,7 @@ from codeforlife.user.models import (
     SchoolTeacher,
     Teacher,
     TeacherUser,
+    User,
 )
 from django.contrib.auth.hashers import make_password
 
@@ -23,7 +24,7 @@ from .teacher import (
 # pylint: disable=missing-class-docstring
 
 
-class TestCreateTeacherSerializer(ModelSerializerTestCase[Teacher]):
+class TestCreateTeacherSerializer(ModelSerializerTestCase[User, Teacher]):
     model_serializer_class = CreateTeacherSerializer
 
     @patch.object(TeacherUser, "add_contact_to_dot_digital")
@@ -56,7 +57,7 @@ class TestCreateTeacherSerializer(ModelSerializerTestCase[Teacher]):
 
 
 class TestRemoveTeacherFromSchoolSerializer(
-    ModelSerializerTestCase[SchoolTeacher]
+    ModelSerializerTestCase[User, SchoolTeacher]
 ):
     model_serializer_class = RemoveTeacherFromSchoolSerializer
     fixtures = ["school_1", "school_3"]
@@ -105,7 +106,7 @@ class TestRemoveTeacherFromSchoolSerializer(
 
 
 class TestSetSchoolTeacherAdminAccessSerializer(
-    ModelSerializerTestCase[SchoolTeacher]
+    ModelSerializerTestCase[User, SchoolTeacher]
 ):
     model_serializer_class = SetSchoolTeacherAdminAccessSerializer
     fixtures = ["school_1"]

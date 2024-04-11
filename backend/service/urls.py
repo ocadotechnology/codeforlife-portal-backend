@@ -52,4 +52,9 @@ urlpatterns = [
         include("sso.urls"),
         name="sso",
     ),
+    path(
+        "api/rapid_router/",
+        include("rapid_router.urls"),
+        name="rapid-router",
+    ),
 ]

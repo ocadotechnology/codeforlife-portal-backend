@@ -14,6 +14,7 @@ from codeforlife.user.models import (
     NonAdminSchoolTeacherUser,
     Student,
     StudentUser,
+    User,
 )
 from django.contrib.auth.hashers import make_password
 
@@ -35,7 +36,7 @@ from .student import (
 # ------------------------------------------------------------------------------
 
 
-class TestBaseStudentListSerializer(ModelListSerializerTestCase[Student]):
+class TestBaseStudentListSerializer(ModelListSerializerTestCase[User, Student]):
     model_serializer_class = BaseStudentSerializer
     model_list_serializer_class = BaseStudentListSerializer
     # fixtures = ["school_1"]
@@ -100,7 +101,7 @@ class TestBaseStudentListSerializer(ModelListSerializerTestCase[Student]):
         )
 
 
-class TestBaseStudentSerializer(ModelSerializerTestCase[Student]):
+class TestBaseStudentSerializer(ModelSerializerTestCase[User, Student]):
     model_serializer_class = BaseStudentSerializer
     fixtures = ["school_1", "school_2"]
 
@@ -162,7 +163,7 @@ class TestBaseStudentSerializer(ModelSerializerTestCase[Student]):
         )
 
 
-class TestBaseStudentPasswordSerializer(ModelSerializerTestCase[Student]):
+class TestBaseStudentPasswordSerializer(ModelSerializerTestCase[User, Student]):
     model_serializer_class = BaseStudentPasswordSerializer
     # fixtures = ["school_1"]
 
@@ -188,7 +189,7 @@ class TestBaseStudentPasswordSerializer(ModelSerializerTestCase[Student]):
 # ------------------------------------------------------------------------------
 
 
-class TestCreateStudentSerializer(ModelSerializerTestCase[Student]):
+class TestCreateStudentSerializer(ModelSerializerTestCase[User, Student]):
     model_serializer_class = CreateStudentSerializer
     # fixtures = ["school_1"]
 
@@ -213,7 +214,7 @@ class TestCreateStudentSerializer(ModelSerializerTestCase[Student]):
         )
 
 
-class TestReleaseStudentSerializer(ModelSerializerTestCase[Student]):
+class TestReleaseStudentSerializer(ModelSerializerTestCase[User, Student]):
     model_serializer_class = ReleaseStudentSerializer
     # fixtures = ["school_1"]
 
@@ -236,14 +237,14 @@ class TestReleaseStudentSerializer(ModelSerializerTestCase[Student]):
             ],
             new_data=[
                 {
-                    "class_field_id": None,
+                    "class_field": None,
                     "new_user": {"username": f"{self.student.pk}@gmail.com"},
                 }
             ],
         )
 
 
-class TestTransferStudentSerializer(ModelSerializerTestCase[Student]):
+class TestTransferStudentSerializer(ModelSerializerTestCase[User, Student]):
     model_serializer_class = TransferStudentSerializer
     fixtures = ["school_1"]
 
@@ -268,7 +269,9 @@ class TestTransferStudentSerializer(ModelSerializerTestCase[Student]):
         )
 
 
-class TestResetStudentPasswordSerializer(ModelSerializerTestCase[Student]):
+class TestResetStudentPasswordSerializer(
+    ModelSerializerTestCase[User, Student]
+):
     model_serializer_class = ResetStudentPasswordSerializer
     # fixtures = ["school_1"]
 

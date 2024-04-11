@@ -4,14 +4,14 @@ Created on 15/02/2024 at 15:44:25(+00:00).
 """
 
 from codeforlife.tests import ModelSerializerTestCase
-from codeforlife.user.models import AuthFactor, TeacherUser
+from codeforlife.user.models import AuthFactor, TeacherUser, User
 
 from ..views import AuthFactorViewSet
 from .auth_factor import AuthFactorSerializer
 
 
 # pylint: disable-next=missing-class-docstring
-class TestAuthFactorSerializer(ModelSerializerTestCase[AuthFactor]):
+class TestAuthFactorSerializer(ModelSerializerTestCase[User, AuthFactor]):
     model_serializer_class = AuthFactorSerializer
     fixtures = ["school_2", "non_school_teacher"]
 

@@ -10,6 +10,7 @@ from codeforlife.user.models import (
     AuthFactor,
     NonAdminSchoolTeacherUser,
     TeacherUser,
+    User,
 )
 from codeforlife.user.permissions import IsTeacher
 
@@ -19,7 +20,7 @@ from .auth_factor import AuthFactorViewSet
 # pylint: disable=too-many-ancestors
 
 
-class TestAuthFactorViewSet(ModelViewSetTestCase[AuthFactor]):
+class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
     basename = "auth-factor"
     model_view_set_class = AuthFactorViewSet
     fixtures = ["school_2", "non_school_teacher"]

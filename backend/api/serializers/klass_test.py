@@ -4,14 +4,19 @@ Created on 05/02/2024 at 15:31:59(+00:00).
 """
 
 from codeforlife.tests import ModelSerializerTestCase
-from codeforlife.user.models import Class, SchoolTeacher, SchoolTeacherUser
+from codeforlife.user.models import (
+    Class,
+    SchoolTeacher,
+    SchoolTeacherUser,
+    User,
+)
 
 from .klass import ClassSerializer
 
 # pylint: disable=missing-class-docstring
 
 
-class TestClassSerializer(ModelSerializerTestCase[Class]):
+class TestClassSerializer(ModelSerializerTestCase[User, Class]):
     model_serializer_class = ClassSerializer
     fixtures = ["school_1", "school_2"]
 

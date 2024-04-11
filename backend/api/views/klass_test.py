@@ -7,7 +7,7 @@ from datetime import timedelta
 
 from codeforlife.permissions import OR, AllowNone
 from codeforlife.tests import ModelViewSetTestCase
-from codeforlife.user.models import AdminSchoolTeacherUser, Class, Teacher
+from codeforlife.user.models import AdminSchoolTeacherUser, Class, Teacher, User
 from codeforlife.user.permissions import IsStudent, IsTeacher
 from django.utils import timezone
 from rest_framework import status
@@ -16,7 +16,7 @@ from .klass import ClassViewSet
 
 
 # pylint: disable-next=missing-class-docstring,too-many-ancestors
-class TestClassViewSet(ModelViewSetTestCase[Class]):
+class TestClassViewSet(ModelViewSetTestCase[User, Class]):
     basename = "class"
     model_view_set_class = ClassViewSet
     fixtures = ["school_1"]

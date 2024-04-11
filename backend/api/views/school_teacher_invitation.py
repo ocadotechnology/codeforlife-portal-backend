@@ -19,7 +19,9 @@ from ..serializers import (
 
 
 # pylint: disable-next=missing-class-docstring,too-many-ancestors
-class SchoolTeacherInvitationViewSet(ModelViewSet[SchoolTeacherInvitation]):
+class SchoolTeacherInvitationViewSet(
+    ModelViewSet[User, SchoolTeacherInvitation]
+):
     http_method_names = ["get", "post", "patch", "delete"]
     serializer_class = SchoolTeacherInvitationSerializer
 

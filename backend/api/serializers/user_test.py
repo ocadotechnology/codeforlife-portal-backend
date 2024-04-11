@@ -36,7 +36,7 @@ password_reset_token_generator: PasswordResetTokenGenerator = (
 # pylint: disable=missing-class-docstring
 
 
-class TestBaseUserSerializer(ModelSerializerTestCase[User]):
+class TestBaseUserSerializer(ModelSerializerTestCase[User, User]):
     model_serializer_class = BaseUserSerializer[User]
     # fixtures = ["school_1"]
 
@@ -62,7 +62,9 @@ class TestBaseUserSerializer(ModelSerializerTestCase[User]):
         raise NotImplementedError()  # TODO
 
 
-class TestCreateTeacherSerializer(ModelSerializerTestCase[IndependentUser]):
+class TestCreateTeacherSerializer(
+    ModelSerializerTestCase[User, IndependentUser]
+):
     model_serializer_class = CreateUserSerializer
 
     @patch.object(IndependentUser, "add_contact_to_dot_digital")
@@ -91,7 +93,7 @@ class TestCreateTeacherSerializer(ModelSerializerTestCase[IndependentUser]):
         add_contact_to_dot_digital.assert_called_once()
 
 
-class TestUpdateUserSerializer(ModelSerializerTestCase[User]):
+class TestUpdateUserSerializer(ModelSerializerTestCase[User, User]):
     model_serializer_class = UpdateUserSerializer
     fixtures = ["independent", "school_1"]
 
@@ -167,7 +169,9 @@ class TestUpdateUserSerializer(ModelSerializerTestCase[User]):
         )
 
 
-class TestRequestUserPasswordResetSerializer(ModelSerializerTestCase[User]):
+class TestRequestUserPasswordResetSerializer(
+    ModelSerializerTestCase[User, User]
+):
     model_serializer_class = RequestUserPasswordResetSerializer
     fixtures = ["independent", "school_1"]
 
@@ -219,7 +223,7 @@ class TestRequestUserPasswordResetSerializer(ModelSerializerTestCase[User]):
         self._test_create(self.indy_user)
 
 
-class TestResetUserPasswordSerializer(ModelSerializerTestCase[User]):
+class TestResetUserPasswordSerializer(ModelSerializerTestCase[User, User]):
     model_serializer_class = ResetUserPasswordSerializer
     # fixtures = ["school_1"]
 
