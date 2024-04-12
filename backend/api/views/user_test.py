@@ -349,7 +349,9 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
 
         other_school_teacher_user = (
             SchoolTeacherUser.objects.filter(
-                new_teacher__school=self.admin_school_1_teacher_user.teacher.school
+                new_teacher__school=(
+                    self.admin_school_1_teacher_user.teacher.school
+                )
             )
             .exclude(pk=self.admin_school_1_teacher_user.pk)
             .first()

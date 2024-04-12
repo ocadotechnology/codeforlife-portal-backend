@@ -20,6 +20,7 @@ django_settings_module = "service.settings"
 
 [tool.pylint.main]
 init-hook = "import os, sys; sys.path.append(os.getcwd())"
+disable = ["fixme", "duplicate-code"]
 
 [tool.pylint.format]
 max-line-length = 80

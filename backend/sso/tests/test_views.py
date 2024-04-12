@@ -25,6 +25,8 @@ class TestLoginView(TestCase):
 
     def _get_session(self, response: HttpResponse):
         class Session(t.NamedTuple):
+            """The data contained in session cookie."""
+
             user_id: int
             auth_factors: t.List[str]
 

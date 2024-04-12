@@ -12,7 +12,7 @@ from rest_framework import status
 from .otp_bypass_token import OtpBypassTokenViewSet
 
 
-# pylint: disable-next=missing-class-docstring
+# pylint: disable-next=missing-class-docstring,too-many-ancestors
 class TestOtpBypassTokenViewSet(ModelViewSetTestCase[User, OtpBypassToken]):
     basename = "otp-bypass-token"
     model_view_set_class = OtpBypassTokenViewSet

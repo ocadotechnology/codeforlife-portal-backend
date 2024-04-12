@@ -122,16 +122,19 @@ MODULE_NAME = os.getenv("MODULE_NAME", "local")
 
 # Domain
 def domain():
-    """Returns the full domain depending on whether it's local, dev, staging or prod."""
+    """
+    Returns the full domain depending on whether it's local, dev, staging or
+    prod.
+    """
     domain_name = "https://www.codeforlife.education"
 
     if MODULE_NAME == "local":
         domain_name = "localhost:8000"
     elif MODULE_NAME == "staging":
-        domain_name = f"https://staging-dot-decent-digit-629.appspot.com"
+        domain_name = "https://staging-dot-decent-digit-629.appspot.com"
     elif MODULE_NAME == "development":
         domain_name = (
-            f"https://development-portal-dot-decent-digit-629.appspot.com"
+            "https://development-portal-dot-decent-digit-629.appspot.com"
         )
 
     return domain_name

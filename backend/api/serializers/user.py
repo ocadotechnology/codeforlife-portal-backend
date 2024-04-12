@@ -115,10 +115,12 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
 
     def create(self, validated_data):
         add_to_newsletter: bool = validated_data.pop("add_to_newsletter")
+        # pylint: disable-next=unused-variable
         date_of_birth: date = validated_data.pop("date_of_birth")
 
         # TODO: Use date of birth in post email save signal to send
         #  appropriate verification email depending on age, cf
+        # pylint: disable-next=line-too-long
         #  https://github.com/ocadotechnology/codeforlife-portal/blob/master/portal/views/home.py#L192
 
         independent_user = IndependentUser.objects.create_user(**validated_data)
@@ -307,6 +309,7 @@ class RequestUserPasswordResetSerializer(_UserSerializer):
         user: User = validated_data["email"]
 
         # Generate reset-password url for the frontend.
+        # pylint: disable-next=unused-variable
         reset_password_url = "/".join(
             [
                 settings.SERVICE_BASE_URL,

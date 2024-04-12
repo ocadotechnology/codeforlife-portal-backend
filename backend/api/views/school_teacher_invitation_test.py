@@ -13,7 +13,7 @@ from ..models import SchoolTeacherInvitation
 from .school_teacher_invitation import SchoolTeacherInvitationViewSet
 
 
-# pylint: disable-next=missing-class-docstring
+# pylint: disable-next=missing-class-docstring,too-many-ancestors
 class TestSchoolTeacherInvitationViewSet(
     ModelViewSetTestCase[User, SchoolTeacherInvitation]
 ):

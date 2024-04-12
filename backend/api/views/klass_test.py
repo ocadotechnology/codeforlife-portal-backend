@@ -121,7 +121,8 @@ class TestClassViewSet(ModelViewSetTestCase[User, Class]):
 
     def test_create__other(self):
         """
-        Admin-teacher can create a class with another teacher as the class owner.
+        Admin-teacher can create a class with another teacher as the class
+        owner.
         """
         user = self.admin_school_teacher_user
         teacher = (
