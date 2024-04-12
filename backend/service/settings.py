@@ -239,5 +239,6 @@ INSTALLED_APPS = [
     "two_factor",
     "preventconcurrentlogins",
     "sso",
+    "rapid_router",
     *INSTALLED_APPS,
 ]

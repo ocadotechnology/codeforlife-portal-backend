@@ -5,12 +5,12 @@ Created on 23/01/2024 at 11:05:37(+00:00).
 
 import pyotp
 from codeforlife.serializers import ModelSerializer
-from codeforlife.user.models import AuthFactor
+from codeforlife.user.models import AuthFactor, User
 from rest_framework import serializers
 
 
 # pylint: disable-next=missing-class-docstring
-class AuthFactorSerializer(ModelSerializer[AuthFactor]):
+class AuthFactorSerializer(ModelSerializer[User, AuthFactor]):
     class Meta:
         model = AuthFactor
         fields = [

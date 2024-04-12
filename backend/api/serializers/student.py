@@ -8,7 +8,7 @@ from itertools import groupby
 
 from codeforlife.serializers import ModelListSerializer
 from codeforlife.types import DataDict
-from codeforlife.user.models import Class, Student, StudentUser
+from codeforlife.user.models import Class, Student, StudentUser, User
 from codeforlife.user.serializers import StudentSerializer
 from django.db.models.functions import Lower
 from rest_framework import serializers
@@ -25,7 +25,7 @@ from .user import BaseUserSerializer
 # ------------------------------------------------------------------------------
 
 
-class BaseStudentListSerializer(ModelListSerializer[Student]):
+class BaseStudentListSerializer(ModelListSerializer[User, Student]):
     """To be inherited by all student list serializers."""
 
     def _validate_first_names_are_unique_in_class(
