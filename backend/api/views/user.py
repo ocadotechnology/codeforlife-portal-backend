@@ -81,20 +81,7 @@ class UserViewSet(_UserViewSet):
         return queryset
 
     def destroy(self, request, *args, **kwargs):
-        user = self.get_object()
-        user.first_name = ""
-        user.last_name = ""
-        user.email = ""
-        user.is_active = False
-        user.save(
-            update_fields=[
-                "first_name",
-                "last_name",
-                "email",
-                "username",
-                "is_active",
-            ]
-        )
+        self.get_object().anonymize()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
