@@ -25,6 +25,7 @@ class OtpBypassTokenViewSet(ModelViewSet[User, OtpBypassToken]):
 
         return [IsTeacher()]
 
+    # TODO: replace this custom action with bulk create and list serializer.
     @action(detail=False, methods=["post"])
     def generate(self, request: Request):
         """Generates some OTP bypass tokens for a user."""
