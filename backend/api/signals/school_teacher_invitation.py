@@ -18,5 +18,5 @@ def school_teacher_invitation__post_save(
 ):
     """Send invitation email to invited teacher."""
 
-    instance._token  # TODO: send email to invited teacher with differing
+    # instance._token  TODO: send email to invited teacher with differing
     # content based on whether the email is already linked to an account or not.

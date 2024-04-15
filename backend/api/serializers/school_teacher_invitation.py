@@ -49,6 +49,7 @@ class SchoolTeacherInvitationSerializer(
         validated_data["expiry"] = timezone.now() + timedelta(days=30)
 
         invitation = super().create(validated_data)
+        # pylint: disable-next=protected-access
         invitation._token = token
         return invitation
 

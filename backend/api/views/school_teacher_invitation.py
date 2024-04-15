@@ -54,7 +54,7 @@ class SchoolTeacherInvitationViewSet(
     @action(
         detail=True, methods=["get", "post"], url_path="accept/(?P<token>.+)"
     )
-    def accept(self, request: Request, pk: str, token: str):
+    def accept(self, request: Request, token: str, **kwargs: str):
         """
         Handles accepting a teacher's invitation to join their school. On GET,
         checks validity of the invitation token. On PATCH, rechecks this

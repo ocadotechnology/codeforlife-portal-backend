@@ -10,6 +10,8 @@ from rest_framework.request import Request
 
 
 class UserHasSessionAuthFactors(BasePermission):
+    """The user must have pending session auth factors."""
+
     def has_permission(self, request: Request, view: View):
         return (
             isinstance(request.user, User)
