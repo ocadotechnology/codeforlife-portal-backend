@@ -8,7 +8,7 @@ from datetime import datetime
 
 from codeforlife.serializers import ModelListSerializer, ModelSerializer
 from codeforlife.user.models import Class
-from common.models import DailyActivity
+from common.models import DailyActivity  # type: ignore[import-untyped]
 from django.db.models.query import QuerySet
 from rest_framework import serializers
 
