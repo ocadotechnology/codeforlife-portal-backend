@@ -3,7 +3,7 @@
 Created on 24/01/2024 at 09:47:04(+00:00).
 """
 
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from codeforlife.tests import ModelViewSetTestCase
 from codeforlife.user.models import OtpBypassToken, User
@@ -16,28 +16,20 @@ from .otp_bypass_token import OtpBypassTokenViewSet
 class TestOtpBypassTokenViewSet(ModelViewSetTestCase[User, OtpBypassToken]):
     basename = "otp-bypass-token"
     model_view_set_class = OtpBypassTokenViewSet
+    fixtures = ["school_2"]
 
     def setUp(self):
-        self.user = User.objects.get(email="alberteinstein@codeforlife.com")
-        assert not self.user.otp_bypass_tokens.exists()
-
-        self.otp_bypass_tokens = OtpBypassToken.objects.bulk_create(
-            [
-                OtpBypassToken(user=self.user, token=token)
-                for token in OtpBypassToken.generate_tokens()
-            ]
-        )
+        user = User.objects.filter(otp_bypass_tokens__isnull=False).first()
+        assert user
+        self.user = user
 
     def test_generate(self):
-        """
-        Generate max number of OTP bypass tokens.
-        """
-
-        user = self.client.login_teacher(
-            email="alberteinstein@codeforlife.com",
-            password="Password1",
+        """Generate max number of OTP bypass tokens."""
+        otp_bypass_token_pks = list(
+            self.user.otp_bypass_tokens.values_list("pk", flat=True)
         )
-        assert user == self.user
+
+        self.client.login(email=self.user.email, password="password")
 
         tokens = {
             "aaaaaaaa",
@@ -51,34 +43,36 @@ class TestOtpBypassTokenViewSet(ModelViewSetTestCase[User, OtpBypassToken]):
             "iiiiiiii",
             "jjjjjjjj",
         }
-        assert len(tokens) == OtpBypassToken.max_count
 
-        with patch.object(
-            OtpBypassToken, "generate_tokens", return_value=tokens
-        ) as generate_tokens:
+        with patch(
+            "codeforlife.user.models.otp_bypass_token.get_random_string",
+            side_effect=list(tokens),
+        ) as get_random_string:
             response = self.client.post(
                 self.reverse_action("generate"),
                 status_code_assertion=status.HTTP_201_CREATED,
             )
 
-            generate_tokens.assert_called_once()
+            get_random_string.assert_has_calls(
+                [
+                    call(
+                        OtpBypassToken.length,
+                        OtpBypassToken.allowed_chars,
+                    )
+                    for _ in range(len(tokens))
+                ]
+            )
 
         # We received the expected tokens.
         assert set(response.json()) == tokens
 
         # The user's pre-existing tokens were deleted.
-        assert (
-            OtpBypassToken.objects.filter(
-                pk__in=[
-                    otp_bypass_token.pk
-                    for otp_bypass_token in self.otp_bypass_tokens
-                ]
-            ).count()
-            == 0
-        )
+        assert not OtpBypassToken.objects.filter(
+            pk__in=otp_bypass_token_pks
+        ).exists()
 
         # The new tokens all check out.
-        for otp_bypass_token in OtpBypassToken.objects.filter(user=user):
+        for otp_bypass_token in self.user.otp_bypass_tokens.all():
             found_token = False
             for token in tokens.copy():
                 found_token = otp_bypass_token.check_token(token)
