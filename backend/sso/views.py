@@ -120,9 +120,12 @@ class LoginView(_LoginView):
 
 
 class LoginOptionsView(APIView):
+    """Get the login options available to a user."""
+
     http_method_names = ["get"]
     permission_classes = [UserHasSessionAuthFactors]
 
+    # pylint: disable-next=missing-function-docstring
     def get(self, request: Request):
         user = t.cast(User, request.user)
 

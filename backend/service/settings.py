@@ -79,7 +79,10 @@ MODULE_NAME = os.getenv("MODULE_NAME", "local")
 # Domain
 # TODO: Check if CSP still needs it after it's revisited
 # def domain():
-#     """Returns the full domain depending on whether it's local, dev, staging or prod."""
+#     """
+#     Returns the full domain depending on whether it's local, dev, staging or
+#     prod.
+#     """
 #     domain_name = "https://www.codeforlife.education"
 #
 #     if MODULE_NAME == "local":

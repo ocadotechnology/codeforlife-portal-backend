@@ -25,18 +25,16 @@ class OtpBypassTokenViewSet(ModelViewSet[User, OtpBypassToken]):
 
         return [IsTeacher()]
 
+    # TODO: replace this custom action with bulk create and list serializer.
     @action(detail=False, methods=["post"])
     def generate(self, request: Request):
         """Generates some OTP bypass tokens for a user."""
-
-        user = request.auth_user
-
-        OtpBypassToken.objects.filter(user=user).delete()
-
-        tokens = OtpBypassToken.generate_tokens()
-
-        OtpBypassToken.objects.bulk_create(
-            [OtpBypassToken(user=user, token=token) for token in tokens]
+        otp_bypass_tokens = OtpBypassToken.objects.bulk_create(
+            request.auth_user
         )
 
-        return Response(tokens, status.HTTP_201_CREATED)
+        return Response(
+            # pylint: disable-next=protected-access
+            [otp_bypass_token._token for otp_bypass_token in otp_bypass_tokens],
+            status.HTTP_201_CREATED,
+        )

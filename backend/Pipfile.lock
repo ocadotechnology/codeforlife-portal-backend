@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f69e265e574d3dc5d016d3a97d1ed2a16e11d169bc553c1709ba54ffa4eaaf78"
+            "sha256": "e91eb245b8b5f1cac274126ce14828f456740ff92d46f35f35b35e91b9d57fb5"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -168,7 +168,7 @@
         },
         "codeforlife": {
             "git": "https://github.com/ocadotechnology/codeforlife-package-python.git",
-            "ref": "10e6f115a2b4f7ae66550ab1aaab62fa8657e658"
+            "ref": "5ee65dd8b8fc716ca0b8a7dd8411cc3fd790ac46"
         },
         "codeforlife-portal": {
             "hashes": [
@@ -806,6 +806,7 @@
                 "sha256:a6f5977418eff3b2d5500d54d9db50c8277a368436f4e4f8ddb1be3422870184",
                 "sha256:f91456ead12ab3c6c2e9491cf33ba6d08357d802192379bb482f1033ade496f5"
             ],
+            "markers": "python_version >= '3.6'",
             "version": "==3.1.2"
         },
         "pandas": {
@@ -1304,6 +1305,7 @@
                 "sha256:6a33ee89877bd9abc1158129f6e94be74e2679636b8a205b43b85206c3f0bbdd",
                 "sha256:f72f148f54442c6b056bf931dbc34f986fd0c3b0b6b5a58d013c9aef274d0c88"
             ],
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
             "version": "==2.0.1"
         },
         "xlwt": {
@@ -1512,7 +1514,7 @@
         },
         "codeforlife": {
             "git": "https://github.com/ocadotechnology/codeforlife-package-python.git",
-            "ref": "10e6f115a2b4f7ae66550ab1aaab62fa8657e658"
+            "ref": "5ee65dd8b8fc716ca0b8a7dd8411cc3fd790ac46"
         },
         "codeforlife-portal": {
             "hashes": [
@@ -2184,6 +2186,7 @@
                 "sha256:a6f5977418eff3b2d5500d54d9db50c8277a368436f4e4f8ddb1be3422870184",
                 "sha256:f91456ead12ab3c6c2e9491cf33ba6d08357d802192379bb482f1033ade496f5"
             ],
+            "markers": "python_version >= '3.6'",
             "version": "==3.1.2"
         },
         "packaging": {
@@ -2895,6 +2898,7 @@
                 "sha256:6a33ee89877bd9abc1158129f6e94be74e2679636b8a205b43b85206c3f0bbdd",
                 "sha256:f72f148f54442c6b056bf931dbc34f986fd0c3b0b6b5a58d013c9aef274d0c88"
             ],
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
             "version": "==2.0.1"
         },
         "xlwt": {

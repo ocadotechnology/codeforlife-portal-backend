@@ -11,7 +11,7 @@ from codeforlife.user.permissions import IsStudent, IsTeacher
 from .school import SchoolViewSet
 
 
-# pylint: disable-next=missing-class-docstring
+# pylint: disable-next=missing-class-docstring,too-many-ancestors
 class TestSchoolViewSet(ModelViewSetTestCase[User, School]):
     basename = "school"
     model_view_set_class = SchoolViewSet

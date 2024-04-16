@@ -20,12 +20,13 @@ django_settings_module = "service.settings"
 
 [tool.pylint.main]
 init-hook = "import os, sys; sys.path.append(os.getcwd())"
+disable = ["fixme"]
 
 [tool.pylint.format]
 max-line-length = 80
 
 [tool.pylint.MASTER]
-ignore-paths = [".*/migrations/.*py"]
+ignore-paths = [".*/migrations/.*.py"]
 load-plugins = "pylint_django"
 django-settings-module = "service.settings"
 

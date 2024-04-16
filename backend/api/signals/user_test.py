@@ -7,6 +7,7 @@ from codeforlife.user.models import User, UserProfile
 from django.test import TestCase
 
 
+# pylint: disable-next=missing-class-docstring
 class TestUser(TestCase):
     def test_pre_save__otp_secret(self):
         """
