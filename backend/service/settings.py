@@ -54,18 +54,29 @@ STATIC_ROOT = BASE_DIR / "static"
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "portal/static"]
 STATICFILES_FINDERS = [
+    "pipeline.finders.PipelineFinder", # TODO: Remove - needed by RR.
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
+# TODO: Remove - needed by RR.
+# STATICFILES_STORAGE = "pipeline.storage.PipelineStorage"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Custom
 MEDIA_ROOT = os.path.join(STATIC_ROOT, "email_media/")
 LOGIN_REDIRECT_URL = "/teach/dashboard/"
+# TODO: Remove - needed by RR.
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 SILENCED_SYSTEM_CHECKS = ["captcha.recaptcha_test_key_error"]
 RECAPTCHA_DOMAIN = "www.recaptcha.net"
+# TODO: Remove - needed by RR.
+MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 PASSWORD_RESET_TIMEOUT = 3600
+
+# TODO: Remove - needed by RR.
+PIPELINE_ENABLED = False
+PIPELINE = {}
 
 # This is used in common to enable/disable the OneTrust cookie management script
 COOKIE_MANAGEMENT_ENABLED = False
@@ -78,126 +89,126 @@ MODULE_NAME = os.getenv("MODULE_NAME", "local")
 
 # Domain
 # TODO: Check if CSP still needs it after it's revisited
-# def domain():
-#     """
-#     Returns the full domain depending on whether it's local, dev, staging or
-#     prod.
-#     """
-#     domain_name = "https://www.codeforlife.education"
-#
-#     if MODULE_NAME == "local":
-#         domain_name = "localhost:8000"
-#     elif MODULE_NAME == "staging":
-#         domain_name = f"https://staging-dot-decent-digit-629.appspot.com"
-#     elif MODULE_NAME == "development":
-#         domain_name = (
-#             f"https://development-portal-dot-decent-digit-629.appspot.com"
-#         )
-#
-#     return domain_name
+def domain():
+    """
+    Returns the full domain depending on whether it's local, dev, staging or
+    prod.
+    """
+    domain_name = "https://www.codeforlife.education"
+
+    if MODULE_NAME == "local":
+        domain_name = "localhost:8000"
+    elif MODULE_NAME == "staging":
+        domain_name = f"https://staging-dot-decent-digit-629.appspot.com"
+    elif MODULE_NAME == "development":
+        domain_name = (
+            f"https://development-portal-dot-decent-digit-629.appspot.com"
+        )
+
+    return domain_name
 
 
 # CSP
 # TODO: A lot of the links mentioned in the CSP will not be relevant with the
 #  new system anymore. Update and clean the CSP settings once the frontend
-#  has been done.
-# CSP_DEFAULT_SRC = ("self",)
-# CSP_CONNECT_SRC = (
-#     "'self'",
-#     "https://api.pwnedpasswords.com",
-#     "https://*.onetrust.com/",
-#     "https://euc-widget.freshworks.com/",
-#     "https://codeforlife.freshdesk.com/",
-#     "https://api.iconify.design/",
-#     "https://api.simplesvg.com/",
-#     "https://api.unisvg.com/",
-#     "https://www.google-analytics.com/",
-#     "https://region1.google-analytics.com/g/",
-#     "https://pyodide-cdn2.iodide.io/v0.15.0/full/",
-#     "https://crowdin.com/",
-#     "https://o2.mouseflow.com/",
-#     "https://stats.g.doubleclick.net/",
-#     f"wss://{MODULE_NAME}-aimmo.codeforlife.education/",
-#     f"https://{MODULE_NAME}-aimmo.codeforlife.education/",
-# )
-# CSP_FONT_SRC = (
-#     "'self'",
-#     "https://fonts.gstatic.com/",
-#     "https://fonts.googleapis.com/",
-#     "https://use.typekit.net/",
-# )
-# CSP_SCRIPT_SRC = (
-#     "'self'",
-#     "'unsafe-inline'",
-#     "'unsafe-eval'",
-#     "https://cdn.crowdin.com/",
-#     "https://*.onetrust.com/",
-#     "https://code.jquery.com/",
-#     "https://euc-widget.freshworks.com/",
-#     "https://cdn-ukwest.onetrust.com/",
-#     "https://code.iconify.design/2/2.0.3/iconify.min.js",
-#     "https://www.googletagmanager.com/",
-#     "https://www.google-analytics.com/analytics.js",
-#     "https://cdn.mouseflow.com/",
-#     "https://www.recaptcha.net/",
-#     "https://www.google.com/recaptcha/",
-#     "https://www.gstatic.com/recaptcha/",
-#     "https://use.typekit.net/mrl4ieu.js",
-#     "https://pyodide-cdn2.iodide.io/v0.15.0/full/",
-#     f"{domain()}/static/portal/",
-#     f"{domain()}/static/common/",
-#     "https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js",
-# )
-# CSP_STYLE_SRC = (
-#     "'self'",
-#     "'unsafe-inline'",
-#     "https://euc-widget.freshworks.com/",
-#     "https://cdn-ukwest.onetrust.com/",
-#     "https://fonts.googleapis.com/",
-#     "https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css",
-#     "https://cdn.crowdin.com/",
-#     f"{domain()}/static/portal/",
-# )
-# CSP_FRAME_SRC = (
-#     "https://storage.googleapis.com/",
-#     "https://www.youtube-nocookie.com/",
-#     "https://www.recaptcha.net/",
-#     "https://www.google.com/recaptcha/",
-#     "https://crowdin.com/",
-#     f"{domain()}/static/common/img/",
-#     f"{domain()}/static/game/image/",
-# )
-# CSP_IMG_SRC = (
-#     "https://storage.googleapis.com/codeforlife-assets/images/",
-#     "https://cdn-ukwest.onetrust.com/",
-#     "https://p.typekit.net/",
-#     "https://cdn.crowdin.com/",
-#     "https://crowdin-static.downloads.crowdin.com/",
-#     "https://www.google-analytics.com/",
-#     "data:",
-#     f"{domain()}/static/portal/img/",
-#     f"{domain()}/static/portal/static/portal/img/",
-#     f"{domain()}/static/portal/img/",
-#     f"{domain()}/favicon.ico",
-#     f"{domain()}/img/",
-#     f"{domain()}/account/two_factor/qrcode/",
-#     f"{domain()}/static/",
-#     f"{domain()}/static/game/image/",
-#     f"{domain()}/static/game/raphael_image/",
-#     f"{domain()}/static/game/js/blockly/media/",
-#     f"{domain()}/static/icons/",
-# )
-# CSP_OBJECT_SRC = (
-#     f"{domain()}/static/common/img/",
-#     f"{domain()}/static/game/image/",
-# )
-# CSP_MEDIA_SRC = (
-#     f"{domain()}/static/react/",
-#     f"{domain()}/static/game/sound/",
-#     f"{domain()}/static/game/js/blockly/media/",
-#     f"{domain()}/static/portal/video/",
-# )
-# CSP_MANIFEST_SRC = (f"{domain()}/static/manifest.json",)
+#  has been done. Currently still needed for RR.
+CSP_DEFAULT_SRC = ("self",)
+CSP_CONNECT_SRC = (
+    "'self'",
+    "https://api.pwnedpasswords.com",
+    "https://*.onetrust.com/",
+    "https://euc-widget.freshworks.com/",
+    "https://codeforlife.freshdesk.com/",
+    "https://api.iconify.design/",
+    "https://api.simplesvg.com/",
+    "https://api.unisvg.com/",
+    "https://www.google-analytics.com/",
+    "https://region1.google-analytics.com/g/",
+    "https://pyodide-cdn2.iodide.io/v0.15.0/full/",
+    "https://crowdin.com/",
+    "https://o2.mouseflow.com/",
+    "https://stats.g.doubleclick.net/",
+    f"wss://{MODULE_NAME}-aimmo.codeforlife.education/",
+    f"https://{MODULE_NAME}-aimmo.codeforlife.education/",
+)
+CSP_FONT_SRC = (
+    "'self'",
+    "https://fonts.gstatic.com/",
+    "https://fonts.googleapis.com/",
+    "https://use.typekit.net/",
+)
+CSP_SCRIPT_SRC = (
+    "'self'",
+    "'unsafe-inline'",
+    "'unsafe-eval'",
+    "https://cdn.crowdin.com/",
+    "https://*.onetrust.com/",
+    "https://code.jquery.com/",
+    "https://euc-widget.freshworks.com/",
+    "https://cdn-ukwest.onetrust.com/",
+    "https://code.iconify.design/2/2.0.3/iconify.min.js",
+    "https://www.googletagmanager.com/",
+    "https://www.google-analytics.com/analytics.js",
+    "https://cdn.mouseflow.com/",
+    "https://www.recaptcha.net/",
+    "https://www.google.com/recaptcha/",
+    "https://www.gstatic.com/recaptcha/",
+    "https://use.typekit.net/mrl4ieu.js",
+    "https://pyodide-cdn2.iodide.io/v0.15.0/full/",
+    f"{domain()}/static/portal/",
+    f"{domain()}/static/common/",
+    "https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js",
+)
+CSP_STYLE_SRC = (
+    "'self'",
+    "'unsafe-inline'",
+    "https://euc-widget.freshworks.com/",
+    "https://cdn-ukwest.onetrust.com/",
+    "https://fonts.googleapis.com/",
+    "https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css",
+    "https://cdn.crowdin.com/",
+    f"{domain()}/static/portal/",
+)
+CSP_FRAME_SRC = (
+    "https://storage.googleapis.com/",
+    "https://www.youtube-nocookie.com/",
+    "https://www.recaptcha.net/",
+    "https://www.google.com/recaptcha/",
+    "https://crowdin.com/",
+    f"{domain()}/static/common/img/",
+    f"{domain()}/static/game/image/",
+)
+CSP_IMG_SRC = (
+    "https://storage.googleapis.com/codeforlife-assets/images/",
+    "https://cdn-ukwest.onetrust.com/",
+    "https://p.typekit.net/",
+    "https://cdn.crowdin.com/",
+    "https://crowdin-static.downloads.crowdin.com/",
+    "https://www.google-analytics.com/",
+    "data:",
+    f"{domain()}/static/portal/img/",
+    f"{domain()}/static/portal/static/portal/img/",
+    f"{domain()}/static/portal/img/",
+    f"{domain()}/favicon.ico",
+    f"{domain()}/img/",
+    f"{domain()}/account/two_factor/qrcode/",
+    f"{domain()}/static/",
+    f"{domain()}/static/game/image/",
+    f"{domain()}/static/game/raphael_image/",
+    f"{domain()}/static/game/js/blockly/media/",
+    f"{domain()}/static/icons/",
+)
+CSP_OBJECT_SRC = (
+    f"{domain()}/static/common/img/",
+    f"{domain()}/static/game/image/",
+)
+CSP_MEDIA_SRC = (
+    f"{domain()}/static/react/",
+    f"{domain()}/static/game/sound/",
+    f"{domain()}/static/game/js/blockly/media/",
+    f"{domain()}/static/portal/video/",
+)
+CSP_MANIFEST_SRC = (f"{domain()}/static/manifest.json",)
 
 # pylint: disable-next=wrong-import-position,wildcard-import,unused-wildcard-import
 from codeforlife.settings import *
@@ -208,6 +219,7 @@ MIDDLEWARE = [
     # "deploy.middleware.admin_access.AdminAccessMiddleware",
     # "deploy.middleware.security.CustomSecurityMiddleware",
     # "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
     # "deploy.middleware.session_timeout.SessionTimeoutMiddleware",
     # "deploy.middleware.exceptionlogging.ExceptionLoggingMiddleware",
     # "django_otp.middleware.OTPMiddleware",
