@@ -64,20 +64,20 @@ class LoginView(_LoginView):
         raise NameError(f'Unsupported form: "{form}".')
 
     def form_valid(self, form: BaseAuthForm):  # type: ignore
-        if form.user is None:
-            raise ValueError("User should NOT be none.")
+        user = form.user
 
         # Clear expired sessions.
-        self.request.session.clear_expired(form.user.pk)
+        self.request.session.clear_expired(user.pk)
 
         # Create session (without data).
-        login(self.request, form.user)
-        user = self.request.user
+        login(self.request, user)
 
         # TODO: use google analytics
-        user_session = {"user": form.user}
+        user_session: t.Dict[str, t.Any] = {"user": user}
         if self.get_form_class() in [UsernameAuthForm, UserIdAuthForm]:
-            user_session["class_field"] = form.user.new_student.class_field
+            user_session[
+                "class_field"
+            ] = user.new_student.class_field  # type: ignore[attr-defined]
             user_session["login_type"] = (
                 "direct" if "user_id" in self.request.POST else "classform"
             )
@@ -108,7 +108,10 @@ class LoginView(_LoginView):
                 else settings.SESSION_COOKIE_AGE
             ),
             secure=settings.SESSION_COOKIE_SECURE,
-            samesite=settings.SESSION_COOKIE_SAMESITE,
+            samesite=t.cast(
+                t.Optional[t.Literal["Lax", "Strict", "None", False]],
+                settings.SESSION_COOKIE_SAMESITE,
+            ),
             domain=settings.SESSION_COOKIE_DOMAIN,
             httponly=False,
         )

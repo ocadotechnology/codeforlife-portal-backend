@@ -1,3 +1,5 @@
+# TODO: remove this in new system
+# mypy: disable-error-code="import-untyped"
 """
 © Ocado Group
 Created on 05/04/2024 at 12:40:10(+01:00).

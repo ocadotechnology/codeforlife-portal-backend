@@ -113,7 +113,7 @@ COOKIE_MANAGEMENT_ENABLED = False
 AUTOCONFIG_INDEX_VIEW = "home"
 SITE_ID = 1
 
-PIPELINE = {}
+PIPELINE = {}  # type: ignore[var-annotated]
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
