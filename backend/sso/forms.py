@@ -3,11 +3,10 @@
 Created on 01/12/2023 at 16:00:24(+00:00).
 """
 
-import typing as t
 
+from codeforlife.user.models import User
 from django import forms
 from django.contrib.auth import authenticate
-from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.forms import UsernameField
 from django.core.exceptions import ValidationError
 from django.core.handlers.wsgi import WSGIRequest
@@ -19,9 +18,10 @@ class BaseAuthForm(forms.Form):
     Base authentication form that all other authentication forms must inherit.
     """
 
+    user: User
+
     def __init__(self, request: WSGIRequest, *args, **kwargs):
         self.request = request
-        self.user: t.Optional[AbstractBaseUser] = None
         super().__init__(*args, **kwargs)
 
     def clean(self):
@@ -42,16 +42,23 @@ class BaseAuthForm(forms.Form):
                 code="form_errors",
             )
 
-        self.user = authenticate(
+        user = authenticate(
             self.request,
             **{key: self.cleaned_data[key] for key in self.fields.keys()}
         )
-        if self.user is None:
+        if user is None:
             raise ValidationError(
                 self.get_invalid_login_error_message(),
                 code="invalid_login",
             )
-        if not self.user.is_active:
+        if not isinstance(user, User):
+            raise ValidationError(
+                "Incorrect user class.",
+                code="incorrect_user_class",
+            )
+        self.user = user
+
+        if not user.is_active:
             raise ValidationError(
                 "User is not active",
                 code="user_not_active",

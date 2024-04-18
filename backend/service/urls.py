@@ -14,10 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from aimmo import urls as aimmo_urls
+from aimmo import urls as aimmo_urls  # type: ignore[import-untyped]
 from codeforlife.urls import service_urlpatterns
 from django.urls import include, path
-from portal.views.aimmo.dashboard import (
+from portal.views.aimmo.dashboard import (  # type: ignore[import-untyped]
     StudentAimmoDashboard,
     TeacherAimmoDashboard,
 )

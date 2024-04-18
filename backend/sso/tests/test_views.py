@@ -8,17 +8,19 @@ import typing as t
 from unittest.mock import patch
 
 import pyotp
-from codeforlife.tests import CronTestCase
+from codeforlife.tests import Client, CronTestCase, TestCase
 from codeforlife.user.models import AuthFactor, User
 from django.core import management
 from django.http import HttpResponse
-from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
 
 class TestLoginView(TestCase):
     """Test the login view."""
+
+    client: Client
+    client_class = Client
 
     def setUp(self):
         self.user = User.objects.get(id=2)
