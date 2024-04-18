@@ -17,25 +17,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Application definition
 
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.contrib.auth.context_processors.auth",
-                "django.template.context_processors.request",
-                "django.contrib.messages.context_processors.messages",
-                "sekizai.context_processors.sekizai",
-                "common.context_processors.module_name",
-                "common.context_processors.cookie_management_enabled",
-                # TODO: use when integrating dotmailer
-                # "portal.context_processors.process_newsletter_form",
-            ]
-        },
-    }
-]
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -54,29 +35,17 @@ STATIC_ROOT = BASE_DIR / "static"
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "portal/static"]
 STATICFILES_FINDERS = [
-    "pipeline.finders.PipelineFinder", # TODO: Remove - needed by RR.
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
-# TODO: Remove - needed by RR.
-# STATICFILES_STORAGE = "pipeline.storage.PipelineStorage"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Custom
 MEDIA_ROOT = os.path.join(STATIC_ROOT, "email_media/")
 LOGIN_REDIRECT_URL = "/teach/dashboard/"
-# TODO: Remove - needed by RR.
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 SILENCED_SYSTEM_CHECKS = ["captcha.recaptcha_test_key_error"]
 RECAPTCHA_DOMAIN = "www.recaptcha.net"
-# TODO: Remove - needed by RR.
-MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 PASSWORD_RESET_TIMEOUT = 3600
-
-# TODO: Remove - needed by RR.
-PIPELINE_ENABLED = False
-PIPELINE = {}
 
 # This is used in common to enable/disable the OneTrust cookie management script
 COOKIE_MANAGEMENT_ENABLED = False
@@ -86,6 +55,69 @@ SITE_ID = 1
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 MODULE_NAME = os.getenv("MODULE_NAME", "local")
+
+"""RAPID ROUTER SETTINGS"""
+# TODO: The settings in this section are needed for the old Rapid Router
+#  package.
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.request",
+                "django.contrib.messages.context_processors.messages",
+                "sekizai.context_processors.sekizai",
+                # TODO: replace in new system and remove here
+                # "common.context_processors.module_name",
+                # "common.context_processors.cookie_management_enabled",
+                # TODO: use when integrating dotmailer
+                # "portal.context_processors.process_newsletter_form",
+            ]
+        },
+    }
+]
+
+MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+rel = lambda rel_path: os.path.join(BASE_DIR, rel_path)
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATICFILES_FINDERS += ["pipeline.finders.PipelineFinder"]
+STATICFILES_STORAGE = "pipeline.storage.PipelineStorage"
+
+PIPELINE_ENABLED = False  # True if assets should be compressed, False if not.
+
+PIPELINE = {
+    "COMPILERS": ("portal.pipeline_compilers.LibSassCompiler",),
+    "STYLESHEETS": {
+        "css": {
+            "source_filenames": (
+                rel("static/portal/sass/bootstrap.scss"),
+                rel("static/portal/sass/colorbox.scss"),
+                rel("static/portal/sass/styles.scss"),
+                rel("static/game/css/level_selection.css"),
+                rel("static/game/css/backgrounds.css"),
+            ),
+            "output_filename": "portal.css",
+        },
+        "game-scss": {
+            "source_filenames": (rel("static/game/sass/game.scss"),),
+            "output_filename": "game.css",
+        },
+        "popup": {
+            "source_filenames": (
+                rel("static/portal/sass/partials/_popup.scss"),
+            ),
+            "output_filename": "popup.css",
+        },
+    },
+    "CSS_COMPRESSOR": None,
+    "SASS_ARGUMENTS": "--quiet",
+}
+"""END OF RAPID ROUTER SETTINGS"""
 
 # Domain
 # TODO: Check if CSP still needs it after it's revisited
@@ -99,10 +131,10 @@ def domain():
     if MODULE_NAME == "local":
         domain_name = "localhost:8000"
     elif MODULE_NAME == "staging":
-        domain_name = f"https://staging-dot-decent-digit-629.appspot.com"
+        domain_name = "https://staging-dot-decent-digit-629.appspot.com"
     elif MODULE_NAME == "development":
         domain_name = (
-            f"https://development-portal-dot-decent-digit-629.appspot.com"
+            "https://development-portal-dot-decent-digit-629.appspot.com"
         )
 
     return domain_name
@@ -218,7 +250,6 @@ MIDDLEWARE = [
     *MIDDLEWARE,
     # "deploy.middleware.admin_access.AdminAccessMiddleware",
     # "deploy.middleware.security.CustomSecurityMiddleware",
-    # "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     # "deploy.middleware.session_timeout.SessionTimeoutMiddleware",
     # "deploy.middleware.exceptionlogging.ExceptionLoggingMiddleware",

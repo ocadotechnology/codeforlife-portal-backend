@@ -11,15 +11,6 @@ printf "\nBuilding front end\n\n"
 
 yarn run build
 
-printf "\nBundling front end\n\n"
-
-if [ "$NODE_ENV" != "production" ]
-then
-  node djangoBundler.js &
-else
-  node djangoBundler.js
-fi
-
 cd ../backend
 
 export SERVICE_NAME="portal"
