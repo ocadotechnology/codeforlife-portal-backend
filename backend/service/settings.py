@@ -58,7 +58,7 @@ MODULE_NAME = os.getenv("MODULE_NAME", "local")
 
 """RAPID ROUTER SETTINGS"""
 # TODO: The settings in this section are needed for the old Rapid Router
-#  package.
+#  package. Remove once RR has moved to the new system.
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
