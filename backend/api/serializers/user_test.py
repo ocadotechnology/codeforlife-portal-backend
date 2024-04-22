@@ -2,6 +2,7 @@
 © Ocado Group
 Created on 31/01/2024 at 16:07:32(+00:00).
 """
+import typing as t
 from datetime import date
 from unittest.mock import Mock, patch
 
@@ -51,15 +52,92 @@ class TestBaseUserSerializer(ModelSerializerTestCase[User, User]):
             error_code="already_exists",
         )
 
+    def _test_validate_password(
+        self,
+        user: User,
+        instance: t.Optional[User],
+        context: t.Optional[t.Dict[str, t.Any]] = None,
+    ):
+        serializer: BaseUserSerializer = BaseUserSerializer(
+            instance=instance, context=context or {}
+        )
+        password = "password"
+
+        with patch(
+            "api.serializers.user._validate_password"
+        ) as validate_password:
+            serializer.validate_password(password)
+
+            validate_password.assert_called_once_with(password, user)
+
+    def _test_validate_password__new_user(self, user_type: str):
+        user = User()
+        with patch(
+            "api.serializers.user.User", return_value=user
+        ) as user_class:
+            self._test_validate_password(
+                user=user, instance=None, context={"user_type": user_type}
+            )
+            user_class.assert_called_once()
+
+        return user
+
     def test_validate_password(self):
         """
         Password is validated using django's installed password-validators.
+        Validate the password of a new user requires the user type as context.
         """
-        raise NotImplementedError()  # TODO
+        user = User.objects.first()
+        assert user
+
+        self._test_validate_password(user, user)
+
+        user = self._test_validate_password__new_user(user_type="teacher")
+        assert user.teacher
+        user = self._test_validate_password__new_user(user_type="student")
+        assert user.student
+        assert user.student.class_field
+        user = self._test_validate_password__new_user(user_type="independent")
+        assert user.student
+        assert not user.student.class_field
+
+    def test_validate_password__invalid_password(self):
+        """Validation errors are raised as serializer validation errors."""
+        user = User.objects.first()
+        assert user
+
+        self.assert_validate_field(
+            name="password",
+            error_code="invalid_password",
+            value="password",
+            instance=user,
+        )
 
     def test_update(self):
         """Updating a user's password saves the password's hash."""
-        raise NotImplementedError()  # TODO
+        user = User.objects.first()
+        assert user
+
+        password = "new password"
+        assert not user.check_password(password)
+
+        with patch.object(
+            user, "set_password", side_effect=user.set_password
+        ) as set_password:
+            with patch(
+                "django.contrib.auth.base_user.make_password",
+                # pylint: disable-next=line-too-long
+                return_value="pbkdf2_sha256$260000$YhuqwOQ2ft23coLMAx21Cx$CO/BbBPLo/1TFNSaMjAJ2fXGSD1wMQZ/qusx6nf5sJk=",
+            ) as user_make_password:
+                self.assert_update(
+                    instance=user,
+                    validated_data={"password": password},
+                    new_data={"password": user_make_password.return_value},
+                )
+
+            set_password.assert_called_once_with(password)
+
+        assert user.check_password(password)
 
 
 class TestCreateTeacherSerializer(

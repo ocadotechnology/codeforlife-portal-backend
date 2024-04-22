@@ -77,7 +77,9 @@ class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
         try:
             _validate_password(value, user)
         except CoreValidationError as ex:
-            raise serializers.ValidationError(ex.messages, ex.code) from ex
+            raise serializers.ValidationError(
+                ex.messages, code="invalid_password"
+            ) from ex
 
         return value
 
