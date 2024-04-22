@@ -70,7 +70,7 @@ class TestBaseUserSerializer(ModelSerializerTestCase[User, User]):
 
             validate_password.assert_called_once_with(password, user)
 
-    def _test_validate_password__new_user(self, user_type: str):
+    def _test_validate_password__new_user(self, user_type: str) -> User:
         user = User()
         with patch(
             "api.serializers.user.User", return_value=user
