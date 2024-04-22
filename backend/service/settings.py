@@ -15,23 +15,9 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Application definition
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-        "ATOMIC_REQUESTS": True,
-    }
-}
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_ROOT = BASE_DIR / "static"
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "portal/static"]
 STATICFILES_FINDERS = [
@@ -40,7 +26,6 @@ STATICFILES_FINDERS = [
 ]
 
 # Custom
-MEDIA_ROOT = os.path.join(STATIC_ROOT, "email_media/")
 LOGIN_REDIRECT_URL = "/teach/dashboard/"
 SILENCED_SYSTEM_CHECKS = ["captcha.recaptcha_test_key_error"]
 RECAPTCHA_DOMAIN = "www.recaptcha.net"
@@ -244,6 +229,8 @@ CSP_MANIFEST_SRC = (f"{domain()}/static/manifest.json",)
 
 # pylint: disable-next=wrong-import-position,wildcard-import,unused-wildcard-import
 from codeforlife.settings import *
+
+DATABASES = get_databases(BASE_DIR)
 
 # TODO: Go through the commented out middleware and decide if we still need them
 MIDDLEWARE = [
