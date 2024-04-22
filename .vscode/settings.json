@@ -70,6 +70,8 @@
   "python.testing.cwd": "${workspaceFolder}/backend",
   "python.testing.pytestArgs": [
     "-n=auto",
+    "--cov",
+    "--cov-report=html",
     "-c=pyproject.toml",
     "."
   ],
