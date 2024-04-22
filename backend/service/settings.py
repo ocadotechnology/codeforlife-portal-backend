@@ -104,6 +104,7 @@ PIPELINE = {
 }
 """END OF RAPID ROUTER SETTINGS"""
 
+
 # Domain
 # TODO: Check if CSP still needs it after it's revisited
 def domain():
