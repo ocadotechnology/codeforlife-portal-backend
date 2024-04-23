@@ -23,6 +23,7 @@ from django.contrib.auth.tokens import (
 from .user import (
     BaseUserSerializer,
     CreateUserSerializer,
+    HandleIndependentUserJoinClassRequestSerializer,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
     UpdateUserSerializer,
@@ -126,8 +127,7 @@ class TestBaseUserSerializer(ModelSerializerTestCase[User, User]):
         ) as set_password:
             with patch(
                 "django.contrib.auth.base_user.make_password",
-                # pylint: disable-next=line-too-long
-                return_value="pbkdf2_sha256$260000$YhuqwOQ2ft23coLMAx21Cx$CO/BbBPLo/1TFNSaMjAJ2fXGSD1wMQZ/qusx6nf5sJk=",
+                return_value=make_password(password),
             ) as user_make_password:
                 self.assert_update(
                     instance=user,
@@ -176,7 +176,7 @@ class TestUpdateUserSerializer(ModelSerializerTestCase[User, User]):
     fixtures = ["independent", "school_1"]
 
     def setUp(self):
-        self.independent = IndependentUser.objects.get(
+        self.indy_user = IndependentUser.objects.get(
             email="indy.requester@email.com"
         )
         self.admin_school_teacher_user = AdminSchoolTeacherUser.objects.get(
@@ -244,6 +244,87 @@ class TestUpdateUserSerializer(ModelSerializerTestCase[User, User]):
             name="requesting_to_join_class",
             value=self.class_3.access_code,
             error_code="no_longer_accepts_requests",
+        )
+
+    def test_update(self):
+        """Can update the class an independent user is requesting join."""
+        self.assert_update(
+            instance=self.indy_user,
+            validated_data={
+                "new_student": {
+                    "pending_class_request": self.class_2.access_code
+                }
+            },
+            new_data={"new_student": {"pending_class_request": self.class_2}},
+        )
+
+
+class TestHandleIndependentUserJoinClassRequestSerializer(
+    ModelSerializerTestCase[User, IndependentUser]
+):
+    model_serializer_class = HandleIndependentUserJoinClassRequestSerializer
+    fixtures = ["school_1", "independent"]
+
+    def setUp(self):
+        self.indy_user = IndependentUser.objects.get(
+            email="indy.requester@email.com"
+        )
+        assert self.indy_user.student.pending_class_request
+
+    def test_validate_first_name__already_in_class(self):
+        """
+        Cannot join a class with a first name that already belongs to another
+        student in the class.
+        """
+        student_user = StudentUser.objects.filter(
+            new_student__class_field=(
+                self.indy_user.student.pending_class_request
+            )
+        ).first()
+        assert student_user
+
+        self.assert_validate_field(
+            name="first_name",
+            error_code="already_in_class",
+            value=student_user.first_name,
+            instance=self.indy_user,
+        )
+
+    def test_update__accept(self):
+        """Can accept join-class requests."""
+        user = self.indy_user
+        assert user.last_name
+
+        with patch.object(
+            StudentUser,
+            "get_random_username",
+            return_value=StudentUser.get_random_username(),
+        ) as get_random_username:
+            self.assert_update(
+                instance=user,
+                validated_data={
+                    "accept": True,
+                    "first_name": user.first_name + "NewStudent",
+                },
+                new_data={
+                    "last_name": "",
+                    "email": "",
+                    "username": get_random_username.return_value,
+                    "student": {
+                        "pending_class_request": None,
+                        "class_field": user.student.pending_class_request,
+                    },
+                },
+                non_model_fields={"accept"},
+            )
+
+    def test_update__reject(self):
+        """Can reject join-class requests."""
+        self.assert_update(
+            instance=self.indy_user,
+            validated_data={"accept": False},
+            new_data={"student": {"pending_class_request": None}},
+            non_model_fields={"accept"},
         )
 
 
