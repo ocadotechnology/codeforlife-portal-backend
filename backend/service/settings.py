@@ -15,16 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
-STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "portal/static"]
-STATICFILES_FINDERS = [
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-]
-
 # Custom
 LOGIN_REDIRECT_URL = "/teach/dashboard/"
 SILENCED_SYSTEM_CHECKS = ["captcha.recaptcha_test_key_error"]
@@ -67,43 +57,54 @@ TEMPLATES = [
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATICFILES_FINDERS += ["pipeline.finders.PipelineFinder"]
-STATICFILES_STORAGE = "pipeline.storage.PipelineStorage"
 
 PIPELINE_ENABLED = False  # True if assets should be compressed, False if not.
+PIPELINE = {}
 
-PIPELINE = {
-    "COMPILERS": ("portal.pipeline_compilers.LibSassCompiler",),
-    "STYLESHEETS": {
-        "css": {
-            "source_filenames": (
-                os.path.join(BASE_DIR, "static/portal/sass/bootstrap.scss"),
-                os.path.join(BASE_DIR, "static/portal/sass/colorbox.scss"),
-                os.path.join(BASE_DIR, "static/portal/sass/styles.scss"),
-                os.path.join(BASE_DIR, "static/game/css/level_selection.css"),
-                os.path.join(BASE_DIR, "static/game/css/backgrounds.css"),
-            ),
-            "output_filename": "portal.css",
-        },
-        "game-scss": {
-            "source_filenames": (
-                os.path.join(BASE_DIR, "static/game/sass/game.scss"),
-            ),
-            "output_filename": "game.css",
-        },
-        "popup": {
-            "source_filenames": (
-                os.path.join(
-                    BASE_DIR, "static/portal/sass/partials/_popup.scss"
+if os.environ["STATIC_MODE"] == "pipeline":
+    STATICFILES_FINDERS = ["pipeline.finders.PipelineFinder"]
+    STATICFILES_STORAGE = "pipeline.storage.PipelineStorage"
+
+    PIPELINE = {
+        "COMPILERS": ("portal.pipeline_compilers.LibSassCompiler",),
+        "STYLESHEETS": {
+            "css": {
+                "source_filenames": (
+                    os.path.join(BASE_DIR, "static/portal/sass/bootstrap.scss"),
+                    os.path.join(BASE_DIR, "static/portal/sass/colorbox.scss"),
+                    os.path.join(BASE_DIR, "static/portal/sass/styles.scss"),
+                    os.path.join(
+                        BASE_DIR, "static/game/css/level_selection.css"
+                    ),
+                    os.path.join(BASE_DIR, "static/game/css/backgrounds.css"),
                 ),
-            ),
-            "output_filename": "popup.css",
+                "output_filename": "portal.css",
+            },
+            "game-scss": {
+                "source_filenames": (
+                    os.path.join(BASE_DIR, "static/game/sass/game.scss"),
+                ),
+                "output_filename": "game.css",
+            },
+            "popup": {
+                "source_filenames": (
+                    os.path.join(
+                        BASE_DIR, "static/portal/sass/partials/_popup.scss"
+                    ),
+                ),
+                "output_filename": "popup.css",
+            },
         },
-    },
-    "CSS_COMPRESSOR": None,
-    "SASS_ARGUMENTS": "--quiet",
-}
+        "CSS_COMPRESSOR": None,
+        "SASS_ARGUMENTS": "--quiet",
+    }
+else:
+    STATICFILES_FINDERS = [
+        "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+        "django.contrib.staticfiles.finders.FileSystemFinder",
+    ]
 """END OF RAPID ROUTER SETTINGS"""
 
 
