@@ -3,17 +3,21 @@
 Created on 13/02/2024 at 13:44:00(+00:00).
 """
 import datetime
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from codeforlife.tests import ModelSerializerTestCase
 from codeforlife.user.models import AdminSchoolTeacherUser, User
 from django.utils import timezone
 
 from ..models import SchoolTeacherInvitation
-from .school_teacher_invitation import SchoolTeacherInvitationSerializer
+from .school_teacher_invitation import (
+    RefreshSchoolTeacherInvitationSerializer,
+    SchoolTeacherInvitationSerializer,
+)
+
+# pylint: disable=missing-class-docstring
 
 
-# pylint: disable-next=missing-class-docstring
 class TestSchoolTeacherInvitationSerializer(
     ModelSerializerTestCase[User, SchoolTeacherInvitation]
 ):
@@ -30,7 +34,7 @@ class TestSchoolTeacherInvitationSerializer(
         "api.serializers.school_teacher_invitation.make_password",
         return_value="token",
     )
-    def test_create(self, _):
+    def test_create(self, make_password: Mock):
         """Can successfully create."""
         now = timezone.now()
         with patch.object(timezone, "now", return_value=now):
@@ -54,13 +58,29 @@ class TestSchoolTeacherInvitationSerializer(
                 },
             )
 
+        make_password.assert_called_once()
+
+
+# pylint: disable-next=missing-class-docstring
+class TestRefreshSchoolTeacherInvitationSerializer(
+    ModelSerializerTestCase[User, SchoolTeacherInvitation]
+):
+    model_serializer_class = RefreshSchoolTeacherInvitationSerializer
+    fixtures = ["school_1", "school_1_teacher_invitations"]
+
+    def setUp(self):
+        self.admin_school_teacher_user = AdminSchoolTeacherUser.objects.get(
+            email="admin.teacher@school1.com"
+        )
+        self.invitation = SchoolTeacherInvitation.objects.get(pk=1)
+
     def test_update(self):
         """Can successfully update."""
         now = timezone.now()
         with patch.object(timezone, "now", return_value=now):
             self.assert_update(
-                self.invitation,
-                {},
+                instance=self.invitation,
+                validated_data={},
                 new_data={
                     "expiry": now + datetime.timedelta(days=30),
                 },

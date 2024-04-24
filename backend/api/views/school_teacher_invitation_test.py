@@ -5,11 +5,12 @@ Created on 09/02/2024 at 17:18:00(+00:00).
 
 from codeforlife.permissions import AllowNone
 from codeforlife.tests import ModelViewSetTestCase
-from codeforlife.user.models import User
+from codeforlife.user.models import School, SchoolTeacherUser, User
 from codeforlife.user.permissions import IsTeacher
 from rest_framework import status
 
 from ..models import SchoolTeacherInvitation
+from ..permissions import IsInvitedSchoolTeacher
 from .school_teacher_invitation import SchoolTeacherInvitationViewSet
 
 
@@ -27,13 +28,12 @@ class TestSchoolTeacherInvitationViewSet(
     school_admin_teacher_email = "admin.teacher@school1.com"
     non_school_teacher_email = "teacher@noschool.com"
 
-    def _login_admin_school_teacher(self):
-        return self.client.login_admin_school_teacher(
-            email=self.school_admin_teacher_email,
-            password="password",
+    def setUp(self):
+        self.school = School.objects.get(name="School 1")
+        self.school_teacher_user = SchoolTeacherUser.objects.get(
+            email="teacher@school1.com"
         )
 
-    def setUp(self):
         self.expired_invitation = SchoolTeacherInvitation.objects.get(pk=1)
         assert self.expired_invitation.is_expired
 
@@ -53,6 +53,8 @@ class TestSchoolTeacherInvitationViewSet(
             email__iexact=self.existing_user_invitation.invited_teacher_email
         )
 
+    # test: get permissions
+
     def test_get_permissions__bulk(self):
         """No one is allowed to perform bulk actions."""
         self.assert_get_permissions(
@@ -67,11 +69,11 @@ class TestSchoolTeacherInvitationViewSet(
             action="create",
         )
 
-    def test_get_permissions__partial_update(self):
-        """Only admin-teachers can update an invitation."""
+    def test_get_permissions__refresh(self):
+        """Only admin-teachers can refresh an invitation."""
         self.assert_get_permissions(
             permissions=[IsTeacher(is_admin=True)],
-            action="partial_update",
+            action="refresh",
         )
 
     def test_get_permissions__retrieve(self):
@@ -94,6 +96,84 @@ class TestSchoolTeacherInvitationViewSet(
             permissions=[IsTeacher(is_admin=True)],
             action="destroy",
         )
+
+    def test_get_permissions__accept(self):
+        """Only the invited teacher can accept the invitation."""
+        self.assert_get_permissions(
+            permissions=[IsInvitedSchoolTeacher()],
+            action="accept",
+        )
+
+    def test_get_permissions__reject(self):
+        """Only the invited teacher can reject the invitation."""
+        self.assert_get_permissions(
+            permissions=[IsInvitedSchoolTeacher()],
+            action="reject",
+        )
+
+    # test: get queryset
+
+    def test_get_queryset__refresh(self):
+        """Can target only target the invitations in the school."""
+        self.assert_get_queryset(
+            values=list(self.school.teacher_invitations.all()),
+            action="refresh",
+            request=self.client.request_factory.put(
+                user=self.school_teacher_user
+            ),
+        )
+
+    def test_get_queryset__retrieve(self):
+        """Can target only target the invitations in the school."""
+        self.assert_get_queryset(
+            values=list(self.school.teacher_invitations.all()),
+            action="retrieve",
+            request=self.client.request_factory.put(
+                user=self.school_teacher_user
+            ),
+        )
+
+    def test_get_queryset__list(self):
+        """Can target only target the invitations in the school."""
+        self.assert_get_queryset(
+            values=list(self.school.teacher_invitations.all()),
+            action="list",
+            request=self.client.request_factory.put(
+                user=self.school_teacher_user
+            ),
+        )
+
+    def test_get_queryset__destroy(self):
+        """Can target only target the invitations in the school."""
+        self.assert_get_queryset(
+            values=list(self.school.teacher_invitations.all()),
+            action="destroy",
+            request=self.client.request_factory.put(
+                user=self.school_teacher_user
+            ),
+        )
+
+    def test_get_queryset__accept(self):
+        """Can target the invitation the invited teacher has permissions for."""
+        invitation = self.new_user_invitation
+
+        self.assert_get_queryset(
+            values=[invitation],
+            action="accept",
+            kwargs={"pk": invitation.pk},
+        )
+
+    def test_get_queryset__reject(self):
+        """Can target the invitation the invited teacher has permissions for."""
+        invitation = self.new_user_invitation
+
+        self.assert_get_queryset(
+            values=[invitation],
+            action="reject",
+            kwargs={"pk": invitation.pk},
+        )
+
+    # test: actions
 
     def test_create(self):
         """Can successfully create an invitation."""

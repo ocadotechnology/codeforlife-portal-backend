@@ -2,18 +2,22 @@
 © Ocado Group
 Created on 09/02/2024 at 16:14:00(+00:00).
 """
-from codeforlife.permissions import AllowAny, AllowNone
+import typing as t
+
+from codeforlife.mail import send_mail
+from codeforlife.permissions import AllowNone
 from codeforlife.request import Request
-from codeforlife.user.models import User
+from codeforlife.response import Response
+from codeforlife.user.models import AdminSchoolTeacherUser, User
 from codeforlife.user.permissions import IsTeacher
 from codeforlife.views import ModelViewSet, action
-from django.contrib.auth.hashers import check_password
 from rest_framework import status
-from rest_framework.response import Response
 
 from ..models import SchoolTeacherInvitation
+from ..permissions import IsInvitedSchoolTeacher
 from ..serializers import (
     CreateTeacherSerializer,
+    RefreshSchoolTeacherInvitationSerializer,
     SchoolTeacherInvitationSerializer,
 )
 
@@ -22,17 +26,16 @@ from ..serializers import (
 class SchoolTeacherInvitationViewSet(
     ModelViewSet[User, SchoolTeacherInvitation]
 ):
-    http_method_names = ["get", "post", "patch", "delete"]
-    serializer_class = SchoolTeacherInvitationSerializer
+    http_method_names = ["get", "post", "put", "delete"]
 
     def get_permissions(self):
-        if self.action == "accept":
-            return [AllowAny()]
+        if self.action in ["accept", "reject"]:
+            return [IsInvitedSchoolTeacher()]
         if self.action in [
             "retrieve",
             "list",
             "create",
-            "partial_update",
+            "refresh",
             "destroy",
         ]:
             return [IsTeacher(is_admin=True)]
@@ -43,74 +46,108 @@ class SchoolTeacherInvitationViewSet(
 
     def get_queryset(self):
         queryset = SchoolTeacherInvitation.objects.all()
-        if self.action == "accept":
-            return queryset
+        if self.action in ["accept", "reject"]:
+            return queryset.filter(pk=self.kwargs["pk"])
 
         return queryset.filter(
             school=self.request.admin_school_teacher_user.teacher.school
         )
 
-    # TODO: use serializer and custom update (HTTP PUT) action
-    @action(
-        detail=True, methods=["get", "post"], url_path="accept/(?P<token>.+)"
-    )
-    def accept(self, request: Request, token: str, **kwargs: str):
-        """
-        Handles accepting a teacher's invitation to join their school. On GET,
-        checks validity of the invitation token. On PATCH, rechecks this
-        param, performs password validation and creates the new Teacher.
-        """
+    def get_serializer_class(self):
+        if self.action == "accept":
+            if self.request.method == "GET":
+                return SchoolTeacherInvitationSerializer
+            if self.request.method == "DELETE":
+                return CreateTeacherSerializer
+        if self.action == "create":
+            return SchoolTeacherInvitationSerializer
+        if self.action == "refresh":
+            return RefreshSchoolTeacherInvitationSerializer
+
+        return None
+
+    refresh = ModelViewSet.update_action("refresh")
+
+    @action(detail=True, methods=["get", "delete"])
+    def accept(self, request: Request, **kwargs: str):
+        """The invited teacher accepts the invitation."""
         invitation = self.get_object()
-
-        if not check_password(token, invitation.token):
-            return Response(
-                {"non_field_errors": ["Incorrect token."]},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         if invitation.is_expired:
             return Response(
-                {"non_field_errors": ["The invitation has expired."]},
-                status=status.HTTP_400_BAD_REQUEST,
+                "The invitation has expired.",
+                status=status.HTTP_410_GONE,
             )
 
-        if User.objects.filter(
-            email__iexact=invitation.invited_teacher_email
-        ).exists():
-            return Response(
-                {
-                    "non_field_errors": [
-                        "It looks like an account is already registered with "
-                        "this email address. You will need to delete the other "
-                        "account first or change the email associated with it "
-                        "in order to proceed. You will then be able to access "
-                        "this page."
-                    ]
-                },
-                status=status.HTTP_400_BAD_REQUEST,
+        try:
+            user = User.objects.get(
+                email__iexact=invitation.invited_teacher_email
             )
+        except User.DoesNotExist:
+            user = None
 
-        if request.method == "POST":
-            context = self.get_serializer_context()
-            context["is_verified"] = True
-            context["user_type"] = "teacher"
-            context["school"] = invitation.school
+        if user:
+            if not user.teacher:
+                return Response(
+                    "You're already registered as a non-teacher user. You'll"
+                    " need to delete the existing user before accepting this"
+                    " invite.",
+                    status=status.HTTP_409_CONFLICT,
+                )
+            if user.teacher.school:
+                return Response(
+                    "You're already in a school. You'll need to leave your"
+                    " current school before accepting this invite.",
+                    status=status.HTTP_409_CONFLICT,
+                )
 
-            data = {
-                "first_name": invitation.invited_teacher_first_name,
-                "last_name": invitation.invited_teacher_last_name,
-                "email": invitation.invited_teacher_email,
-                **request.data,
-                "teacher": {
-                    "is_admin": invitation.invited_teacher_is_admin,
-                    **request.data.get("teacher", {}),
-                },
-            }
-
-            serializer = CreateTeacherSerializer(data=data, context=context)
+        if request.method == "GET":
+            serializer = self.get_serializer(invitation)
+        else:
+            serializer = self.get_serializer(user, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
             invitation.delete()
 
-        return Response()
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["delete"])
+    def reject(self, request: Request, **kwargs: str):
+        """The invited teacher rejects the invitation."""
+        invitation = self.get_object()
+
+        to_addresses = [invitation.from_teacher.new_user.email]
+        # TODO: set max admin teacher count per school <= 10
+        # TODO: create the following properties on the school model:
+        # - school.teacher_users
+        # - school.admin_teachers
+        # - school.admin_teacher_users
+        # - school.non_admin_teachers
+        # - school.non_admin_teacher_users
+        cc_addresses: t.List[str] = list(
+            AdminSchoolTeacherUser.objects.filter(
+                new_teacher__school=invitation.school
+            )
+            .exclude(id=invitation.from_teacher.new_user_id)
+            .values_list("email", flat=True)
+        )
+        # TODO: set the correct bindings.
+        personalization_values = {
+            "invited_teacher_email": invitation.invited_teacher_email,
+            "invited_teacher_first_name": (
+                invitation.invited_teacher_first_name
+            ),
+            "invited_teacher_last_name": (invitation.invited_teacher_last_name),
+        }
+
+        invitation.delete()
+
+        send_mail(
+            # TODO: create email template to explain invitation was rejected.
+            campaign_id=0,
+            to_addresses=to_addresses,
+            cc_addresses=cc_addresses,
+            personalization_values=personalization_values,
+        )
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
