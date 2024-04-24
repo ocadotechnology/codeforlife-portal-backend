@@ -67,8 +67,6 @@ TEMPLATES = [
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-rel = lambda rel_path: os.path.join(BASE_DIR, rel_path)
-
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_FINDERS += ["pipeline.finders.PipelineFinder"]
 STATICFILES_STORAGE = "pipeline.storage.PipelineStorage"
@@ -80,21 +78,25 @@ PIPELINE = {
     "STYLESHEETS": {
         "css": {
             "source_filenames": (
-                rel("static/portal/sass/bootstrap.scss"),
-                rel("static/portal/sass/colorbox.scss"),
-                rel("static/portal/sass/styles.scss"),
-                rel("static/game/css/level_selection.css"),
-                rel("static/game/css/backgrounds.css"),
+                os.path.join(BASE_DIR, "static/portal/sass/bootstrap.scss"),
+                os.path.join(BASE_DIR, "static/portal/sass/colorbox.scss"),
+                os.path.join(BASE_DIR, "static/portal/sass/styles.scss"),
+                os.path.join(BASE_DIR, "static/game/css/level_selection.css"),
+                os.path.join(BASE_DIR, "static/game/css/backgrounds.css"),
             ),
             "output_filename": "portal.css",
         },
         "game-scss": {
-            "source_filenames": (rel("static/game/sass/game.scss"),),
+            "source_filenames": (
+                os.path.join(BASE_DIR, "static/game/sass/game.scss"),
+            ),
             "output_filename": "game.css",
         },
         "popup": {
             "source_filenames": (
-                rel("static/portal/sass/partials/_popup.scss"),
+                os.path.join(
+                    BASE_DIR, "static/portal/sass/partials/_popup.scss"
+                ),
             ),
             "output_filename": "popup.css",
         },
