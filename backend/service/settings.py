@@ -63,7 +63,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 PIPELINE_ENABLED = False  # True if assets should be compressed, False if not.
 PIPELINE = {}
 
-if "STATIC_MODE" in os.environ and os.environ["STATIC_MODE"] == "pipeline":
+if os.environ.get("STATIC_MODE", "") == "pipeline":
     STATICFILES_FINDERS = ["pipeline.finders.PipelineFinder"]
     STATICFILES_STORAGE = "pipeline.storage.PipelineStorage"
 
@@ -105,6 +105,7 @@ else:
         "django.contrib.staticfiles.finders.AppDirectoriesFinder",
         "django.contrib.staticfiles.finders.FileSystemFinder",
     ]
+# pylint: disable-next=pointless-string-statement
 """END OF RAPID ROUTER SETTINGS"""
 
 
