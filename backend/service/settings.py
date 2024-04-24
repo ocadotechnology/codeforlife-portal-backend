@@ -63,7 +63,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 PIPELINE_ENABLED = False  # True if assets should be compressed, False if not.
 PIPELINE = {}
 
-if os.environ["STATIC_MODE"] == "pipeline":
+if "STATIC_MODE" in os.environ and os.environ["STATIC_MODE"] == "pipeline":
     STATICFILES_FINDERS = ["pipeline.finders.PipelineFinder"]
     STATICFILES_STORAGE = "pipeline.storage.PipelineStorage"
 
