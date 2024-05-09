@@ -7,6 +7,7 @@ from .auth_factor import AuthFactorSerializer
 from .klass import ClassSerializer
 from .school import SchoolSerializer
 from .school_teacher_invitation import (
+    AcceptSchoolTeacherInvitationSerializer,
     RefreshSchoolTeacherInvitationSerializer,
     SchoolTeacherInvitationSerializer,
 )

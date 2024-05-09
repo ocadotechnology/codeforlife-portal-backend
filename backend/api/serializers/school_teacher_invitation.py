@@ -3,16 +3,23 @@
 Created on 09/02/2024 at 16:14:00(+00:00).
 """
 
+import typing as t
 from datetime import timedelta
 
 from codeforlife.serializers import ModelSerializer
-from codeforlife.user.models import User
+from codeforlife.types import DataDict
+from codeforlife.user.models import (
+    NonSchoolTeacherUser,
+    SchoolTeacherUser,
+    User,
+)
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from rest_framework import serializers
 
 from ..models import SchoolTeacherInvitation
+from .user import BaseUserSerializer
 
 # pylint: disable=missing-class-docstring
 # pylint: disable=missing-function-docstring
@@ -22,15 +29,15 @@ from ..models import SchoolTeacherInvitation
 class BaseSchoolTeacherInvitationSerializer(
     ModelSerializer[User, SchoolTeacherInvitation]
 ):
+    expires_at = serializers.DateTimeField(source="expiry", read_only=True)
+
     class Meta:
         model = SchoolTeacherInvitation
-        fields = ["id"]
+        fields = ["id", "expires_at"]
         extra_kwargs = {"id": {"read_only": True}}
 
 
 class SchoolTeacherInvitationSerializer(BaseSchoolTeacherInvitationSerializer):
-    expires_at = serializers.DateTimeField(source="expiry", read_only=True)
-
     class Meta(BaseSchoolTeacherInvitationSerializer.Meta):
         fields = [
             *BaseSchoolTeacherInvitationSerializer.Meta.fields,
@@ -38,7 +45,6 @@ class SchoolTeacherInvitationSerializer(BaseSchoolTeacherInvitationSerializer):
             "invited_teacher_last_name",
             "invited_teacher_email",
             "invited_teacher_is_admin",
-            "expires_at",
         ]
 
     def create(self, validated_data):
@@ -64,15 +70,80 @@ class SchoolTeacherInvitationSerializer(BaseSchoolTeacherInvitationSerializer):
 class RefreshSchoolTeacherInvitationSerializer(
     BaseSchoolTeacherInvitationSerializer
 ):
-    expires_at = serializers.DateTimeField(source="expiry", read_only=True)
+    def update(self, instance, validated_data):
+        instance.expiry = timezone.now() + timedelta(days=30)
+        instance.save(update_fields=["expiry"])
+        return instance
+
+
+class AcceptSchoolTeacherInvitationSerializer(
+    BaseSchoolTeacherInvitationSerializer
+):
+    @property
+    def non_school_teacher_user(self) -> t.Optional[NonSchoolTeacherUser]:
+        return self.context["non_school_teacher_user"]
+
+    class UserSerializer(BaseUserSerializer):
+        add_to_newsletter = serializers.BooleanField(write_only=True)
+
+        class Meta(BaseUserSerializer.Meta):
+            fields = [
+                *BaseUserSerializer.Meta.fields,
+                "first_name",
+                "last_name",
+                "password",
+                "add_to_newsletter",
+            ]
+            extra_kwargs = {
+                **BaseUserSerializer.Meta.extra_kwargs,
+                "first_name": {"min_length": 1},
+                "last_name": {"min_length": 1},
+                "email": {"read_only": False},
+            }
+
+    user = UserSerializer(required=False)
 
     class Meta(BaseSchoolTeacherInvitationSerializer.Meta):
         fields = [
             *BaseSchoolTeacherInvitationSerializer.Meta.fields,
-            "expires_at",
+            "user",
         ]
 
+    def validate_user(self, value: DataDict):
+        if self.non_school_teacher_user:
+            raise serializers.ValidationError(
+                "Cannot update existing teacher.",
+                code="cannot_update",
+            )
+
+        return value
+
     def update(self, instance, validated_data):
-        instance.expiry = timezone.now() + timedelta(days=30)
-        instance.save(update_fields=["expiry"])
+        if self.non_school_teacher_user:
+            self.non_school_teacher_user.teacher.is_admin = (
+                instance.invited_teacher_is_admin
+            )
+            self.non_school_teacher_user.teacher.school = instance.school
+            self.non_school_teacher_user.teacher.save(
+                update_fields=["is_admin", "school"]
+            )
+            self.non_school_teacher_user.userprofile.is_verified = True
+            self.non_school_teacher_user.userprofile.save(
+                update_fields=["is_verified"]
+            )
+        else:
+            user_fields = t.cast(DataDict, validated_data["user"])
+            add_to_newsletter = user_fields.pop("add_to_newsletter")
+
+            school_teacher_user = SchoolTeacherUser.objects.create_user(
+                **user_fields,
+                school=instance.school,
+                is_admin=instance.invited_teacher_is_admin,
+                email=instance.invited_teacher_email,
+                is_verified=True,
+            )
+
+            if add_to_newsletter:
+                school_teacher_user.add_contact_to_dot_digital()
+
         return instance

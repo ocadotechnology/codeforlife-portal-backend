@@ -8,7 +8,11 @@ from codeforlife.mail import send_mail
 from codeforlife.permissions import AllowNone
 from codeforlife.request import Request
 from codeforlife.response import Response
-from codeforlife.user.models import AdminSchoolTeacherUser, User
+from codeforlife.user.models import (
+    AdminSchoolTeacherUser,
+    NonSchoolTeacherUser,
+    User,
+)
 from codeforlife.user.permissions import IsTeacher
 from codeforlife.views import ModelViewSet, action
 from rest_framework import status
@@ -16,7 +20,7 @@ from rest_framework import status
 from ..models import SchoolTeacherInvitation
 from ..permissions import IsInvitedSchoolTeacher
 from ..serializers import (
-    CreateTeacherSerializer,
+    AcceptSchoolTeacherInvitationSerializer,
     RefreshSchoolTeacherInvitationSerializer,
     SchoolTeacherInvitationSerializer,
 )
@@ -55,34 +59,30 @@ class SchoolTeacherInvitationViewSet(
 
     def get_serializer_class(self):
         if self.action == "accept":
-            if self.request.method == "GET":
-                return SchoolTeacherInvitationSerializer
-            if self.request.method == "DELETE":
-                return CreateTeacherSerializer
-        if self.action == "create":
-            return SchoolTeacherInvitationSerializer
+            return AcceptSchoolTeacherInvitationSerializer
         if self.action == "refresh":
             return RefreshSchoolTeacherInvitationSerializer
 
-        return None
+        return SchoolTeacherInvitationSerializer
 
     refresh = ModelViewSet.update_action("refresh")
 
-    @action(detail=True, methods=["get", "delete"])
+    @action(detail=True, methods=["delete"])
     def accept(self, request: Request, **kwargs: str):
         """The invited teacher accepts the invitation."""
         invitation = self.get_object()
         if invitation.is_expired:
-            return Response(
-                "The invitation has expired.",
-                status=status.HTTP_410_GONE,
-            )
+            return Response(status=status.HTTP_410_GONE)
 
         try:
             user = User.objects.get(
                 email__iexact=invitation.invited_teacher_email
             )
         except User.DoesNotExist:
+            # Inform the FE to display the new-user form.
+            if "user" not in request.json_dict:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+
             user = None
 
         if user:
@@ -93,6 +93,7 @@ class SchoolTeacherInvitationViewSet(
                     " invite.",
                     status=status.HTTP_409_CONFLICT,
                 )
+
             if user.teacher.school:
                 return Response(
                     "You're already in a school. You'll need to leave your"
@@ -100,16 +101,23 @@ class SchoolTeacherInvitationViewSet(
                     status=status.HTTP_409_CONFLICT,
                 )
 
-        if request.method == "GET":
-            serializer = self.get_serializer(invitation)
-        else:
-            serializer = self.get_serializer(user, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+            user = user.as_type(NonSchoolTeacherUser)
 
-            invitation.delete()
+        serializer = self.get_serializer(
+            invitation,
+            data=request.data,
+            context={
+                **self.get_serializer_context(),
+                "non_school_teacher_user": user,
+                "user_type": "teacher",
+            },
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-        return Response(serializer.data)
+        invitation.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=["delete"])
     def reject(self, request: Request, **kwargs: str):
