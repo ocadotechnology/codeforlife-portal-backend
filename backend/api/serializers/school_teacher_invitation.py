@@ -19,7 +19,7 @@ from django.utils.crypto import get_random_string
 from rest_framework import serializers
 
 from ..models import SchoolTeacherInvitation
-from .user import BaseUserSerializer
+from .teacher import CreateTeacherSerializer
 
 # pylint: disable=missing-class-docstring
 # pylint: disable=missing-function-docstring
@@ -83,25 +83,7 @@ class AcceptSchoolTeacherInvitationSerializer(
     def non_school_teacher_user(self) -> t.Optional[NonSchoolTeacherUser]:
         return self.context["non_school_teacher_user"]
 
-    class UserSerializer(BaseUserSerializer):
-        add_to_newsletter = serializers.BooleanField(write_only=True)
-
-        class Meta(BaseUserSerializer.Meta):
-            fields = [
-                *BaseUserSerializer.Meta.fields,
-                "first_name",
-                "last_name",
-                "password",
-                "add_to_newsletter",
-            ]
-            extra_kwargs = {
-                **BaseUserSerializer.Meta.extra_kwargs,
-                "first_name": {"min_length": 1},
-                "last_name": {"min_length": 1},
-                "email": {"read_only": False},
-            }
-
-    user = UserSerializer(required=False)
+    user = CreateTeacherSerializer.UserSerializer(required=False)
 
     class Meta(BaseSchoolTeacherInvitationSerializer.Meta):
         fields = [
