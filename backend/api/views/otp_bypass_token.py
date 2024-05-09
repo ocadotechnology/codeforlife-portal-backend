@@ -16,11 +16,8 @@ from rest_framework.response import Response
 class OtpBypassTokenViewSet(ModelViewSet[User, OtpBypassToken]):
     http_method_names = ["post"]
 
-    def get_queryset(self):
-        return OtpBypassToken.objects.filter(user=self.request.teacher_user)
-
     def get_permissions(self):
-        if self.action == "create":
+        if self.action in ["create", "bulk"]:
             return [AllowNone()]
 
         return [IsTeacher()]
@@ -28,7 +25,12 @@ class OtpBypassTokenViewSet(ModelViewSet[User, OtpBypassToken]):
     # TODO: replace this custom action with bulk create and list serializer.
     @action(detail=False, methods=["post"])
     def generate(self, request: Request):
-        """Generates some OTP bypass tokens for a user."""
+        """
+        Generates some OTP bypass tokens for a user.
+
+        NOTE: Cannot use bulk_create action as it expects data fields to be
+        passed.
+        """
         otp_bypass_tokens = OtpBypassToken.objects.bulk_create(
             request.auth_user
         )
