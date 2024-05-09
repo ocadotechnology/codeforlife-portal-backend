@@ -30,7 +30,7 @@ from ..serializers import (
 from .school_teacher_invitation import SchoolTeacherInvitationViewSet
 
 
-# pylint: disable-next=missing-class-docstring,too-many-ancestors,too-many-public-methods
+# pylint: disable-next=missing-class-docstring,too-many-ancestors,too-many-public-methods,too-many-instance-attributes
 class TestSchoolTeacherInvitationViewSet(
     ModelViewSetTestCase[User, SchoolTeacherInvitation]
 ):
