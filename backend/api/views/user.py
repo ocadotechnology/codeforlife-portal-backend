@@ -119,3 +119,5 @@ class UserViewSet(_UserViewSet):
         "handle_join_class_request"
     )
     verify_email_address = _UserViewSet.update_action("verify_email_address")
+
+    # TODO: cron jobs
