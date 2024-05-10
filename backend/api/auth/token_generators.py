@@ -67,7 +67,11 @@ class EmailVerificationTokenGenerator:
                 audience=self._get_audience(user),
                 algorithms=["HS256"],
             )
-        except (jwt.ExpiredSignatureError, jwt.InvalidAudienceError):
+        except (
+            jwt.DecodeError,
+            jwt.ExpiredSignatureError,
+            jwt.InvalidAudienceError,
+        ):
             return False
 
         return True
