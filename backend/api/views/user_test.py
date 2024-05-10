@@ -23,6 +23,7 @@ from django.contrib.auth.tokens import (
     default_token_generator,
 )
 
+from ..auth import email_verification_token_generator
 from ..serializers import (
     CreateUserSerializer,
     HandleIndependentUserJoinClassRequestSerializer,
@@ -320,6 +321,20 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
 
         self._test_reset_password(user, password)
         self.client.login_as(user, password)
+
+    def test_verify_email_address(self):
+        """Can verify the user's email address."""
+        user = User.objects.filter(userprofile__is_verified=False).first()
+        assert user
+
+        self.client.update(
+            user,
+            action="verify_email_address",
+            data={"token": email_verification_token_generator.make_token(user)},
+        )
+
+        user.refresh_from_db()
+        assert user.userprofile.is_verified
 
     # test: generic actions
 

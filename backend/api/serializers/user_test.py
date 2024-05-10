@@ -15,11 +15,8 @@ from codeforlife.user.models import (
     User,
 )
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.tokens import (
-    PasswordResetTokenGenerator,
-    default_token_generator,
-)
 
+from ..auth import password_reset_token_generator
 from .user import (
     BaseUserSerializer,
     CreateUserSerializer,
@@ -27,13 +24,8 @@ from .user import (
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
     UpdateUserSerializer,
+    VerifyUserEmailAddressSerializer,
 )
-
-# NOTE: type hint to help Intellisense.
-password_reset_token_generator: PasswordResetTokenGenerator = (
-    default_token_generator
-)
-
 
 # pylint: disable=missing-class-docstring
 
@@ -424,3 +416,37 @@ class TestResetUserPasswordSerializer(ModelSerializerTestCase[User, User]):
 
             user_make_password.assert_called_once_with(password)
         assert self.user.check_password(password)
+
+
+class TestVerifyUserEmailAddressSerializer(ModelSerializerTestCase[User, User]):
+    model_serializer_class = VerifyUserEmailAddressSerializer
+    # fixtures = ["school_1"]
+
+    def setUp(self):
+        user = User.objects.filter(userprofile__is_verified=False).first()
+        assert user
+        self.user = user
+
+    def test_validate_token__user_does_not_exist(self):
+        """Cannot validate the token of a user that does not exist."""
+        self.assert_validate_field(
+            name="token",
+            error_code="user_does_not_exist",
+        )
+
+    def test_validate_token__does_not_match(self):
+        """The token must match the user's tokens."""
+        self.assert_validate_field(
+            name="token",
+            error_code="does_not_match",
+            value="invalid-token",
+            instance=self.user,
+        )
+
+    def test_update(self):
+        """Can successfully reset a user's password."""
+        self.assert_update(
+            instance=self.user,
+            validated_data={},
+            new_data={"userprofile": {"is_verified": True}},
+        )

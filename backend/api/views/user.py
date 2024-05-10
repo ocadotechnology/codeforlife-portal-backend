@@ -18,6 +18,7 @@ from ..serializers import (
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
     UpdateUserSerializer,
+    VerifyUserEmailAddressSerializer,
 )
 
 
@@ -33,6 +34,7 @@ class UserViewSet(_UserViewSet):
             "create",
             "request_password_reset",
             "reset_password",
+            "verify_email_address",
         ]:
             return [AllowAny()]
         if self.action == "handle_join_class_request":
@@ -63,11 +65,13 @@ class UserViewSet(_UserViewSet):
             return ResetUserPasswordSerializer
         if self.action == "handle_join_class_request":
             return HandleIndependentUserJoinClassRequestSerializer
+        if self.action == "verify_email_address":
+            return VerifyUserEmailAddressSerializer
 
         return super().get_serializer_class()
 
     def get_queryset(self, user_class=User):
-        if self.action == "reset_password":
+        if self.action in ["reset_password", "verify_email_address"]:
             return User.objects.filter(pk=self.kwargs["pk"])
         if self.action == "handle_join_class_request":
             return self.request.school_teacher_user.teacher.indy_users
@@ -113,3 +117,4 @@ class UserViewSet(_UserViewSet):
     handle_join_class_request = _UserViewSet.update_action(
         "handle_join_class_request"
     )
+    verify_email_address = _UserViewSet.update_action("verify_email_address")

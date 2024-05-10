@@ -28,4 +28,5 @@ from .user import (
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
     UpdateUserSerializer,
+    VerifyUserEmailAddressSerializer,
 )
