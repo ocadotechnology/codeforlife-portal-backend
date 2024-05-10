@@ -54,6 +54,7 @@ class UserViewSet(_UserViewSet):
 
         return context
 
+    # pylint: disable-next=too-many-return-statements
     def get_serializer_class(self):
         if self.action == "create":
             return CreateUserSerializer
