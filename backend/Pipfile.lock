@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "32046062a10700f18e0f09affd931b0b23d76e405421906d8ebe47873c999b1e"
+            "sha256": "aebe5fbe238776c581ef4026e3c79beb2103a8aa1f146ee02b63251e7b0f8693"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -168,7 +168,7 @@
         },
         "codeforlife": {
             "git": "https://github.com/ocadotechnology/codeforlife-package-python.git",
-            "ref": "887670a14ea84100b5b7465b149394deaac0292c"
+            "ref": "97ff9647c9a212dd276a765ea111a8e08012e625"
         },
         "codeforlife-portal": {
             "hashes": [
@@ -1029,6 +1029,7 @@
                 "sha256:69285c7e31fc44f68a1feb309e948e0df53259d579295e6cfe2b1792329f05fd",
                 "sha256:d83c3d892a77bbb74d3e1a2cfa90afaadb60945205d1095d9221f04466f64c14"
             ],
+            "index": "pypi",
             "markers": "python_version >= '3.7'",
             "version": "==2.6.0"
         },
@@ -1507,7 +1508,7 @@
         },
         "codeforlife": {
             "git": "https://github.com/ocadotechnology/codeforlife-package-python.git",
-            "ref": "887670a14ea84100b5b7465b149394deaac0292c"
+            "ref": "97ff9647c9a212dd276a765ea111a8e08012e625"
         },
         "codeforlife-portal": {
             "hashes": [
@@ -1574,6 +1575,7 @@
                 "sha256:fdfafb32984684eb03c2d83e1e51f64f0906b11e64482df3c5db936ce3839d48",
                 "sha256:ff7687ca3d7028d8a5f0ebae95a6e4827c5616b31a4ee1192bdfde697db110d4"
             ],
+            "markers": "python_version >= '3.8'",
             "version": "==7.4.4"
         },
         "defusedxml": {
@@ -2429,6 +2431,7 @@
                 "sha256:69285c7e31fc44f68a1feb309e948e0df53259d579295e6cfe2b1792329f05fd",
                 "sha256:d83c3d892a77bbb74d3e1a2cfa90afaadb60945205d1095d9221f04466f64c14"
             ],
+            "index": "pypi",
             "markers": "python_version >= '3.7'",
             "version": "==2.6.0"
         },
@@ -2488,6 +2491,7 @@
                 "sha256:c7c6ca206e93355074ae32f7403e8ea12163b1163c976fee7d4d84027c162be5",
                 "sha256:d45e0952f3727241918b8fd0f376f5ff6b301cc0777c6f9a556935c92d8a7d42"
             ],
+            "markers": "python_version < '3.10'",
             "version": "==7.2.1"
         },
         "pytest-cov": {

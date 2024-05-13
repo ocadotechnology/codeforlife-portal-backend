@@ -12,6 +12,15 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 
+# Custom
+
+EMAIL_VERIFICATION_TIMEOUT = 60 * 60 * 24
+
+DOTDIGITAL_CAMPAIGN_IDS = {
+    "verify_email_address_1st_reminder": 0,  # TODO: set correct id
+    "verify_email_address_2nd_reminder": 0,  # TODO: set correct id
+}
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
