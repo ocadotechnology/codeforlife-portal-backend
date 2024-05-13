@@ -3,6 +3,7 @@
 Created on 10/05/2024 at 14:37:36(+01:00).
 """
 
+import typing as t
 from datetime import timedelta
 
 import jwt
@@ -23,10 +24,11 @@ password_reset_token_generator: PasswordResetTokenGenerator = (
 class EmailVerificationTokenGenerator:
     """Custom token generator used to verify a user's email address."""
 
-    def _get_audience(self, user: User):
-        return f"user:{user.pk}"
+    def _get_audience(self, user_or_pk: t.Union[User, t.Any]):
+        pk = user_or_pk.pk if isinstance(user_or_pk, User) else user_or_pk
+        return f"user:{pk}"
 
-    def make_token(self, user: User):
+    def make_token(self, user_or_pk: t.Union[User, t.Any]):
         """Generate a token used to verify user's email address.
 
         https://pyjwt.readthedocs.io/en/stable/usage.html
@@ -43,13 +45,13 @@ class EmailVerificationTokenGenerator:
                     timezone.now()
                     + timedelta(seconds=settings.EMAIL_VERIFICATION_TIMEOUT)
                 ),
-                "aud": [self._get_audience(user)],
+                "aud": [self._get_audience(user_or_pk)],
             },
             key=settings.SECRET_KEY,
             algorithm="HS256",
         )
 
-    def check_token(self, user: User, token: str):
+    def check_token(self, user_or_pk: t.Union[User, t.Any], token: str):
         """Check the token belongs to the user and has not expired.
 
         Args:
@@ -64,7 +66,7 @@ class EmailVerificationTokenGenerator:
             jwt.decode(
                 jwt=token,
                 key=settings.SECRET_KEY,
-                audience=self._get_audience(user),
+                audience=self._get_audience(user_or_pk),
                 algorithms=["HS256"],
             )
         except (
