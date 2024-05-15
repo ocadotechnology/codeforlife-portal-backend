@@ -23,19 +23,14 @@ from django.conf import settings
 from django.contrib.auth.password_validation import (
     validate_password as _validate_password,
 )
-from django.contrib.auth.tokens import (
-    PasswordResetTokenGenerator,
-    default_token_generator,
-)
 from django.core.exceptions import ValidationError as CoreValidationError
 from django.utils import timezone
 from rest_framework import serializers
 
-# NOTE: type hint to help Intellisense.
-password_reset_token_generator: PasswordResetTokenGenerator = (
-    default_token_generator
+from ..auth import (
+    email_verification_token_generator,
+    password_reset_token_generator,
 )
-
 
 # pylint: disable=missing-class-docstring
 # pylint: disable=too-many-ancestors
@@ -77,7 +72,9 @@ class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
         try:
             _validate_password(value, user)
         except CoreValidationError as ex:
-            raise serializers.ValidationError(ex.messages, ex.code) from ex
+            raise serializers.ValidationError(
+                ex.messages, code="invalid_password"
+            ) from ex
 
         return value
 
@@ -292,7 +289,7 @@ class HandleIndependentUserJoinClassRequestSerializer(
         return instance
 
 
-class RequestUserPasswordResetSerializer(_UserSerializer):
+class RequestUserPasswordResetSerializer(_UserSerializer[User]):
     class Meta(_UserSerializer.Meta):
         extra_kwargs = {
             **_UserSerializer.Meta.extra_kwargs,
@@ -354,5 +351,34 @@ class ResetUserPasswordSerializer(BaseUserSerializer[User], _UserSerializer):
         if password is not None:
             instance.set_password(password)
             instance.save(update_fields=["password"])
+
+        return instance
+
+
+class VerifyUserEmailAddressSerializer(_UserSerializer[User]):
+    token = serializers.CharField(write_only=True)
+
+    class Meta(_UserSerializer.Meta):
+        fields = [*_UserSerializer.Meta.fields, "token"]
+
+    def validate_token(self, value: str):
+        if not self.instance:
+            raise serializers.ValidationError(
+                "Can only verify the email address of an existing user.",
+                code="user_does_not_exist",
+            )
+        if not email_verification_token_generator.check_token(
+            self.instance, value
+        ):
+            raise serializers.ValidationError(
+                "Does not match the given user.",
+                code="does_not_match",
+            )
+
+        return value
+
+    def update(self, instance, validated_data):
+        instance.userprofile.is_verified = True
+        instance.userprofile.save(update_fields=["is_verified"])
 
         return instance

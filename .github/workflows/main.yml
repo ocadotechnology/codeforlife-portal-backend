@@ -1,11 +1,8 @@
 name: Main
 
 on:
-  pull_request:
   push:
-    paths-ignore:
-      - "**/*.md"
-      - "**/.*"
+  pull_request:
   workflow_dispatch:
 
 env:
@@ -18,6 +15,7 @@ env:
 jobs:
   test-backend:
     uses: ocadotechnology/codeforlife-workspace/.github/workflows/test-python-code.yaml@main
+    secrets: inherit
     with:
       working-directory: backend
 
