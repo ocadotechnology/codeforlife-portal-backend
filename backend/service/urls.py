@@ -44,7 +44,7 @@ urlpatterns = [
         name="kurono",
     ),
     *service_urlpatterns(
-        frontend_template_name="portal.html",  # TODO: standardize name
+        frontend_template_name="portal.html",  # TODO: update, removed bundling
         include_user_urls=False,
     ),
     path(

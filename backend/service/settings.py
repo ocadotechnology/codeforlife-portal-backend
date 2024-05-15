@@ -24,33 +24,25 @@ DOTDIGITAL_CAMPAIGN_IDS = {
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
+# Custom
+LOGIN_REDIRECT_URL = "/teach/dashboard/"
+SILENCED_SYSTEM_CHECKS = ["captcha.recaptcha_test_key_error"]
+RECAPTCHA_DOMAIN = "www.recaptcha.net"
 
-ALLOWED_HOSTS = ["*"]
+PASSWORD_RESET_TIMEOUT = 3600
 
-# Application definition
+# This is used in common to enable/disable the OneTrust cookie management script
+COOKIE_MANAGEMENT_ENABLED = False
 
-MIDDLEWARE = [
-    # "deploy.middleware.admin_access.AdminAccessMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    # "django.middleware.csrf.CsrfViewMiddleware",
-    # "deploy.middleware.security.CustomSecurityMiddleware",
-    # "whitenoise.middleware.WhiteNoiseMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    # "deploy.middleware.session_timeout.SessionTimeoutMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # "deploy.middleware.exceptionlogging.ExceptionLoggingMiddleware",
-    # "django_otp.middleware.OTPMiddleware",
-    "preventconcurrentlogins.middleware.PreventConcurrentLoginsMiddleware",
-    "csp.middleware.CSPMiddleware",
-    # "deploy.middleware.screentime_warning.ScreentimeWarningMiddleware",
-]
+SITE_ID = 1
 
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
+MODULE_NAME = os.getenv("MODULE_NAME", "local")
+
+"""RAPID ROUTER SETTINGS"""
+# TODO: The settings in this section are needed for the old Rapid Router
+#  package. Remove once RR has moved to the new system.
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -61,8 +53,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
                 "sekizai.context_processors.sekizai",
-                "common.context_processors.module_name",
-                "common.context_processors.cookie_management_enabled",
+                # TODO: replace in new system and remove here
+                # "common.context_processors.module_name",
+                # "common.context_processors.cookie_management_enabled",
                 # TODO: use when integrating dotmailer
                 # "portal.context_processors.process_newsletter_form",
             ]
@@ -70,66 +63,63 @@ TEMPLATES = [
     }
 ]
 
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-        "ATOMIC_REQUESTS": True,
-    }
-}
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
-STATIC_ROOT = BASE_DIR / "static"
-STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "portal/static"]
-STATICFILES_FINDERS = [
-    "pipeline.finders.PipelineFinder",
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-]
-# STATICFILES_STORAGE = "pipeline.storage.PipelineStorage"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-# Custom
-MEDIA_ROOT = os.path.join(STATIC_ROOT, "email_media/")
-LOGIN_REDIRECT_URL = "/teach/dashboard/"
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-SILENCED_SYSTEM_CHECKS = ["captcha.recaptcha_test_key_error"]
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-CODEFORLIFE_WEBSITE = "www.codeforlife.education"
-CLOUD_STORAGE_PREFIX = "https://storage.googleapis.com/codeforlife-assets/"
-# TODO: assess if still need and trim fat if not.
-# RAPID_ROUTER_EARLY_ACCESS_FUNCTION_NAME = "portal.beta.has_beta_access"
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
-RECAPTCHA_DOMAIN = "www.recaptcha.net"
+PIPELINE_ENABLED = False  # True if assets should be compressed, False if not.
+PIPELINE = {}
 
-PASSWORD_RESET_TIMEOUT = 3600
+if os.environ.get("STATIC_MODE", "") == "pipeline":
+    STATICFILES_FINDERS = ["pipeline.finders.PipelineFinder"]
+    STATICFILES_STORAGE = "pipeline.storage.PipelineStorage"
 
-PIPELINE_ENABLED = False
-
-# This is used in common to enable/disable the OneTrust cookie management script
-COOKIE_MANAGEMENT_ENABLED = False
-
-AUTOCONFIG_INDEX_VIEW = "home"
-SITE_ID = 1
-
-PIPELINE = {}  # type: ignore[var-annotated]
-
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
-
-MODULE_NAME = os.getenv("MODULE_NAME", "local")
+    PIPELINE = {
+        "COMPILERS": ("portal.pipeline_compilers.LibSassCompiler",),
+        "STYLESHEETS": {
+            "css": {
+                "source_filenames": (
+                    os.path.join(BASE_DIR, "static/portal/sass/bootstrap.scss"),
+                    os.path.join(BASE_DIR, "static/portal/sass/colorbox.scss"),
+                    os.path.join(BASE_DIR, "static/portal/sass/styles.scss"),
+                    os.path.join(
+                        BASE_DIR, "static/game/css/level_selection.css"
+                    ),
+                    os.path.join(BASE_DIR, "static/game/css/backgrounds.css"),
+                ),
+                "output_filename": "portal.css",
+            },
+            "game-scss": {
+                "source_filenames": (
+                    os.path.join(BASE_DIR, "static/game/sass/game.scss"),
+                ),
+                "output_filename": "game.css",
+            },
+            "popup": {
+                "source_filenames": (
+                    os.path.join(
+                        BASE_DIR, "static/portal/sass/partials/_popup.scss"
+                    ),
+                ),
+                "output_filename": "popup.css",
+            },
+        },
+        "CSS_COMPRESSOR": None,
+        "SASS_ARGUMENTS": "--quiet",
+    }
+else:
+    STATICFILES_FINDERS = [
+        "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+        "django.contrib.staticfiles.finders.FileSystemFinder",
+    ]
+# pylint: disable-next=pointless-string-statement
+"""END OF RAPID ROUTER SETTINGS"""
 
 
 # Domain
+# TODO: Check if CSP still needs it after it's revisited
 def domain():
     """
     Returns the full domain depending on whether it's local, dev, staging or
@@ -149,6 +139,10 @@ def domain():
     return domain_name
 
 
+# CSP
+# TODO: A lot of the links mentioned in the CSP will not be relevant with the
+#  new system anymore. Update and clean the CSP settings once the frontend
+#  has been done. Currently still needed for RR.
 CSP_DEFAULT_SRC = ("self",)
 CSP_CONNECT_SRC = (
     "'self'",
@@ -249,6 +243,22 @@ CSP_MANIFEST_SRC = (f"{domain()}/static/manifest.json",)
 
 # pylint: disable-next=wrong-import-position,wildcard-import,unused-wildcard-import
 from codeforlife.settings import *
+
+DATABASES = get_databases(BASE_DIR)
+
+# TODO: Go through the commented out middleware and decide if we still need them
+MIDDLEWARE = [
+    *MIDDLEWARE,
+    # "deploy.middleware.admin_access.AdminAccessMiddleware",
+    # "deploy.middleware.security.CustomSecurityMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    # "deploy.middleware.session_timeout.SessionTimeoutMiddleware",
+    # "deploy.middleware.exceptionlogging.ExceptionLoggingMiddleware",
+    # "django_otp.middleware.OTPMiddleware",
+    "preventconcurrentlogins.middleware.PreventConcurrentLoginsMiddleware",
+    "csp.middleware.CSPMiddleware",
+    # "deploy.middleware.screentime_warning.ScreentimeWarningMiddleware",
+]
 
 INSTALLED_APPS = [
     "api",
