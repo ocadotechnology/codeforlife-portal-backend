@@ -255,7 +255,6 @@ MIDDLEWARE = [
     # "deploy.middleware.session_timeout.SessionTimeoutMiddleware",
     # "deploy.middleware.exceptionlogging.ExceptionLoggingMiddleware",
     # "django_otp.middleware.OTPMiddleware",
-    "preventconcurrentlogins.middleware.PreventConcurrentLoginsMiddleware",
     "csp.middleware.CSPMiddleware",
     # "deploy.middleware.screentime_warning.ScreentimeWarningMiddleware",
 ]
