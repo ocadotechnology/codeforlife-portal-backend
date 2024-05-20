@@ -5,8 +5,10 @@ Created on 24/01/2024 at 09:47:04(+00:00).
 
 from unittest.mock import call, patch
 
+from codeforlife.permissions import AllowNone
 from codeforlife.tests import ModelViewSetTestCase
 from codeforlife.user.models import OtpBypassToken, User
+from codeforlife.user.permissions import IsTeacher
 from rest_framework import status
 
 from .otp_bypass_token import OtpBypassTokenViewSet
@@ -22,6 +24,31 @@ class TestOtpBypassTokenViewSet(ModelViewSetTestCase[User, OtpBypassToken]):
         user = User.objects.filter(otp_bypass_tokens__isnull=False).first()
         assert user
         self.user = user
+
+    # test: get permissions
+
+    def test_get_permissions__create(self):
+        """No one can create a single otp-bypass-token."""
+        self.assert_get_permissions(
+            permissions=[AllowNone()],
+            action="create",
+        )
+
+    def test_get_permissions__bulk(self):
+        """No one can bulk-create many otp-bypass-tokens."""
+        self.assert_get_permissions(
+            permissions=[AllowNone()],
+            action="bulk",
+        )
+
+    def test_get_permissions__generate(self):
+        """Only teachers can generate otp-bypass-tokens."""
+        self.assert_get_permissions(
+            permissions=[IsTeacher()],
+            action="generate",
+        )
+
+    # test: actions
 
     def test_generate(self):
         """Generate max number of OTP bypass tokens."""

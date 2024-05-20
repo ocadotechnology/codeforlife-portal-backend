@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f7e6b3bb4b2a0cf0c6ec5b522f17cb0e4f64ec3e63dd3d26f75762b8e9ed60a9"
+            "sha256": "494099efd1f840a0ba3648c4678506404f3c79dce11b3e503919d86960de0aa6"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -168,7 +168,7 @@
         },
         "codeforlife": {
             "git": "https://github.com/ocadotechnology/codeforlife-package-python.git",
-            "ref": "01d9452e0c33ea581804b81d55876ca744901a60"
+            "ref": "97ff9647c9a212dd276a765ea111a8e08012e625"
         },
         "codeforlife-portal": {
             "hashes": [
@@ -828,6 +828,7 @@
                 "sha256:69285c7e31fc44f68a1feb309e948e0df53259d579295e6cfe2b1792329f05fd",
                 "sha256:d83c3d892a77bbb74d3e1a2cfa90afaadb60945205d1095d9221f04466f64c14"
             ],
+            "index": "pypi",
             "markers": "python_version >= '3.7'",
             "version": "==2.6.0"
         },
@@ -959,7 +960,6 @@
                 "sha256:faeebde62f0f6ad86985bec5685411260393d2eb7ba907972da56af586b644e8",
                 "sha256:ff09a0a1e5cef05309ac09dfc5185e8151d927bcf45470d2f540c96260f8a355"
             ],
-            "index": "pypi",
             "markers": "python_version >= '3.7' and python_version < '4'",
             "version": "==3.6.13"
         },
@@ -1288,7 +1288,7 @@
         },
         "codeforlife": {
             "git": "https://github.com/ocadotechnology/codeforlife-package-python.git",
-            "ref": "01d9452e0c33ea581804b81d55876ca744901a60"
+            "ref": "97ff9647c9a212dd276a765ea111a8e08012e625"
         },
         "codeforlife-portal": {
             "hashes": [
@@ -1355,7 +1355,6 @@
                 "sha256:fdfafb32984684eb03c2d83e1e51f64f0906b11e64482df3c5db936ce3839d48",
                 "sha256:ff7687ca3d7028d8a5f0ebae95a6e4827c5616b31a4ee1192bdfde697db110d4"
             ],
-            "markers": "python_version >= '3.8'",
             "version": "==7.4.4"
         },
         "defusedxml": {
@@ -1882,7 +1881,6 @@
                 "sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d",
                 "sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782"
             ],
-            "markers": "python_version >= '3.5'",
             "version": "==1.0.0"
         },
         "numpy": {
@@ -2190,6 +2188,7 @@
                 "sha256:69285c7e31fc44f68a1feb309e948e0df53259d579295e6cfe2b1792329f05fd",
                 "sha256:d83c3d892a77bbb74d3e1a2cfa90afaadb60945205d1095d9221f04466f64c14"
             ],
+            "index": "pypi",
             "markers": "python_version >= '3.7'",
             "version": "==2.6.0"
         },
@@ -2241,7 +2240,6 @@
                 "sha256:c7c6ca206e93355074ae32f7403e8ea12163b1163c976fee7d4d84027c162be5",
                 "sha256:d45e0952f3727241918b8fd0f376f5ff6b301cc0777c6f9a556935c92d8a7d42"
             ],
-            "markers": "python_version >= '3.7'",
             "version": "==7.2.1"
         },
         "pytest-cov": {
@@ -2408,7 +2406,6 @@
                 "sha256:faeebde62f0f6ad86985bec5685411260393d2eb7ba907972da56af586b644e8",
                 "sha256:ff09a0a1e5cef05309ac09dfc5185e8151d927bcf45470d2f540c96260f8a355"
             ],
-            "index": "pypi",
             "markers": "python_version >= '3.7' and python_version < '4'",
             "version": "==3.6.13"
         },

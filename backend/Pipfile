@@ -2,6 +2,7 @@
 url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
+
 ## ℹ️ HOW-TO: Make the python-package editable.
 #
 # 1. Comment out the git-codeforlife package under [packages].
@@ -22,7 +23,7 @@ name = "pypi"
 # 5. Run `pipenv install --dev` in your terminal.
 
 [packages]
-codeforlife = {ref = "v0.16.2", git = "https://github.com/ocadotechnology/codeforlife-package-python.git"}
+codeforlife = {ref = "v0.16.8", git = "https://github.com/ocadotechnology/codeforlife-package-python.git"}
 # 🚫 Don't add [packages] below that are inhertited from the CFL package.
 django-csp = "==3.7"
 django-import-export = "*"
@@ -32,9 +33,10 @@ requests = "==2.31.0"
 django-treebeard = "==4.3.1"
 django-sekizai = "==2.0.0"
 django-classy-tags = "==2.0.0"
+pyjwt = "==2.6.0" # TODO: upgrade to latest version
 
 [dev-packages]
-codeforlife = {ref = "v0.16.2", git = "https://github.com/ocadotechnology/codeforlife-package-python.git", extras = ["dev"]}
+codeforlife = {ref = "v0.16.8", git = "https://github.com/ocadotechnology/codeforlife-package-python.git", extras = ["dev"]}
 # codeforlife = {file = "../../codeforlife-package-python", editable = true, extras = ["dev"]}
 # 🚫 Don't add [dev-packages] below that are inhertited from the CFL package.
 django-test-migrations = "==1.2.0"
