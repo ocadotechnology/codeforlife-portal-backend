@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "494099efd1f840a0ba3648c4678506404f3c79dce11b3e503919d86960de0aa6"
+            "sha256": "6d5bddeb3928ff6105f5c945ff7aaea07d26ea2678a510d73d5c82e91fa90d90"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -229,7 +229,6 @@
                 "sha256:01443a07723f9a479d498bd7bb63571aaa771e690f64bde515db6cdb76e8041a",
                 "sha256:01eda02ad3f10261c74131cdc0b5a6a62b7c7ad4fd017fbefb7a14776e0a9727"
             ],
-            "index": "pypi",
             "version": "==3.7"
         },
         "django-filter": {
@@ -252,7 +251,6 @@
                 "sha256:2eac09e8cec8670f36e24314760448011ad23c51e8fb930d55f50d0c3c926da0",
                 "sha256:4deabc557801d368093608c86fd0f4831bc9540e2ea41ca2f023e2efb3eb6f48"
             ],
-            "index": "pypi",
             "markers": "python_version >= '3.8'",
             "version": "==3.3.8"
         },
@@ -303,7 +301,6 @@
             "hashes": [
                 "sha256:567784963fd5400feaf92e8951d8dbbbdb4b4c48a76e225d4baa63a2c9d2cd8c"
             ],
-            "index": "pypi",
             "version": "==2.0.6"
         },
         "django-sekizai": {
@@ -1416,7 +1413,6 @@
                 "sha256:01443a07723f9a479d498bd7bb63571aaa771e690f64bde515db6cdb76e8041a",
                 "sha256:01eda02ad3f10261c74131cdc0b5a6a62b7c7ad4fd017fbefb7a14776e0a9727"
             ],
-            "index": "pypi",
             "version": "==3.7"
         },
         "django-extensions": {
@@ -1446,7 +1442,6 @@
                 "sha256:2eac09e8cec8670f36e24314760448011ad23c51e8fb930d55f50d0c3c926da0",
                 "sha256:4deabc557801d368093608c86fd0f4831bc9540e2ea41ca2f023e2efb3eb6f48"
             ],
-            "index": "pypi",
             "markers": "python_version >= '3.8'",
             "version": "==3.3.8"
         },
@@ -1497,7 +1492,6 @@
             "hashes": [
                 "sha256:567784963fd5400feaf92e8951d8dbbbdb4b4c48a76e225d4baa63a2c9d2cd8c"
             ],
-            "index": "pypi",
             "version": "==2.0.6"
         },
         "django-sekizai": {
@@ -1524,15 +1518,6 @@
                 "sha256:519342ac0849cda1559746c9a563f03ff99f636b0ebe7c14b75e816a00dfddc3"
             ],
             "version": "==4.2.7"
-        },
-        "django-test-migrations": {
-            "hashes": [
-                "sha256:874884ff4e980583cd9f1c986bb9fbfe72b436e759be23004e4f52c26a15f363",
-                "sha256:9e8b9b4364fef70dde10a5f85c5a75d447ca2189ec648325610fab1268daec97"
-            ],
-            "index": "pypi",
-            "markers": "python_version >= '3.6' and python_version < '4.0'",
-            "version": "==1.2.0"
         },
         "django-treebeard": {
             "hashes": [
@@ -2247,7 +2232,6 @@
                 "sha256:4f0764a1219df53214206bf1feea4633c3b558a2925c8b59f144f682861ce652",
                 "sha256:5837b58e9f6ebd335b0f8060eecce69b662415b16dc503883a02f45dfeb14857"
             ],
-            "index": "pypi",
             "markers": "python_version >= '3.8'",
             "version": "==5.0.0"
         },
@@ -2264,24 +2248,6 @@
                 "sha256:d7b2f5273ec6d1e221757998bc2f50d2474ed7d0b9331b92556011fadc4e9abf"
             ],
             "version": "==0.8.1"
-        },
-        "pytest-mock": {
-            "hashes": [
-                "sha256:0b72c38033392a5f4621342fe11e9219ac11ec9d375f8e2a0c164539e0d70f6f",
-                "sha256:2719255a1efeceadbc056d6bf3df3d1c5015530fb40cf347c0f9afac88410bd0"
-            ],
-            "index": "pypi",
-            "markers": "python_version >= '3.8'",
-            "version": "==3.14.0"
-        },
-        "pytest-order": {
-            "hashes": [
-                "sha256:4451bd8821ba4fa2109455a2fcc882af60ef8e53e09d244d67674be08f56eac3",
-                "sha256:c3082fc73f9ddcf13e4a22dda9bbcc2f39865bf537438a1d50fa241e028dd743"
-            ],
-            "index": "pypi",
-            "markers": "python_version >= '3.6'",
-            "version": "==1.2.1"
         },
         "pytest-xdist": {
             "extras": [

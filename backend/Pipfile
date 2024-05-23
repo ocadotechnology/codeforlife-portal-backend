@@ -24,10 +24,7 @@ name = "pypi"
 
 [packages]
 codeforlife = {ref = "v0.16.8", git = "https://github.com/ocadotechnology/codeforlife-package-python.git"}
-# 🚫 Don't add [packages] below that are inhertited from the CFL package.
-django-csp = "==3.7"
-django-import-export = "*"
-django-recaptcha = "==2.0.6"
+# 🚫 Don't add [packages] below that are inherited from the CFL package.
 pyjwt = "==2.6.0" # TODO: upgrade to latest version
 requests = "==2.31.0"
 # TODO: Needed by RR. Remove when RR has moved to new system.
@@ -38,11 +35,7 @@ django-classy-tags = "==2.0.0"
 [dev-packages]
 codeforlife = {ref = "v0.16.8", git = "https://github.com/ocadotechnology/codeforlife-package-python.git", extras = ["dev"]}
 # codeforlife = {file = "../../codeforlife-package-python", editable = true, extras = ["dev"]}
-# 🚫 Don't add [dev-packages] below that are inhertited from the CFL package.
-django-test-migrations = "==1.2.0"
-pytest-cov = "*"
-pytest-mock = "*"
-pytest-order = "*"
+# 🚫 Don't add [dev-packages] below that are inherited from the CFL package.
 
 [requires]
 python_version = "3.8"
