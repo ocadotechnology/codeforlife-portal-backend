@@ -26,7 +26,6 @@ name = "pypi"
 codeforlife = {ref = "v0.16.8", git = "https://github.com/ocadotechnology/codeforlife-package-python.git"}
 # 🚫 Don't add [packages] below that are inherited from the CFL package.
 pyjwt = "==2.6.0" # TODO: upgrade to latest version
-requests = "==2.31.0"
 # TODO: Needed by RR. Remove when RR has moved to new system.
 django-treebeard = "==4.3.1"
 django-sekizai = "==2.0.0"
