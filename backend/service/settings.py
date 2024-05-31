@@ -255,7 +255,6 @@ MIDDLEWARE = [
     # "deploy.middleware.session_timeout.SessionTimeoutMiddleware",
     # "deploy.middleware.exceptionlogging.ExceptionLoggingMiddleware",
     # "django_otp.middleware.OTPMiddleware",
-    "preventconcurrentlogins.middleware.PreventConcurrentLoginsMiddleware",
     "csp.middleware.CSPMiddleware",
     # "deploy.middleware.screentime_warning.ScreentimeWarningMiddleware",
 ]
@@ -277,14 +276,8 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.staticfiles",
     "import_export",
-    "django_js_reverse",
-    "django_otp",
-    "django_otp.plugins.otp_static",
-    "django_otp.plugins.otp_totp",
     "sekizai",  # for javascript and css management
     "treebeard",
-    "two_factor",
-    "preventconcurrentlogins",
     "sso",
     "rapid_router",
     *INSTALLED_APPS,
