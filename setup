@@ -1,22 +1,8 @@
 #!/bin/bash
 set -e
 
-cd "${BASH_SOURCE%/*}/frontend"
+cd "${BASH_SOURCE%/*}"
 
-printf "Setting up Node.js environment\n\n"
+printf "Setting up Python environment\n\n"
 
-# TODO: fix dependencies in package.json. Ignore NODE_ENV for now.
-yarn install --production=false
-
-cd ../backend
-
-printf "\nSetting up Python environment\n\n"
-
-if [ "$NODE_ENV" != "production" ]
-then
-  pipenv install --dev
-else
-  pipenv install
-fi
-
-cd ..
+pipenv install --dev

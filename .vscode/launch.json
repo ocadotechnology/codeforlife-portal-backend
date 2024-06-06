@@ -40,7 +40,7 @@
       "justMyCode": false,
       "name": "Django Server",
       "preLaunchTask": "migrate-db",
-      "program": "${workspaceFolder}/backend/manage.py",
+      "program": "${workspaceFolder}/manage.py",
       "request": "launch",
       "type": "debugpy"
     }

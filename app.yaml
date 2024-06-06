@@ -1,6 +1,6 @@
-runtime: python38
+runtime: REPLACE_IN_PIPELINE
 instance_class: F2
-service: REPLACE_ME
+service: REPLACE_IN_PIPELINE
 
 inbound_services:
   - warmup
@@ -8,10 +8,10 @@ inbound_services:
 env_variables:
   DEBUG: "0"
   DJANGO_SETTINGS_MODULE: "service.settings"
-  SECRET_KEY: "REPLACE_ME"
-  SERVICE_NAME: "REPLACE_ME"
-  SERVICE_IS_ROOT: "REPLACE_ME"
+  SECRET_KEY: "REPLACE_IN_PIPELINE"
+  SERVICE_NAME: "REPLACE_IN_PIPELINE"
+  SERVICE_IS_ROOT: "REPLACE_IN_PIPELINE"
   SERVICE_PROTOCOL: "https"
   SERVICE_DOMAIN: "codeforlife.education"
   SERVICE_PORT: "443"
-  MODULE_NAME: "REPLACE_ME"
+  MODULE_NAME: "REPLACE_IN_PIPELINE"
