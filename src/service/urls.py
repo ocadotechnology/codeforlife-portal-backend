@@ -44,17 +44,18 @@ urlpatterns = [
         name="kurono",
     ),
     *service_urlpatterns(
+        api_urls_path="src.api.urls",
         frontend_template_name="portal.html",  # TODO: update, removed bundling
         include_user_urls=False,
     ),
     path(
         "api/",
-        include("sso.urls"),
+        include("src.sso.urls"),
         name="sso",
     ),
     path(
         "api/rapid_router/",
-        include("rapid_router.urls"),
+        include("src.rapid_router.urls"),
         name="rapid-router",
     ),
 ]
