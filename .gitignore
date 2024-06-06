@@ -195,10 +195,10 @@ yarn-error.log*
 .nyc_output
 cypress/videos
 cypress/screenshots
-/backend/.python-version
-/backend/*/static/react
-/backend/*/templates/portal.html
-/backend/static
+/src/.python-version
+/src/*/static/react
+/src/*/templates/portal.html
+/src/static
 *.sqlite3
 /frontend/build
 node_modules
