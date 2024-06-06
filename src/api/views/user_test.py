@@ -482,10 +482,10 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
                 user.userprofile.save()
 
             with patch(
-                "api.views.user.email_verification_token_generator.make_token",
+                "src.api.views.user.email_verification_token_generator.make_token",
                 side_effect=lambda user_id: user_id,
             ) as make_token:
-                with patch("api.views.user.send_mail") as send_mail:
+                with patch("src.api.views.user.send_mail") as send_mail:
                     self.client.cron_job(action)
 
                     if mail_sent:

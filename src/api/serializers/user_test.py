@@ -57,7 +57,7 @@ class TestBaseUserSerializer(ModelSerializerTestCase[User, User]):
         password = "password"
 
         with patch(
-            "api.serializers.user._validate_password"
+            "src.api.serializers.user._validate_password"
         ) as validate_password:
             serializer.validate_password(password)
 
@@ -66,7 +66,7 @@ class TestBaseUserSerializer(ModelSerializerTestCase[User, User]):
     def _test_validate_password__new_user(self, user_type: str) -> User:
         user = User()
         with patch(
-            "api.serializers.user.User", return_value=user
+            "src.api.serializers.user.User", return_value=user
         ) as user_class:
             self._test_validate_password(
                 user=user, instance=None, context={"user_type": user_type}
