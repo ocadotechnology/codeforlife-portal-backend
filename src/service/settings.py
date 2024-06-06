@@ -260,7 +260,6 @@ MIDDLEWARE = [
 ]
 
 INSTALLED_APPS = [
-    "src.api",
     "src.sso",
     "src.rapid_router",
     "aimmo",
@@ -282,8 +281,3 @@ INSTALLED_APPS = [
     "treebeard",
     *INSTALLED_APPS,
 ]
-
-
-# TODO: fix in py package
-ROOT_URLCONF = "src.service.urls"
-WSGI_APPLICATION = "src.service.wsgi.application"

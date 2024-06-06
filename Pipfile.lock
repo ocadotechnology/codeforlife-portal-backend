@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0273d255d5cae4fc5da3d07412dfc6686f7a1d8ab16367cc2b9fe435a8b48dfa"
+            "sha256": "932b34867e7f48f12a8198c00545dbf8fc2e0127a6601878cb67333636999382"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -160,7 +160,7 @@
         },
         "codeforlife": {
             "git": "https://github.com/ocadotechnology/codeforlife-package-python.git",
-            "ref": "5679a29aea14436f6df91cdd78300861b9b2d1f6"
+            "ref": "e98187fb3b8954afedcca2bbff952f0e8550e0f6"
         },
         "codeforlife-portal": {
             "hashes": [
@@ -532,7 +532,6 @@
                 "sha256:25071b558db709de9e8782c3d3e058af3b23ffb2fc6f40c8f0c45a154eced2c3",
                 "sha256:8dd482e5350125b2388070bb2477927be2e8ebc27df61178709bc8c8751da2f9"
             ],
-            "markers": "python_version >= '3.6'",
             "version": "==3.1.3"
         },
         "pandas": {
@@ -927,7 +926,6 @@
                 "sha256:6a33ee89877bd9abc1158129f6e94be74e2679636b8a205b43b85206c3f0bbdd",
                 "sha256:f72f148f54442c6b056bf931dbc34f986fd0c3b0b6b5a58d013c9aef274d0c88"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
             "version": "==2.0.1"
         },
         "xlwt": {
@@ -1131,12 +1129,11 @@
                 "sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28",
                 "sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de"
             ],
-            "markers": "python_version >= '3.7'",
             "version": "==8.1.7"
         },
         "codeforlife": {
             "git": "https://github.com/ocadotechnology/codeforlife-package-python.git",
-            "ref": "5679a29aea14436f6df91cdd78300861b9b2d1f6"
+            "ref": "e98187fb3b8954afedcca2bbff952f0e8550e0f6"
         },
         "codeforlife-portal": {
             "hashes": [
@@ -1690,7 +1687,6 @@
                 "sha256:25071b558db709de9e8782c3d3e058af3b23ffb2fc6f40c8f0c45a154eced2c3",
                 "sha256:8dd482e5350125b2388070bb2477927be2e8ebc27df61178709bc8c8751da2f9"
             ],
-            "markers": "python_version >= '3.6'",
             "version": "==3.1.3"
         },
         "packaging": {
@@ -1958,7 +1954,6 @@
                 "sha256:4f0764a1219df53214206bf1feea4633c3b558a2925c8b59f144f682861ce652",
                 "sha256:5837b58e9f6ebd335b0f8060eecce69b662415b16dc503883a02f45dfeb14857"
             ],
-            "markers": "python_version >= '3.8'",
             "version": "==5.0.0"
         },
         "pytest-django": {
@@ -2243,7 +2238,6 @@
                 "sha256:6a33ee89877bd9abc1158129f6e94be74e2679636b8a205b43b85206c3f0bbdd",
                 "sha256:f72f148f54442c6b056bf931dbc34f986fd0c3b0b6b5a58d013c9aef274d0c88"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
             "version": "==2.0.1"
         },
         "xlwt": {

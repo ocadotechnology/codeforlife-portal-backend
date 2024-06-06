@@ -15,7 +15,7 @@ Including another URLconf
 """
 
 from aimmo import urls as aimmo_urls  # type: ignore[import-untyped]
-from codeforlife.urls import service_urlpatterns
+from codeforlife.urls import get_urlpatterns
 from django.urls import include, path
 from portal.views.aimmo.dashboard import (  # type: ignore[import-untyped]
     StudentAimmoDashboard,
@@ -43,11 +43,7 @@ urlpatterns = [
         include(aimmo_urls),
         name="kurono",
     ),
-    *service_urlpatterns(
-        api_urls_path="src.api.urls",
-        frontend_template_name="portal.html",  # TODO: update, removed bundling
-        include_user_urls=False,
-    ),
+    *get_urlpatterns(include_user_urls=False),
     path(
         "api/",
         include("src.sso.urls"),
