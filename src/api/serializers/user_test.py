@@ -420,7 +420,7 @@ class TestResetUserPasswordSerializer(ModelSerializerTestCase[User, User]):
 
 class TestVerifyUserEmailAddressSerializer(ModelSerializerTestCase[User, User]):
     model_serializer_class = VerifyUserEmailAddressSerializer
-    # fixtures = ["school_1"]
+    fixtures = ["non_school_teacher"]
 
     def setUp(self):
         user = User.objects.filter(userprofile__is_verified=False).first()
