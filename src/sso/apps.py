@@ -9,4 +9,4 @@ from django.apps import AppConfig
 # pylint: disable-next=missing-class-docstring
 class SsoConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "sso"
+    name = "src.sso"
