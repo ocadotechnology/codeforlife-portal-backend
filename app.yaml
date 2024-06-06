@@ -7,7 +7,7 @@ inbound_services:
 
 env_variables:
   DEBUG: "0"
-  DJANGO_SETTINGS_MODULE: "service.settings"
+  DJANGO_SETTINGS_MODULE: "src.service.settings"
   SECRET_KEY: "REPLACE_IN_PIPELINE"
   SERVICE_NAME: "REPLACE_IN_PIPELINE"
   SERVICE_IS_ROOT: "REPLACE_IN_PIPELINE"
