@@ -11,10 +11,13 @@ import typing as t
 
 from codeforlife.user.models import User as _User
 from django.db.models.query import QuerySet
-from django_stubs_ext.db.models import TypedModelMeta
 
 if t.TYPE_CHECKING:
+    from django_stubs_ext.db.models import TypedModelMeta
+
     from .level import Level
+else:
+    TypedModelMeta = object
 
 
 class User(_User):
