@@ -3,6 +3,7 @@
 /manage.py
 /.devcontainer.json
 /.github
+/.venv
 /.vscode
 /.gitignore
 /codecov.yml
