@@ -1,7 +1,11 @@
 {
   "folders": [
     {
-      "name": "portal-react",
+      "name": "portal-frontend",
+      "path": "../codeforlife-portal-frontend"
+    },
+    {
+      "name": "portal-backend",
       "path": "."
     },
     {
