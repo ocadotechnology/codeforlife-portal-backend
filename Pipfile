@@ -33,7 +33,7 @@ django-classy-tags = "==2.0.0"
 
 [dev-packages]
 codeforlife = {ref = "convert_to_backend_repo", git = "https://github.com/ocadotechnology/codeforlife-package-python.git", extras = ["dev"]}
-# codeforlife = {file = "../../codeforlife-package-python", editable = true, extras = ["dev"]}
+# codeforlife = {file = "../codeforlife-package-python", editable = true, extras = ["dev"]}
 # 🚫 Don't add [dev-packages] below that are inherited from the CFL package.
 
 [requires]
