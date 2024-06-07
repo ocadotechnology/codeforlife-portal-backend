@@ -21,7 +21,8 @@
         "tamasfe.even-better-toml",
         "github.vscode-github-actions",
         "codecov.codecov",
-        "ritwickdey.liveserver"
+        "ritwickdey.liveserver",
+        "esbenp.prettier-vscode"
       ]
     }
   },
@@ -45,7 +46,7 @@
     "source=./codeforlife-package-python,target=/workspace/codeforlife-package-python,type=bind,consistency=cached"
   ],
   "name": "portal-react",
-  "postCreateCommand": "./setup",
+  "postCreateCommand": "sudo chmod u+x ./setup && ./setup",
   "remoteUser": "root",
   "service": "base-service",
   "shutdownAction": "none",

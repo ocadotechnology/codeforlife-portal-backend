@@ -1,18 +1,4 @@
 {
-  "javascript.module.doccomment": {
-    "body": [
-      "/**",
-      " * \u00a9 Ocado Group",
-      " * Created on $CURRENT_DATE/$CURRENT_MONTH/$CURRENT_YEAR at $CURRENT_HOUR:$CURRENT_MINUTE:$CURRENT_SECOND($CURRENT_TIMEZONE_OFFSET).",
-      " *",
-      " * ${1:__description__}",
-      " */"
-    ],
-    "prefix": [
-      "/"
-    ],
-    "scope": "javascript,typescript,javascriptreact,typescriptreact"
-  },
   "python.module.docstring": {
     "body": [
       "\"\"\"",

@@ -21,13 +21,6 @@
       "type": "debugpy"
     },
     {
-      "name": "React Dev Server",
-      "preLaunchTask": "start-react-dev-server",
-      "request": "launch",
-      "type": "chrome",
-      "url": "http://localhost:3000"
-    },
-    {
       "args": [
         "runserver",
         "localhost:8000"
