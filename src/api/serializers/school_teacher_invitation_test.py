@@ -38,7 +38,7 @@ class TestSchoolTeacherInvitationSerializer(
         )
 
     @patch(
-        "api.serializers.school_teacher_invitation.make_password",
+        "src.api.serializers.school_teacher_invitation.make_password",
         return_value="token",
     )
     def test_create(self, invitation_make_password: Mock):

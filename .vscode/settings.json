@@ -10,7 +10,6 @@
     "--config",
     "pyproject.toml"
   ],
-  "black-formatter.cwd": "${workspaceFolder}/backend",
   "black-formatter.path": [
     ".venv/bin/python",
     "-m",
@@ -38,17 +37,16 @@
     "**/__pycache__": true
   },
   "isort.args": [
-    "--settings-file=backend/pyproject.toml"
+    "--settings-file=pyproject.toml"
   ],
   "isort.path": [
-    "backend/.venv/bin/python",
+    ".venv/bin/python",
     "-m",
     "isort"
   ],
   "mypy-type-checker.args": [
     "--config-file=pyproject.toml"
   ],
-  "mypy-type-checker.cwd": "${workspaceFolder}/backend",
   "mypy-type-checker.path": [
     ".venv/bin/python",
     "-m",
@@ -57,7 +55,6 @@
   "pylint.args": [
     "--rcfile=pyproject.toml"
   ],
-  "pylint.cwd": "${workspaceFolder}/backend",
   "pylint.path": [
     ".venv/bin/python",
     "-m",
@@ -66,16 +63,14 @@
   "python.analysis.extraPaths": [
     "../codeforlife-package-python"
   ],
-  "python.defaultInterpreterPath": "backend/.venv/bin/python",
-  "python.testing.cwd": "${workspaceFolder}/backend",
+  "python.defaultInterpreterPath": ".venv/bin/python",
   "python.testing.pytestArgs": [
     "-n=auto",
-    "--cov=.",
+    "--cov=src",
     "--cov-report=html",
     "-c=pyproject.toml",
-    "."
+    "src"
   ],
   "python.testing.pytestEnabled": true,
-  "python.testing.unittestEnabled": false,
-  "typescript.preferences.quoteStyle": "single"
+  "python.testing.unittestEnabled": false
 }

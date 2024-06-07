@@ -9,4 +9,4 @@ from django.apps import AppConfig
 # pylint: disable-next=missing-class-docstring
 class RapidRouterConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "rapid_router"
+    name = "src.rapid_router"

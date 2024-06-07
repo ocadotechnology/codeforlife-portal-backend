@@ -1,0 +1,17 @@
+runtime: REPLACE_IN_PIPELINE
+instance_class: F2
+service: REPLACE_IN_PIPELINE
+
+inbound_services:
+  - warmup
+
+env_variables:
+  DEBUG: "0"
+  DJANGO_SETTINGS_MODULE: "src.service.settings"
+  SECRET_KEY: "REPLACE_IN_PIPELINE"
+  SERVICE_NAME: "REPLACE_IN_PIPELINE"
+  SERVICE_IS_ROOT: "1"
+  SERVICE_PROTOCOL: "https"
+  SERVICE_DOMAIN: "codeforlife.education"
+  SERVICE_PORT: "443"
+  MODULE_NAME: "REPLACE_IN_PIPELINE"

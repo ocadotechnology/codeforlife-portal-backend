@@ -5,19 +5,11 @@ cd "${BASH_SOURCE%/*}"
 
 source ./setup
 
-cd frontend
-
-printf "\nBuilding front end\n\n"
-
-yarn run build
-
-cd ../backend
-
 export SERVICE_NAME="portal"
 export SERVICE_IS_ROOT="1"
 export STATIC_MODE="default"  # TODO: Remove after RR FE restructure
 
-printf "\nRunning Django server\n\n"
+printf "\n\nRunning Django server\n\n"
 
 pipenv run python ./manage.py migrate --noinput
 pipenv run python ./manage.py collectstatic --noinput --clear

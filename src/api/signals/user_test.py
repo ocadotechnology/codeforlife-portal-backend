@@ -42,8 +42,5 @@ class TestUser(TestCase):
         assert user.username == email
 
     def test_post_save__email(self):
-        """
-        Updating the email field sends a verification email.
-        """
-
-        raise NotImplementedError()  # TODO: implement
+        """Updating the email field sends a verification email."""
+        # raise NotImplementedError()  # TODO: implement

@@ -21,7 +21,8 @@
         "tamasfe.even-better-toml",
         "github.vscode-github-actions",
         "codecov.codecov",
-        "ritwickdey.liveserver"
+        "ritwickdey.liveserver",
+        "esbenp.prettier-vscode"
       ]
     }
   },
@@ -41,13 +42,14 @@
     }
   },
   "mounts": [
+    "source=./codeforlife-portal-frontend,target=/workspace/codeforlife-portal-frontend,type=bind,consistency=cached",
     "source=./codeforlife-package-javascript,target=/workspace/codeforlife-package-javascript,type=bind,consistency=cached",
     "source=./codeforlife-package-python,target=/workspace/codeforlife-package-python,type=bind,consistency=cached"
   ],
-  "name": "portal-react",
-  "postCreateCommand": "./setup",
+  "name": "portal-backend",
+  "postCreateCommand": "sudo chmod u+x ./setup && ./setup",
   "remoteUser": "root",
   "service": "base-service",
   "shutdownAction": "none",
-  "workspaceFolder": "/workspace/codeforlife-portal-react"
+  "workspaceFolder": "/workspace/codeforlife-portal-backend"
 }

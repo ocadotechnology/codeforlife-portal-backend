@@ -444,7 +444,7 @@ class TestSchoolTeacherInvitationViewSet(
         with self.assertRaises(SchoolTeacherInvitation.DoesNotExist):
             invitation.refresh_from_db()
 
-    @patch("api.views.school_teacher_invitation.send_mail")
+    @patch("src.api.views.school_teacher_invitation.send_mail")
     def test_reject(self, send_mail: Mock):
         """The invited person can reject the invitation."""
         invitation = self.new_user_invitation

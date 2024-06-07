@@ -260,7 +260,8 @@ MIDDLEWARE = [
 ]
 
 INSTALLED_APPS = [
-    "api",
+    "src.sso",
+    "src.rapid_router",
     "aimmo",
     "game",
     "pipeline",
@@ -278,7 +279,5 @@ INSTALLED_APPS = [
     "import_export",
     "sekizai",  # for javascript and css management
     "treebeard",
-    "sso",
-    "rapid_router",
     *INSTALLED_APPS,
 ]

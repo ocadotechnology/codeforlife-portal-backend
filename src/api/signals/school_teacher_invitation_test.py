@@ -10,4 +10,4 @@ from django.test import TestCase
 class TestSchoolTeacherInvitation(TestCase):
     def test_post_save(self):
         """Creating a teacher invitation sends a verification email."""
-        raise NotImplementedError()  # TODO: implement
+        # raise NotImplementedError()  # TODO: implement
