@@ -1,24 +1,8 @@
 {
   "tasks": [
     {
-      "isBackground": true,
-      "label": "start-react-dev-server",
-      "options": {
-        "env": {
-          "BROWSER": "none"
-        }
-      },
-      "path": "frontend",
-      "problemMatcher": [],
-      "script": "start",
-      "type": "npm"
-    },
-    {
       "command": "pipenv install --dev",
       "label": "pipenv-install-dev",
-      "options": {
-        "cwd": "${workspaceFolder}/backend"
-      },
       "type": "shell"
     },
     {
@@ -27,9 +11,6 @@
         "pipenv-install-dev"
       ],
       "label": "migrate-db",
-      "options": {
-        "cwd": "${workspaceFolder}/backend"
-      },
       "type": "shell"
     }
   ],
