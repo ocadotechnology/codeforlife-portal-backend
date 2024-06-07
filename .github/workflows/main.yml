@@ -7,5 +7,5 @@ on:
 
 jobs:
   main:
-    uses: ocadotechnology/codeforlife-workspace/.github/workflows/backend.yaml@convert_to_backend_repo # TODO: set to @main
+    uses: ocadotechnology/codeforlife-workspace/.github/workflows/backend.yaml@main
     secrets: inherit
