@@ -6,7 +6,7 @@ cd "${BASH_SOURCE%/*}"
 pipenv install --dev
 export STATIC_MODE="default"  # TODO: Remove after RR FE restructure
 pipenv run python ../manage.py migrate --noinput
-# pipenv run python manage.py loaddata src/*/fixtures/*.json
+pipenv run python ../manage.py load_fixtures api
 pipenv run python ../manage.py collectstatic --noinput --clear
 export STATIC_MODE="pipeline"  # TODO: Remove after RR FE restructure
 pipenv run python ../manage.py collectstatic --noinput  # TODO: Remove after RR FE restructure
