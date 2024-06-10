@@ -1,8 +1,15 @@
 {
   "tasks": [
     {
-      "command": "sudo chmod u+x ./setup && ./setup",
+      "command": "sudo chmod u+x scripts/setup && scripts/setup",
       "label": "setup",
+      "problemMatcher": [],
+      "type": "shell"
+    },
+    {
+      "command": "sudo chmod u+x scripts/hard-install && scripts/hard-install",
+      "label": "hard-install",
+      "problemMatcher": [],
       "type": "shell"
     }
   ],

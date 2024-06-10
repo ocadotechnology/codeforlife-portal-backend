@@ -5,4 +5,4 @@ cd "${BASH_SOURCE%/*}"
 
 source ./setup
 
-pipenv run python ./manage.py runserver "$@"
+pipenv run python ../manage.py runserver "$@"
