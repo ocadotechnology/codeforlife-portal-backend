@@ -22,7 +22,7 @@ DOTDIGITAL_CAMPAIGN_IDS = {
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 
 # Custom
 LOGIN_REDIRECT_URL = "/teach/dashboard/"
