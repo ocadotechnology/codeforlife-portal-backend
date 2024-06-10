@@ -1,16 +1,8 @@
 {
   "tasks": [
     {
-      "command": "pipenv install --dev",
-      "label": "pipenv-install-dev",
-      "type": "shell"
-    },
-    {
-      "command": "pipenv run python ./manage.py migrate",
-      "dependsOn": [
-        "pipenv-install-dev"
-      ],
-      "label": "migrate-db",
+      "command": "sudo chmod u+x ./setup && ./setup",
+      "label": "setup",
       "type": "shell"
     }
   ],
