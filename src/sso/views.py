@@ -90,9 +90,16 @@ class LoginView(_LoginView):
         # Save session (with data).
         self.request.session.save()
 
+        user_type = "indy"
+        if user.teacher:
+            user_type = "teacher"
+        elif user.student and user.student.class_field:
+            user_type = "student"
+
         # Get session metadata.
         session_metadata = {
             "user_id": user.id,
+            "user_type": user_type,
             "auth_factors": list(
                 user.session.auth_factors.values_list(
                     "auth_factor__type", flat=True
