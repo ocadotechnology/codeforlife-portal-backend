@@ -72,8 +72,8 @@ def user__post_save__email(
                 },
             )
 
-            instance = instance.as_type(TeacherUser)
-            instance.email_user(
+            teacher_user = instance.as_type(TeacherUser)
+            teacher_user.email_user(
                 settings.DOTDIGITAL_CAMPAIGN_IDS["verify_email_address"],
                 personalization_values={
                     "VERIFICATION_LINK": verify_email_address_link
