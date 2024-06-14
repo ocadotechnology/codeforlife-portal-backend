@@ -4,8 +4,9 @@ Created on 20/01/2024 at 10:58:52(+00:00).
 """
 import typing as t
 from datetime import timedelta
-from unittest.mock import call, patch
+from unittest.mock import Mock, call, patch
 
+from codeforlife.mail import send_mail
 from codeforlife.permissions import (
     OR,
     AllowAny,
@@ -32,11 +33,13 @@ from codeforlife.user.models import (
 from codeforlife.user.permissions import IsIndependent, IsTeacher
 from codeforlife.user.serializers import UserSerializer
 from django.conf import settings
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.tokens import (
     PasswordResetTokenGenerator,
     default_token_generator,
 )
 from django.utils import timezone
+from rest_framework import status
 
 from ..auth import email_verification_token_generator
 from ..serializers import (
@@ -363,16 +366,79 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         user = User.objects.filter(userprofile__is_verified=False).first()
         assert user
 
-        self.client.update(
-            user,
-            action="verify_email_address",
-            data={"token": email_verification_token_generator.make_token(user)},
+        self.client.get(
+            self.reverse_action(
+                "verify_email_address",
+                model=user,
+                kwargs={
+                    "token": email_verification_token_generator.make_token(user)
+                },
+            ),
+            status_code_assertion=status.HTTP_303_SEE_OTHER,
         )
 
         user.refresh_from_db()
         assert user.userprofile.is_verified
 
     # test: generic actions
+
+    @patch("codeforlife.mail.send_mail", side_effect=send_mail)
+    @patch.object(IndependentUser, "add_contact_to_dot_digital")
+    @patch.object(
+        email_verification_token_generator, "make_token", return_value="example"
+    )
+    def test_create(
+        self,
+        make_token: Mock,
+        add_contact_to_dot_digital: Mock,
+        send_mail_mock: Mock,
+    ):
+        """Can create an independent user."""
+        password = "N3wPassword!"
+        data = {
+            "first_name": "Peter",
+            "last_name": "Parker",
+            "password": password,
+            "email": "peter.parker@spider.man",
+            "add_to_newsletter": True,
+            "date_of_birth": (
+                timezone.now() - timedelta(days=365.25 * 10)
+            ).date(),
+        }
+
+        with patch(
+            "django.contrib.auth.models.make_password",
+            return_value=make_password(password),
+        ) as user_make_password:
+            response = self.client.create(data)
+
+            user_make_password.assert_called_once_with(data["password"])
+
+        user_id = response.json()["id"]
+
+        add_contact_to_dot_digital.assert_called_once()
+
+        make_token.assert_called_once_with(user_id)
+
+        send_mail_mock.assert_called_once_with(
+            campaign_id=settings.DOTDIGITAL_CAMPAIGN_IDS[
+                "verify_email_address_underage"
+            ],
+            to_addresses=[data["email"]],
+            personalization_values={
+                "ACTIVATION_LINK": (
+                    settings.SERVICE_BASE_URL
+                    + self.reverse_action(
+                        "verify_email_address",
+                        kwargs={
+                            "pk": user_id,
+                            "token": make_token.return_value,
+                        },
+                    )
+                ),
+                "FIRST_NAME": data["first_name"],
+            },
+        )
 
     def test_partial_update(self):
         """Can successfully update a user."""

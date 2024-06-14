@@ -3,7 +3,7 @@
 Created on 18/01/2024 at 15:14:32(+00:00).
 """
 import typing as t
-from datetime import date
+from datetime import date, timedelta
 
 from codeforlife.types import DataDict
 from codeforlife.user.models import (
@@ -24,6 +24,7 @@ from django.contrib.auth.password_validation import (
     validate_password as _validate_password,
 )
 from django.core.exceptions import ValidationError as CoreValidationError
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -95,15 +96,15 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
     date_of_birth = serializers.DateField(write_only=True)
     add_to_newsletter = serializers.BooleanField(write_only=True)
 
-    class Meta(_UserSerializer.Meta):
+    class Meta(BaseUserSerializer.Meta):
         fields = [
-            *_UserSerializer.Meta.fields,
+            *BaseUserSerializer.Meta.fields,
             "password",
             "date_of_birth",
             "add_to_newsletter",
         ]
         extra_kwargs = {
-            **_UserSerializer.Meta.extra_kwargs,
+            **BaseUserSerializer.Meta.extra_kwargs,
             "first_name": {"min_length": 1},
             "last_name": {"min_length": 1},
             "password": {"write_only": True},
@@ -112,17 +113,43 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
 
     def create(self, validated_data):
         add_to_newsletter: bool = validated_data.pop("add_to_newsletter")
-        # pylint: disable-next=unused-variable
         date_of_birth: date = validated_data.pop("date_of_birth")
-
-        # TODO: Use date of birth in post email save signal to send
-        #  appropriate verification email depending on age, cf
-        # pylint: disable-next=line-too-long
-        #  https://github.com/ocadotechnology/codeforlife-portal/blob/master/portal/views/home.py#L192
 
         independent_user = IndependentUser.objects.create_user(**validated_data)
         if add_to_newsletter:
             independent_user.add_contact_to_dot_digital()
+
+        verify_email_address_link = settings.SERVICE_BASE_URL + reverse(
+            "user-verify-email-address",
+            kwargs={
+                "pk": independent_user.pk,
+                "token": email_verification_token_generator.make_token(
+                    independent_user.pk
+                ),
+            },
+        )
+
+        # TODO: send in signal instead in new schema.
+        if (
+            date_of_birth
+            <= (timezone.now() - timedelta(days=365.25 * 13)).date()
+        ):
+            independent_user.email_user(
+                settings.DOTDIGITAL_CAMPAIGN_IDS["verify_email_address"],
+                personalization_values={
+                    "VERIFICATION_LINK": verify_email_address_link
+                },
+            )
+        else:
+            independent_user.email_user(
+                settings.DOTDIGITAL_CAMPAIGN_IDS[
+                    "verify_email_address_underage"
+                ],
+                personalization_values={
+                    "ACTIVATION_LINK": verify_email_address_link,
+                    "FIRST_NAME": independent_user.first_name,
+                },
+            )
 
         return independent_user
 

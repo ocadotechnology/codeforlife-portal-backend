@@ -14,10 +14,14 @@ from codeforlife.models.signals.pre_save import (
     adding,
     previous_values_are_unequal,
 )
-from codeforlife.user.models import StudentUser, User, UserProfile
+from codeforlife.user.models import StudentUser, TeacherUser, User, UserProfile
 from codeforlife.user.signals import user_receiver
+from django.conf import settings
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from django.urls import reverse
+
+from ..auth import email_verification_token_generator
 
 # pylint: disable=unused-argument
 
@@ -51,8 +55,30 @@ def user__pre_save__email(
 
 
 @receiver(post_save, sender=User)
-def user__post_save__email(sender, instance: User, *args, **kwargs):
+def user__post_save__email(
+    sender, instance: User, created: bool, *args, **kwargs
+):
     """After a user's email field is updated."""
-    # TODO: send verification email
-    # TODO: ensure that the correct verification email is sent depending on
-    #  the user's age if they're independent
+
+    if created:
+        if instance.teacher:
+            verify_email_address_link = settings.SERVICE_BASE_URL + reverse(
+                "user-verify-email-address",
+                kwargs={
+                    "pk": instance.pk,
+                    "token": email_verification_token_generator.make_token(
+                        instance.pk
+                    ),
+                },
+            )
+
+            instance = instance.as_type(TeacherUser)
+            instance.email_user(
+                settings.DOTDIGITAL_CAMPAIGN_IDS["verify_email_address"],
+                personalization_values={
+                    "VERIFICATION_LINK": verify_email_address_link
+                },
+            )
+
+        # TODO: add nullable date_of_birth field to user model and send
+        #   verification email to independents in new schema.

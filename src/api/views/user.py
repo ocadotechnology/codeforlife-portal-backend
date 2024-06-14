@@ -134,11 +134,39 @@ class UserViewSet(_UserViewSet):
 
         return Response()
 
+    @action(
+        detail=True,
+        url_path="verify-email-address/(?P<token>.+)",
+        methods=["get"],
+    )
+    def verify_email_address(self, request: Request, **url_params: str):
+        """
+        Verify a user's email address and redirect them back to the login page.
+
+        NOTE: This should normally use HTTP PUT, not GET. However, GET is the
+        default method used when users click on the link in their email.
+        """
+        user = self.get_object()
+
+        serializer = self.get_serializer(
+            instance=user, data={**request.data, "token": url_params["token"]}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            status=status.HTTP_303_SEE_OTHER,
+            headers={
+                "Location": settings.PAGE_TEACHER_LOGIN
+                if user.teacher
+                else settings.PAGE_INDY_LOGIN
+            },
+        )
+
     reset_password = _UserViewSet.update_action("reset_password")
     handle_join_class_request = _UserViewSet.update_action(
         "handle_join_class_request"
     )
-    verify_email_address = _UserViewSet.update_action("verify_email_address")
 
     def _get_unverified_users(self, days: int, same_day: bool):
         now = timezone.now()

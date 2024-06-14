@@ -19,6 +19,8 @@ EMAIL_VERIFICATION_TIMEOUT = 60 * 60 * 24
 DOTDIGITAL_CAMPAIGN_IDS = {
     "verify_email_address_1st_reminder": 0,  # TODO: set correct id
     "verify_email_address_2nd_reminder": 0,  # TODO: set correct id
+    "verify_email_address": 1551577,
+    "verify_email_address_underage": 1551587,
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -281,3 +283,7 @@ INSTALLED_APPS = [
     "treebeard",
     *INSTALLED_APPS,
 ]
+
+# Frontend pages.
+PAGE_TEACHER_LOGIN = f"{SERVICE_SITE_URL}/login/teacher"
+PAGE_INDY_LOGIN = f"{SERVICE_SITE_URL}/login/independent"
