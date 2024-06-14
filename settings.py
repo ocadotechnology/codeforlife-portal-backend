@@ -17,10 +17,10 @@ from pathlib import Path
 EMAIL_VERIFICATION_TIMEOUT = 60 * 60 * 24
 
 DOTDIGITAL_CAMPAIGN_IDS = {
-    "verify_email_address_1st_reminder": 0,  # TODO: set correct id
-    "verify_email_address_2nd_reminder": 0,  # TODO: set correct id
-    "verify_email_address": 1551577,
-    "verify_email_address_underage": 1551587,
+    "Verify new user email - first reminder": 1557170,
+    "Verify new user email - second reminder": 1557173,
+    "Verify new user email": 1551577,
+    "Verify new user email - parents": 1551587,
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

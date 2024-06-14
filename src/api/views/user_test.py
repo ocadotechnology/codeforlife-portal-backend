@@ -422,7 +422,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
 
         send_mail_mock.assert_called_once_with(
             campaign_id=settings.DOTDIGITAL_CAMPAIGN_IDS[
-                "verify_email_address_underage"
+                "Verify new user email - parents"
             ],
             to_addresses=[data["email"]],
             personalization_values={
@@ -611,7 +611,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         self._test_send_verify_email_reminder(
             action="send_1st_verify_email_reminder",
             days=7,
-            campaign_name="verify_email_address_1st_reminder",
+            campaign_name="Verify new user email - first reminder",
         )
 
     def test_send_2nd_verify_email_reminder(self):
@@ -619,7 +619,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         self._test_send_verify_email_reminder(
             action="send_2nd_verify_email_reminder",
             days=14,
-            campaign_name="verify_email_address_2nd_reminder",
+            campaign_name="Verify new user email - second reminder",
         )
 
     def test_anonymize_unverified_accounts(self):

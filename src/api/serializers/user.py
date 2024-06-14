@@ -135,7 +135,7 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
             <= (timezone.now() - timedelta(days=365.25 * 13)).date()
         ):
             independent_user.email_user(
-                settings.DOTDIGITAL_CAMPAIGN_IDS["verify_email_address"],
+                settings.DOTDIGITAL_CAMPAIGN_IDS["Verify new user email"],
                 personalization_values={
                     "VERIFICATION_LINK": verify_email_address_link
                 },
@@ -143,7 +143,7 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
         else:
             independent_user.email_user(
                 settings.DOTDIGITAL_CAMPAIGN_IDS[
-                    "verify_email_address_underage"
+                    "Verify new user email - parents"
                 ],
                 personalization_values={
                     "ACTIVATION_LINK": verify_email_address_link,

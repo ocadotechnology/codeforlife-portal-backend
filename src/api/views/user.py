@@ -240,7 +240,7 @@ class UserViewSet(_UserViewSet):
         email address.
         """
         return self._send_verify_email_reminder(
-            days=7, campaign_name="verify_email_address_1st_reminder"
+            days=7, campaign_name="Verify new user email - first reminder"
         )
 
     @cron_job
@@ -250,7 +250,7 @@ class UserViewSet(_UserViewSet):
         email address.
         """
         return self._send_verify_email_reminder(
-            days=14, campaign_name="verify_email_address_2nd_reminder"
+            days=14, campaign_name="Verify new user email - second reminder"
         )
 
     @cron_job
