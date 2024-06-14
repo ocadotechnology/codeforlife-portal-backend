@@ -31,10 +31,10 @@ class TestLoginView(TestCase):
 
             user_id: int
             auth_factors: t.List[str]
+            user_type: t.Literal["teacher", "student", "indy"]
+            otp_bypass_token_exists: bool
 
-        return Session(
-            **json.loads(response.cookies["sessionid_httponly_false"].value)
-        )
+        return Session(**json.loads(response.cookies["session_metadata"].value))
 
     def test_post__otp(self):
         """Test posting an OTP token."""
@@ -45,11 +45,14 @@ class TestLoginView(TestCase):
         )
 
         response = self.client.post(
-            reverse("login", kwargs={"form": "email"}),
-            data={
-                "email": self.user.email,
-                "password": "Password1",
-            },
+            reverse("session-login", kwargs={"form": "login-with-email"}),
+            data=json.dumps(
+                {
+                    "email": self.user.email,
+                    "password": "Password1",
+                }
+            ),
+            content_type="application/json",
         )
 
         assert response.status_code == 200
@@ -65,8 +68,9 @@ class TestLoginView(TestCase):
         now = timezone.now()
         with patch.object(timezone, "now", return_value=now):
             response = self.client.post(
-                reverse("login", kwargs={"form": "otp"}),
-                data={"otp": totp.at(now)},
+                reverse("session-login", kwargs={"form": "login-with-otp"}),
+                data=json.dumps({"otp": totp.at(now)}),
+                content_type="application/json",
             )
 
         assert response.status_code == 200
@@ -82,5 +86,5 @@ class TestClearExpiredView(CronTestCase):
         """Test the clear sessions command is called."""
 
         with patch.object(management, "call_command") as call_command:
-            self.client.get(reverse("clear-expired-sessions"))
+            self.client.get(reverse("session-clear-expired"))
             call_command.assert_called_once_with("clearsessions")
