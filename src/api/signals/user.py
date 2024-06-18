@@ -9,6 +9,7 @@ import pyotp
 from codeforlife.models.signals import (
     UpdateFields,
     assert_update_fields_includes,
+    update_fields_includes,
 )
 from codeforlife.models.signals.pre_save import (
     adding,
@@ -32,7 +33,7 @@ def user__pre_save__otp_secret(
 ):
     """Set the OTP secret for new users."""
     # TODO: move this to User.otp_secret.default when restructuring.
-    if adding(instance):
+    if adding(instance) and update_fields:
         assert_update_fields_includes(update_fields, {"otp_secret"})
         instance.otp_secret = pyotp.random_base32()
 
@@ -42,10 +43,12 @@ def user__pre_save__email(
     sender, instance: User, update_fields: UpdateFields, *args, **kwargs
 ):
     """Before a user's email field is updated."""
-    if (update_fields and "email" in update_fields) or (
+    if update_fields_includes(update_fields, {"email"}) or (
         instance.email and previous_values_are_unequal(instance, {"email"})
     ):
-        assert_update_fields_includes(update_fields, {"email", "username"})
+        if update_fields:
+            assert_update_fields_includes(update_fields, {"email", "username"})
+
         # TODO: remove this logic in new data schema. needed for anonymization.
         instance.username = (
             StudentUser.get_random_username()
