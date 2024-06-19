@@ -191,6 +191,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# TODO: clean up below list
 # Custom
 .nyc_output
 cypress/videos
@@ -198,7 +199,7 @@ cypress/screenshots
 /src/.python-version
 /src/*/static/react
 /src/*/templates/portal.html
-/src/static
+/static
 *.sqlite3
 /frontend/build
 node_modules

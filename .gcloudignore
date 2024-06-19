@@ -10,6 +10,5 @@
 /*.toml
 /*.code-*
 /*.md
-/setup
-/run
+/scripts
 /frontend

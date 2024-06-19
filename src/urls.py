@@ -45,7 +45,7 @@ urlpatterns = [
     ),
     *get_urlpatterns(include_user_urls=False),
     path(
-        "api/",
+        "api/sso/",
         include("src.sso.urls"),
         name="sso",
     ),

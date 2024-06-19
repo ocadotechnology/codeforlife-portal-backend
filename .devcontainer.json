@@ -47,7 +47,7 @@
     "source=./codeforlife-package-python,target=/workspace/codeforlife-package-python,type=bind,consistency=cached"
   ],
   "name": "portal-backend",
-  "postCreateCommand": "sudo chmod u+x ./setup && ./setup",
+  "postCreateCommand": "sudo chmod u+x scripts/setup && scripts/setup",
   "remoteUser": "root",
   "service": "base-service",
   "shutdownAction": "none",

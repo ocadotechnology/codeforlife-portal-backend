@@ -7,15 +7,14 @@ Created on 01/12/2023 at 16:00:24(+00:00).
 from codeforlife.user.models import User
 from django import forms
 from django.contrib.auth import authenticate
-from django.contrib.auth.forms import UsernameField
 from django.core.exceptions import ValidationError
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.validators import RegexValidator
 
 
-class BaseAuthForm(forms.Form):
+class BaseLoginForm(forms.Form):
     """
-    Base authentication form that all other authentication forms must inherit.
+    Base login form that all other login forms must inherit.
     """
 
     user: User
@@ -75,7 +74,20 @@ class BaseAuthForm(forms.Form):
         raise NotImplementedError()
 
 
-class OtpAuthForm(BaseAuthForm):
+class EmailLoginForm(BaseLoginForm):
+    """Log in with an email address."""
+
+    email = forms.EmailField()
+    password = forms.CharField(strip=False)
+
+    def get_invalid_login_error_message(self):
+        return (
+            "Please enter a correct email and password. Note that both"
+            " fields are case-sensitive."
+        )
+
+
+class OtpLoginForm(BaseLoginForm):
     """Log in with an OTP code."""
 
     otp = forms.CharField(
@@ -88,7 +100,7 @@ class OtpAuthForm(BaseAuthForm):
         return "Please enter the correct one-time password."
 
 
-class OtpBypassTokenAuthForm(BaseAuthForm):
+class OtpBypassTokenLoginForm(BaseLoginForm):
     """Log in with an OTP-bypass token."""
 
     token = forms.CharField(min_length=8, max_length=8)
@@ -97,23 +109,10 @@ class OtpBypassTokenAuthForm(BaseAuthForm):
         return "Must be exactly 8 characters. A token can only be used once."
 
 
-class EmailAuthForm(BaseAuthForm):
-    """Log in with an email address."""
+class StudentLoginForm(BaseLoginForm):
+    """Log in as a student."""
 
-    email = forms.EmailField()
-    password = forms.CharField(strip=False)
-
-    def get_invalid_login_error_message(self):
-        return (
-            "Please enter a correct username and password. Note that both"
-            " fields are case-sensitive."
-        )
-
-
-class UsernameAuthForm(BaseAuthForm):
-    """Log in with a username."""
-
-    username = UsernameField()
+    first_name = forms.CharField()
     password = forms.CharField(strip=False)
     class_id = forms.CharField(
         validators=[
@@ -135,11 +134,11 @@ class UsernameAuthForm(BaseAuthForm):
         )
 
 
-class UserIdAuthForm(BaseAuthForm):
+class StudentAutoLoginForm(BaseLoginForm):
     """Log in with the user's id."""
 
-    user_id = forms.IntegerField(min_value=1)
-    login_id = forms.CharField(min_length=32, max_length=32)
+    student_id = forms.IntegerField(min_value=1)
+    auto_gen_password = forms.CharField(strip=False)
 
     def get_invalid_login_error_message(self):
         return (
