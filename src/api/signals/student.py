@@ -46,11 +46,35 @@ def student__pre_save(
             if check_previous_values(
                 instance,
                 {
-                    "pending_class_request": lambda previous, current: previous
-                    is not None
-                    and current is None,
-                    "class_field": lambda previous, current: previous is None
-                    and current is None,
+                    "pending_class_request": lambda previous, current: (
+                        previous is None and current is not None
+                    )
+                },
+            ):
+                klass: Class = instance.pending_class_request
+
+                # TODO: user student.user.email_user() in new schema.
+                send_mail(
+                    settings.DOTDIGITAL_CAMPAIGN_IDS[
+                        "Student join request notification"
+                    ],
+                    to_addresses=[klass.teacher.new_user.email],
+                    personalization_values={
+                        "USERNAME": instance.new_user.first_name,
+                        "EMAIL": instance.new_user.email,
+                        "ACCESS_CODE": klass.access_code,
+                    },
+                )
+
+            if check_previous_values(
+                instance,
+                {
+                    "pending_class_request": lambda previous, current: (
+                        previous is not None and current is None
+                    ),
+                    "class_field": lambda previous, current: (
+                        previous is None and current is None
+                    ),
                 },
             ):
                 klass: Class = Student.objects.get(
