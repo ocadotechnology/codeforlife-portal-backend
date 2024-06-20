@@ -552,7 +552,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
                 "src.api.views.user.email_verification_token_generator.make_token",
                 side_effect=lambda user_id: user_id,
             ) as make_token:
-                with patch("src.api.views.user.send_mail") as send_mail:
+                with patch("src.api.views.user.send_mail") as send_mail_mock:
                     self.client.cron_job(action)
 
                     if mail_sent:
@@ -563,7 +563,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
                             ],
                             any_order=True,
                         )
-                        send_mail.assert_has_calls(
+                        send_mail_mock.assert_has_calls(
                             [
                                 call(
                                     campaign_id=(
@@ -583,7 +583,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
                         )
                     else:
                         make_token.assert_not_called()
-                        send_mail.assert_not_called()
+                        send_mail_mock.assert_not_called()
 
         test_send_verify_email_reminder(
             days=days - 1,
