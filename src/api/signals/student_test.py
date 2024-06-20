@@ -18,10 +18,7 @@ class TestStudent(TestCase):
     fixtures = ["school_1"]
 
     def test_pre_save(self):
-        """
-        Releasing a student from a class sets the class' reference in a
-        protected attribute.
-        """
+        """Releasing a student from a class sets the class' previous value."""
         student = Student.objects.filter(class_field__isnull=False).first()
         assert student
 
@@ -30,8 +27,7 @@ class TestStudent(TestCase):
         student.class_field = None
         student.save(update_fields=["class_field"])
 
-        # pylint: disable-next=protected-access
-        assert student._klass == klass
+        assert student.previous_class_field == klass
 
     @patch("src.api.signals.student.send_mail")
     def test_post_save(self, send_mail: Mock):
