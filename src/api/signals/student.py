@@ -28,20 +28,69 @@ def student__pre_save(
 ):
     """Before a student is updated."""
 
-    if (
-        not adding(instance)
-        and update_fields_includes(update_fields, {"class_field"})
-        and check_previous_values(
+    if not adding(instance):
+        if update_fields_includes(
+            update_fields, {"class_field"}
+        ) and check_previous_values(
             instance,
             {
-                "class_field": lambda previous_klass, klass: (
-                    previous_klass is not None and klass is None
+                "class_field": lambda previous, current: (
+                    previous is not None and current is None
                 )
             },
-        )
-    ):
-        # pylint: disable-next=protected-access
-        instance._klass = Student.objects.get(pk=instance.pk).class_field
+        ):
+            # pylint: disable-next=protected-access
+            instance._klass = Student.objects.get(pk=instance.pk).class_field
+
+        if update_fields_includes(update_fields, {"pending_class_request"}):
+            if check_previous_values(
+                instance,
+                {
+                    "pending_class_request": lambda previous, current: previous
+                    is not None
+                    and current is None,
+                    "class_field": lambda previous, current: previous is None
+                    and current is None,
+                },
+            ):
+                klass: Class = Student.objects.get(
+                    pk=instance.pk
+                ).pending_class_request
+
+                # TODO: user student.user.email_user() in new schema.
+                send_mail(
+                    settings.DOTDIGITAL_CAMPAIGN_IDS[
+                        "Student join request rejected"
+                    ],
+                    to_addresses=[instance.new_user.email],
+                    personalization_values={
+                        "SCHOOL_NAME": klass.teacher.school.name,
+                        "ACCESS_CODE": klass.access_code,
+                    },
+                )
+
+            # TODO send email when indy is accepted into a class.
+            # if check_previous_values(
+            #     instance,
+            #     {
+            #         "pending_class_request": lambda previous, current: previous
+            #         is not None
+            #         and current is None,
+            #         "class_field": lambda previous, current: previous is None
+            #         and current is not None,
+            #     },
+            # ):
+            #     # TODO: user student.user.email_user() in new schema.
+            #     send_mail(
+            #         settings.DOTDIGITAL_CAMPAIGN_IDS[
+            #             "Student join request accepted"
+            #         ],
+            #         to_addresses=[instance.new_user.email],
+            #         personalization_values={
+            #             "SCHOOL_NAME": klass.teacher.school.name,
+            #             "ACCESS_CODE": klass.access_code,
+            #         },
+            #     )
 
 
 @receiver(post_save, sender=Student)
