@@ -5,6 +5,7 @@ Created on 18/01/2024 at 15:14:32(+00:00).
 import typing as t
 from datetime import date, timedelta
 
+from codeforlife.mail import send_mail
 from codeforlife.types import DataDict
 from codeforlife.user.models import (
     AnyUser,
@@ -47,7 +48,21 @@ from ..auth import (
 class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
     # TODO: make email unique in new models and remove this validation.
     def validate_email(self, value: str):
-        if User.objects.filter(email__iexact=value).exists():
+        user = User.objects.filter(email__iexact=value).first()
+        if user:
+            send_mail(
+                settings.DOTDIGITAL_CAMPAIGN_IDS["User already registered"],
+                to_addresses=[value],
+                personalization_values={
+                    "EMAIL": value,
+                    "LOGIN_URL": (
+                        settings.PAGE_TEACHER_LOGIN
+                        if user.teacher
+                        else settings.PAGE_INDY_LOGIN
+                    ),
+                },
+            )
+
             raise serializers.ValidationError(
                 "Already exists.", code="already_exists"
             )

@@ -30,6 +30,7 @@ DOTDIGITAL_CAMPAIGN_IDS = {
     "Admin revoked": 1569071,
     "Invite teacher - account doesn't exist": 1569607,
     "Invite teacher - account exists": 1569599,
+    "User already registered": 1569539,
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

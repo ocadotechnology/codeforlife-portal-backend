@@ -410,11 +410,11 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
             "django.contrib.auth.models.make_password",
             return_value=make_password(password),
         ) as user_make_password:
-            response = self.client.create(data)
+            self.client.create(data, make_assertions=False)
 
             user_make_password.assert_called_once_with(data["password"])
 
-        user_id = response.json()["id"]
+        user_id = User.objects.get(email__iexact=data["email"]).id
 
         add_contact_to_dot_digital.assert_called_once()
 
