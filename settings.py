@@ -22,6 +22,7 @@ DOTDIGITAL_CAMPAIGN_IDS = {
     "Verify new user email": 1551577,
     "Verify new user email - parents": 1551587,
     "Verify released student email": 1580574,
+    "Reset password": 1557153,
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

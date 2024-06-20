@@ -9,6 +9,7 @@ from codeforlife.types import DataDict
 from codeforlife.user.models import (
     AnyUser,
     Class,
+    ContactableUser,
     IndependentUser,
     Student,
     StudentUser,
@@ -319,7 +320,7 @@ class HandleIndependentUserJoinClassRequestSerializer(
         return instance
 
 
-class RequestUserPasswordResetSerializer(_UserSerializer[User]):
+class RequestUserPasswordResetSerializer(_UserSerializer[ContactableUser]):
     class Meta(_UserSerializer.Meta):
         extra_kwargs = {
             **_UserSerializer.Meta.extra_kwargs,
@@ -328,12 +329,12 @@ class RequestUserPasswordResetSerializer(_UserSerializer[User]):
 
     def validate_email(self, value: str):
         try:
-            return User.objects.get(email__iexact=value)
-        except User.DoesNotExist as ex:
+            return ContactableUser.objects.get(email__iexact=value)
+        except ContactableUser.DoesNotExist as ex:
             raise serializers.ValidationError(code="does_not_exist") from ex
 
     def create(self, validated_data: DataDict):
-        user: User = validated_data["email"]
+        user: ContactableUser = validated_data["email"]
 
         # Generate reset-password url for the frontend.
         # pylint: disable-next=unused-variable
@@ -347,7 +348,10 @@ class RequestUserPasswordResetSerializer(_UserSerializer[User]):
             ]
         )
 
-        # TODO: Send email to user with URL to reset password.
+        user.email_user(
+            settings.DOTDIGITAL_CAMPAIGN_IDS["Reset password"],
+            personalization_values={"RESET_PASSWORD_LINK": reset_password_url},
+        )
 
         return user
 
