@@ -96,6 +96,7 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
     date_of_birth = serializers.DateField(write_only=True)
     add_to_newsletter = serializers.BooleanField(write_only=True)
 
+    # pylint: disable=duplicate-code
     class Meta(BaseUserSerializer.Meta):
         fields = [
             *BaseUserSerializer.Meta.fields,
@@ -110,6 +111,8 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
             "password": {"write_only": True},
             "email": {"read_only": False},
         }
+
+    # pylint: enable=duplicate-code
 
     def create(self, validated_data):
         add_to_newsletter: bool = validated_data.pop("add_to_newsletter")
