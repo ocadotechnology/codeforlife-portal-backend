@@ -25,6 +25,7 @@ DOTDIGITAL_CAMPAIGN_IDS = {
     "Reset password": 1557153,
     "Student join request rejected": 1569470,
     "Student join request notification": 1569486,
+    "Student join request sent": 1569477,
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

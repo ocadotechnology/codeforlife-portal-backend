@@ -146,6 +146,17 @@ def student__post_save(
                 personalization_values={
                     "USERNAME": instance.new_user.first_name,
                     "EMAIL": instance.new_user.email,
-                    "ACCESS_CODE": (instance.pending_class_request.access_code),
+                    "ACCESS_CODE": instance.pending_class_request.access_code,
+                },
+            )
+
+            send_mail(
+                settings.DOTDIGITAL_CAMPAIGN_IDS["Student join request sent"],
+                to_addresses=[instance.new_user.email],
+                personalization_values={
+                    "SCHOOL_CLUB_NAME": (
+                        instance.pending_class_request.teacher.school.name
+                    ),
+                    "ACCESS_CODE": instance.pending_class_request.access_code,
                 },
             )
