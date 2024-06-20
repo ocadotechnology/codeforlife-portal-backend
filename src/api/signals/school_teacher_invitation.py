@@ -25,12 +25,21 @@ def school_teacher_invitation__post_save(
 ):
     """Send invitation email to invited teacher."""
 
-    if (
-        created
-        and not User.objects.filter(
-            email__iexact=instance.invited_teacher_email
-        ).exists()
-    ):
+    if not created:
+        return
+
+    if User.objects.filter(
+        email__iexact=instance.invited_teacher_email
+    ).exists():
+        send_mail(
+            settings.DOTDIGITAL_CAMPAIGN_IDS["Invite teacher - account exists"],
+            to_addresses=[instance.invited_teacher_email],
+            personalization_values={
+                "SCHOOL_NAME": instance.school.name,
+                "REGISTRATION_LINK": settings.PAGE_REGISTER,
+            },
+        )
+    else:
         send_mail(
             settings.DOTDIGITAL_CAMPAIGN_IDS[
                 "Invite teacher - account doesn't exist"
