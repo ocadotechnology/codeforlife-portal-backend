@@ -26,6 +26,8 @@ DOTDIGITAL_CAMPAIGN_IDS = {
     "Student join request rejected": 1569470,
     "Student join request notification": 1569486,
     "Student join request sent": 1569477,
+    "Admin given": 1569057,
+    "Admin revoked": 1569071,
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -292,3 +294,4 @@ INSTALLED_APPS = [
 # Frontend pages.
 PAGE_TEACHER_LOGIN = f"{SERVICE_SITE_URL}/login/teacher"
 PAGE_INDY_LOGIN = f"{SERVICE_SITE_URL}/login/independent"
+PAGE_TEACHER_DASHBOARD_SCHOOL = f"{SERVICE_SITE_URL}/teacher/dashboard/school"
