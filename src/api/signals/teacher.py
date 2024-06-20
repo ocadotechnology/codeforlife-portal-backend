@@ -12,7 +12,7 @@ from codeforlife.models.signals import (
     pre_save,
     update_fields_includes,
 )
-from codeforlife.user.models import Teacher
+from codeforlife.user.models import School, Teacher
 from codeforlife.user.signals import teacher_receiver
 from django.conf import settings
 from django.db.models.signals import post_save as post_save_signal
@@ -35,6 +35,15 @@ def teacher__pre_save(
 
     if update_fields_includes(update_fields, {"is_admin"}) and instance.school:
         pre_save.set_previous_values(instance, {"is_admin"})
+
+    if (
+        update_fields_includes(update_fields, {"school"})
+        and instance.school is None
+        and pre_save.check_previous_values(
+            instance, {"school": lambda value: value is not None}
+        )
+    ):
+        pre_save.set_previous_values(instance, {"school"})
 
 
 @teacher_receiver(post_save_signal)
@@ -73,5 +82,23 @@ def teacher__post_save(
                 to_addresses=[instance.new_user.email],
                 personalization_values={
                     "SCHOOL_CLUB_NAME": instance.school.name,
+                },
+            )
+
+    if update_fields_includes(update_fields, {"school"}):
+        if instance.school is None and post_save.check_previous_values(
+            instance, {"school": lambda value: value is not None}
+        ):
+            previous_school = post_save.get_previous_value(
+                instance, "school", School
+            )
+
+            send_mail(
+                settings.DOTDIGITAL_CAMPAIGN_IDS[
+                    "Teacher released from school"
+                ],
+                to_addresses=[instance.new_user.email],
+                personalization_values={
+                    "SCHOOL_CLUB_NAME": previous_school.name,
                 },
             )
