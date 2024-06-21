@@ -10,6 +10,7 @@ from codeforlife.tests import ModelSerializerTestCase
 from codeforlife.user.models import (
     AdminSchoolTeacherUser,
     Class,
+    ContactableUser,
     IndependentUser,
     StudentUser,
     User,
@@ -321,7 +322,7 @@ class TestHandleIndependentUserJoinClassRequestSerializer(
 
 
 class TestRequestUserPasswordResetSerializer(
-    ModelSerializerTestCase[User, User]
+    ModelSerializerTestCase[User, ContactableUser]
 ):
     model_serializer_class = RequestUserPasswordResetSerializer
     fixtures = ["independent", "school_1"]
