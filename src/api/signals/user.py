@@ -79,7 +79,7 @@ def user__post_save(
 
     if created:
         if isinstance(instance, User) and instance.teacher:
-            verify_email_address_link = settings.SERVICE_BASE_URL + reverse(
+            verify_email_address_link = settings.SERVICE_API_URL + reverse(
                 "user-verify-email-address",
                 kwargs={
                     "pk": instance.pk,
@@ -120,7 +120,7 @@ def user__post_save(
                 personalization_values={"NEW_EMAIL_ADDRESS": instance.email},
             )
 
-            verify_email_address_link = settings.SERVICE_BASE_URL + reverse(
+            verify_email_address_link = settings.SERVICE_API_URL + reverse(
                 "user-verify-email-address",
                 kwargs={
                     "pk": instance.pk,

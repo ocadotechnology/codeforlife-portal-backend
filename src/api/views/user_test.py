@@ -427,7 +427,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
             to_addresses=[data["email"]],
             personalization_values={
                 "ACTIVATION_LINK": (
-                    settings.SERVICE_BASE_URL
+                    settings.SERVICE_API_URL
                     + self.reverse_action(
                         "verify_email_address",
                         kwargs={
@@ -574,7 +574,16 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
                                     to_addresses=[user.email],
                                     personalization_values={
                                         # pylint: disable-next=line-too-long
-                                        "VERIFICATION_LINK": f"http://localhost:8000/?token={user.id}"
+                                        "VERIFICATION_LINK": (
+                                            settings.SERVICE_API_URL
+                                            + self.reverse_action(
+                                                "verify-email-address",
+                                                kwargs={
+                                                    "pk": user.id,
+                                                    "token": user.id,
+                                                },
+                                            )
+                                        )
                                     },
                                 )
                                 for user in teacher_users + indy_users

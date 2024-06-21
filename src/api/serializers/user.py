@@ -138,7 +138,7 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
         if add_to_newsletter:
             independent_user.add_contact_to_dot_digital()
 
-        verify_email_address_link = settings.SERVICE_BASE_URL + reverse(
+        verify_email_address_link = settings.SERVICE_API_URL + reverse(
             "user-verify-email-address",
             kwargs={
                 "pk": independent_user.pk,
@@ -346,7 +346,7 @@ class RequestUserPasswordResetSerializer(_UserSerializer[ContactableUser]):
         # pylint: disable-next=unused-variable
         reset_password_url = "/".join(
             [
-                settings.SERVICE_BASE_URL,
+                settings.SERVICE_SITE_URL,
                 "reset-password",
                 "teacher" if user.teacher else "independent",  # user type
                 str(user.pk),

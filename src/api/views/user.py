@@ -21,6 +21,7 @@ from codeforlife.user.views import UserViewSet as _UserViewSet
 from codeforlife.views import action, cron_job
 from django.conf import settings
 from django.db.models import F
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.serializers import ValidationError
@@ -228,12 +229,14 @@ class UserViewSet(_UserViewSet):
             for user_fields in user_queryset.values("id", "email").iterator(
                 chunk_size=500
             ):
-                url = f"{settings.SERVICE_BASE_URL}/?" + urlencode(
-                    {
+                url = settings.SERVICE_API_URL + reverse(
+                    "user-verify-email-address",
+                    kwargs={
+                        "pk": user_fields["id"],
                         "token": email_verification_token_generator.make_token(
                             user_fields["id"]
-                        )
-                    }
+                        ),
+                    },
                 )
 
                 try:

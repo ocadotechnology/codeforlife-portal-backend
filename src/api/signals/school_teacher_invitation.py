@@ -8,7 +8,7 @@ All signals for the SchoolTeacherInvitation model.
 from codeforlife.mail import send_mail
 from codeforlife.user.models import User
 from django.conf import settings
-from django.db.models.signals import post_save as post_save_signal
+from django.db.models import signals
 from django.dispatch import receiver
 
 from ..models import SchoolTeacherInvitation
@@ -16,7 +16,7 @@ from ..models import SchoolTeacherInvitation
 # pylint: disable=unused-argument
 
 
-@receiver(post_save_signal, sender=SchoolTeacherInvitation)
+@receiver(signals.post_save, sender=SchoolTeacherInvitation)
 def school_teacher_invitation__post_save(
     sender,
     instance: SchoolTeacherInvitation,
