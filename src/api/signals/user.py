@@ -6,15 +6,18 @@ All signals for the User model.
 """
 
 import pyotp
-from codeforlife.models.signals import UpdateFields, update_fields_includes
-from codeforlife.models.signals.pre_save import (
-    adding,
-    previous_values_are_unequal,
+from codeforlife.mail import send_mail
+from codeforlife.models.signals import (
+    UpdateFields,
+    post_save,
+    pre_save,
+    update_fields_includes,
 )
 from codeforlife.user.models import StudentUser, TeacherUser, User, UserProfile
 from codeforlife.user.signals import user_receiver
 from django.conf import settings
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save as post_save_signal
+from django.db.models.signals import pre_save as pre_save_signal
 from django.dispatch import receiver
 from django.urls import reverse
 
@@ -23,28 +26,39 @@ from ..auth import email_verification_token_generator
 # pylint: disable=unused-argument
 
 
-@receiver(pre_save, sender=UserProfile)
-def user__pre_save__otp_secret(
-    sender, instance: UserProfile, update_fields: UpdateFields, *args, **kwargs
+@receiver(pre_save_signal, sender=UserProfile)
+def user_profile__pre_save(
+    sender,
+    instance: UserProfile,
+    update_fields: UpdateFields,
+    **kwargs,
 ):
     """Set the OTP secret for new users."""
     # TODO: move this to User.otp_secret.default when restructuring.
-    if adding(instance):
+    if pre_save.adding(instance):
         if update_fields:
             assert update_fields_includes(update_fields, {"otp_secret"})
         instance.otp_secret = pyotp.random_base32()
 
 
-@user_receiver(pre_save)
-def user__pre_save__email(
-    sender, instance: User, update_fields: UpdateFields, *args, **kwargs
+@user_receiver(pre_save_signal)
+def user__pre_save(
+    sender,
+    instance: User,
+    update_fields: UpdateFields,
+    **kwargs,
 ):
-    """Before a user's email field is updated."""
+    """Before a user is saved."""
+
     if update_fields_includes(update_fields, {"email"}) or (
-        instance.email and previous_values_are_unequal(instance, {"email"})
+        instance.email
+        and pre_save.previous_values_are_unequal(instance, {"email"})
     ):
         if update_fields:
             assert update_fields_includes(update_fields, {"email", "username"})
+
+        if not pre_save.adding(instance):
+            pre_save.set_previous_values(instance, {"email"})
 
         # TODO: remove this logic in new data schema. needed for anonymization.
         instance.username = (
@@ -54,14 +68,18 @@ def user__pre_save__email(
         )
 
 
-@receiver(post_save, sender=User)
-def user__post_save__email(
-    sender, instance: User, created: bool, *args, **kwargs
+@user_receiver(post_save_signal)
+def user__post_save(
+    sender,
+    instance: User,
+    created: bool,
+    update_fields: UpdateFields,
+    **kwargs,
 ):
-    """After a user's email field is updated."""
+    """After a user is saved."""
 
     if created:
-        if instance.teacher:
+        if isinstance(instance, User) and instance.teacher:
             verify_email_address_link = settings.SERVICE_BASE_URL + reverse(
                 "user-verify-email-address",
                 kwargs={
@@ -82,3 +100,23 @@ def user__post_save__email(
 
         # TODO: add nullable date_of_birth field to user model and send
         #   verification email to independents in new schema.
+
+    elif instance.email != "":
+        if post_save.check_previous_values(
+            instance,
+            {
+                "email": lambda value: (
+                    isinstance(value, str)
+                    and value.lower() not in ["", instance.email.lower()]
+                )
+            },
+        ):
+            previous_email = post_save.get_previous_value(
+                instance, "email", str
+            )
+
+            send_mail(
+                settings.DOTDIGITAL_CAMPAIGN_IDS["Email change notification"],
+                to_addresses=[previous_email],
+                personalization_values={"NEW_EMAIL_ADDRESS": instance.email},
+            )

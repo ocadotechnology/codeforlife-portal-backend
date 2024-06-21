@@ -302,14 +302,6 @@ class HandleIndependentUserJoinClassRequestSerializer(
 
     def update(self, instance: IndependentUser, validated_data):
         if validated_data["accept"]:
-            instance.student.class_field = (
-                instance.student.pending_class_request
-            )
-            instance.student.pending_class_request = None
-            instance.student.save(
-                update_fields=["class_field", "pending_class_request"]
-            )
-
             instance.username = StudentUser.get_random_username()
             instance.first_name = validated_data.get(
                 "first_name", instance.first_name
@@ -318,6 +310,14 @@ class HandleIndependentUserJoinClassRequestSerializer(
             instance.email = ""
             instance.save(
                 update_fields=["username", "first_name", "last_name", "email"]
+            )
+
+            instance.student.class_field = (
+                instance.student.pending_class_request
+            )
+            instance.student.pending_class_request = None
+            instance.student.save(
+                update_fields=["class_field", "pending_class_request"]
             )
         else:
             instance.student.pending_class_request = None
