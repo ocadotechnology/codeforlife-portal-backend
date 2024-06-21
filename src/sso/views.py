@@ -10,6 +10,7 @@ split these views into multiple files.
 import json
 import logging
 import typing as t
+from urllib.parse import quote_plus
 
 from codeforlife.mixins import CronMixin
 from codeforlife.request import HttpRequest
@@ -112,10 +113,12 @@ class LoginView(_LoginView):
         response = JsonResponse(session_metadata)
         response.set_cookie(
             key="session_metadata",
-            value=json.dumps(
-                session_metadata,
-                separators=(",", ":"),
-                indent=None,
+            value=quote_plus(
+                json.dumps(
+                    session_metadata,
+                    separators=(",", ":"),
+                    indent=None,
+                )
             ),
             max_age=(
                 None
