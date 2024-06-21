@@ -120,3 +120,21 @@ def user__post_save(
                 to_addresses=[previous_email],
                 personalization_values={"NEW_EMAIL_ADDRESS": instance.email},
             )
+
+            verify_email_address_link = settings.SERVICE_BASE_URL + reverse(
+                "user-verify-email-address",
+                kwargs={
+                    "pk": instance.pk,
+                    "token": email_verification_token_generator.make_token(
+                        instance.pk
+                    ),
+                },
+            )
+
+            send_mail(
+                settings.DOTDIGITAL_CAMPAIGN_IDS["Verify changed user email"],
+                to_addresses=[instance.email],
+                personalization_values={
+                    "VERIFICATION_LINK": verify_email_address_link
+                },
+            )

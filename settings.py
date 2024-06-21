@@ -16,6 +16,7 @@ from pathlib import Path
 
 EMAIL_VERIFICATION_TIMEOUT = 60 * 60 * 24
 
+# ⚠️ The template keys must match their names on Dotdigital.
 DOTDIGITAL_CAMPAIGN_IDS = {
     "Verify new user email - first reminder": 1557170,
     "Verify new user email - second reminder": 1557173,
@@ -33,6 +34,7 @@ DOTDIGITAL_CAMPAIGN_IDS = {
     "User already registered": 1569539,
     "Teacher released from school": 1569537,
     "Email change notification": 1551600,
+    "Verify changed user email": 1551594,
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

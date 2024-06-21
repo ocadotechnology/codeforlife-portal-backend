@@ -3,11 +3,14 @@
 Created on 03/04/2024 at 14:44:42(+01:00).
 """
 
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, call, patch
 
 from codeforlife.user.models import TeacherUser, User, UserProfile
 from django.conf import settings
 from django.test import TestCase
+from django.urls import reverse
+
+from ..auth import email_verification_token_generator
 
 
 # pylint: disable-next=missing-class-docstring
@@ -49,9 +52,41 @@ class TestUser(TestCase):
         assert previous_email != email
         user.email = email
 
-        user.save()
-        send_mail.assert_called_once_with(
-            settings.DOTDIGITAL_CAMPAIGN_IDS["Email change notification"],
-            to_addresses=[previous_email],
-            personalization_values={"NEW_EMAIL_ADDRESS": email},
-        )
+        with patch.object(
+            email_verification_token_generator,
+            "make_token",
+            return_value=email_verification_token_generator.make_token(user),
+        ) as make_token:
+            user.save()
+
+            make_token.assert_called_once_with(user.pk)
+
+            send_mail.assert_has_calls(
+                [
+                    call(
+                        settings.DOTDIGITAL_CAMPAIGN_IDS[
+                            "Email change notification"
+                        ],
+                        to_addresses=[previous_email],
+                        personalization_values={"NEW_EMAIL_ADDRESS": email},
+                    ),
+                    call(
+                        settings.DOTDIGITAL_CAMPAIGN_IDS[
+                            "Verify changed user email"
+                        ],
+                        to_addresses=[email],
+                        personalization_values={
+                            "VERIFICATION_LINK": (
+                                settings.SERVICE_BASE_URL
+                                + reverse(
+                                    "user-verify-email-address",
+                                    kwargs={
+                                        "pk": user.pk,
+                                        "token": make_token.return_value,
+                                    },
+                                )
+                            )
+                        },
+                    ),
+                ]
+            )
