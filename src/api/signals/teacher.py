@@ -15,13 +15,12 @@ from codeforlife.models.signals import (
 from codeforlife.user.models import School, Teacher
 from codeforlife.user.signals import teacher_receiver
 from django.conf import settings
-from django.db.models.signals import post_save as post_save_signal
-from django.db.models.signals import pre_save as pre_save_signal
+from django.db.models import signals
 
 # pylint: disable=unused-argument
 
 
-@teacher_receiver(pre_save_signal)
+@teacher_receiver(signals.pre_save)
 def teacher__pre_save(
     sender,
     instance: Teacher,
@@ -46,7 +45,7 @@ def teacher__pre_save(
         pre_save.set_previous_values(instance, {"school"})
 
 
-@teacher_receiver(post_save_signal)
+@teacher_receiver(signals.post_save)
 def teacher__post_save(
     sender,
     instance: Teacher,

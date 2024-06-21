@@ -14,8 +14,7 @@ from codeforlife.models.signals import (
 )
 from codeforlife.user.models import Class, Student
 from django.conf import settings
-from django.db.models.signals import post_save as post_save_signal
-from django.db.models.signals import pre_save as pre_save_signal
+from django.db.models import signals
 from django.dispatch import receiver
 from django.urls import reverse
 
@@ -24,7 +23,7 @@ from ..auth import email_verification_token_generator
 # pylint: disable=unused-argument
 
 
-@receiver(pre_save_signal, sender=Student)
+@receiver(signals.pre_save, sender=Student)
 def student__pre_save(
     sender,
     instance: Student,
@@ -49,7 +48,7 @@ def student__pre_save(
         pre_save.set_previous_values(instance, {"pending_class_request"})
 
 
-@receiver(post_save_signal, sender=Student)
+@receiver(signals.post_save, sender=Student)
 def student__post_save(
     sender,
     instance: Student,

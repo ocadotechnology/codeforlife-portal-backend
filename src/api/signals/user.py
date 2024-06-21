@@ -16,8 +16,7 @@ from codeforlife.models.signals import (
 from codeforlife.user.models import StudentUser, TeacherUser, User, UserProfile
 from codeforlife.user.signals import user_receiver
 from django.conf import settings
-from django.db.models.signals import post_save as post_save_signal
-from django.db.models.signals import pre_save as pre_save_signal
+from django.db.models import signals
 from django.dispatch import receiver
 from django.urls import reverse
 
@@ -26,7 +25,7 @@ from ..auth import email_verification_token_generator
 # pylint: disable=unused-argument
 
 
-@receiver(pre_save_signal, sender=UserProfile)
+@receiver(signals.pre_save, sender=UserProfile)
 def user_profile__pre_save(
     sender,
     instance: UserProfile,
@@ -41,7 +40,7 @@ def user_profile__pre_save(
         instance.otp_secret = pyotp.random_base32()
 
 
-@user_receiver(pre_save_signal)
+@user_receiver(signals.pre_save)
 def user__pre_save(
     sender,
     instance: User,
@@ -68,7 +67,7 @@ def user__pre_save(
         )
 
 
-@user_receiver(post_save_signal)
+@user_receiver(signals.post_save)
 def user__post_save(
     sender,
     instance: User,
