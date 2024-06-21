@@ -6,6 +6,7 @@ Created on 01/12/2023 at 16:04:15(+00:00).
 import json
 import typing as t
 from unittest.mock import patch
+from urllib.parse import unquote
 
 import pyotp
 from codeforlife.tests import Client, CronTestCase, TestCase
@@ -25,8 +26,8 @@ class TestLoginView(TestCase):
     def setUp(self):
         self.user = User.objects.get(id=2)
 
-    def _get_session(self, response: HttpResponse):
-        class Session(t.NamedTuple):
+    def _get_session_metadata(self, response: HttpResponse):
+        class SessionMetadata(t.NamedTuple):
             """The data contained in session cookie."""
 
             user_id: int
@@ -34,7 +35,9 @@ class TestLoginView(TestCase):
             user_type: t.Literal["teacher", "student", "indy"]
             otp_bypass_token_exists: bool
 
-        return Session(**json.loads(response.cookies["session_metadata"].value))
+        return SessionMetadata(
+            **json.loads(unquote(response.cookies["session_metadata"].value))
+        )
 
     def test_post__otp(self):
         """Test posting an OTP token."""
@@ -56,9 +59,9 @@ class TestLoginView(TestCase):
         )
 
         assert response.status_code == 200
-        session = self._get_session(response)
-        assert session.user_id == self.user.id
-        assert session.auth_factors == [AuthFactor.Type.OTP]
+        session_metadata = self._get_session_metadata(response)
+        assert session_metadata.user_id == self.user.id
+        assert session_metadata.auth_factors == [AuthFactor.Type.OTP]
 
         self.user.userprofile.otp_secret = pyotp.random_base32()
         self.user.userprofile.save()
@@ -74,9 +77,9 @@ class TestLoginView(TestCase):
             )
 
         assert response.status_code == 200
-        session = self._get_session(response)
-        assert session.user_id == self.user.id
-        assert session.auth_factors == []
+        session_metadata = self._get_session_metadata(response)
+        assert session_metadata.user_id == self.user.id
+        assert session_metadata.auth_factors == []
 
 
 class TestClearExpiredView(CronTestCase):
