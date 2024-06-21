@@ -138,8 +138,11 @@ def user__post_save(
                 },
             )
     # TODO: remove in new schema
-    elif instance.email == "" and post_save.previous_values_are_unequal(
-        instance, {"email"}
+    elif (
+        instance.email == ""
+        and isinstance(instance, User)
+        and (not instance.student or not instance.student.class_field)
+        and post_save.previous_values_are_unequal(instance, {"email"})
     ):
         send_mail(
             settings.DOTDIGITAL_CAMPAIGN_IDS["Account deletion"],
