@@ -15,4 +15,4 @@ env_variables:
   SERVICE_DOMAIN: "codeforlife.education"
   SERVICE_PORT: "443"
   MODULE_NAME: "REPLACE_IN_PIPELINE"
-  DOTDIGITAL_ENABLED: "1"
+  MAIL_ENABLED: "1"
