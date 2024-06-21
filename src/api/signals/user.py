@@ -137,3 +137,20 @@ def user__post_save(
                     "VERIFICATION_LINK": verify_email_address_link
                 },
             )
+    # TODO: remove in new schema
+    elif instance.email == "" and post_save.previous_values_are_unequal(
+        instance, {"email"}
+    ):
+        send_mail(
+            settings.DOTDIGITAL_CAMPAIGN_IDS["Account deletion"],
+            to_addresses=[instance.email],
+        )
+
+
+@user_receiver(signals.post_delete)
+def user__post_delete(sender, instance: User, **kwargs):
+    """After a user is deleted."""
+    send_mail(
+        settings.DOTDIGITAL_CAMPAIGN_IDS["Account deletion"],
+        to_addresses=[instance.email],
+    )
