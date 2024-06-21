@@ -116,7 +116,7 @@ class UserViewSet(_UserViewSet):
             email_codes = codes.get("email", [])
             assert isinstance(email_codes, list)
             if any(code == "already_exists" for code in email_codes):
-                # NOTE: Always return a 200 here - a noticeable change in
+                # NOTE: Always return a 201 here - a noticeable change in
                 # behaviour would allow email enumeration.
                 return Response(status=status.HTTP_201_CREATED)
 

@@ -216,7 +216,8 @@ class TestTeacherViewSet(ModelViewSetTestCase[User, Teacher]):
                         "email": "peter.parker@spider.man",
                         "add_to_newsletter": True,
                     }
-                }
+                },
+                make_assertions=False,
             )
 
             user_make_password.assert_called_once_with(password)

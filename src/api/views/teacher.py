@@ -17,6 +17,7 @@ from codeforlife.user.permissions import IsTeacher
 from codeforlife.views import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 
 from ..serializers import (
     CreateTeacherSerializer,
@@ -66,6 +67,29 @@ class TeacherViewSet(ModelViewSet[User, Teacher]):
             return SetSchoolTeacherAdminAccessSerializer
 
         return CreateTeacherSerializer  # action == "create"
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as error:
+            codes = error.get_codes()
+            assert isinstance(codes, dict)
+            user_codes = codes.get("user", {})
+            assert isinstance(user_codes, dict)
+            email_codes = user_codes.get("email", [])
+            assert isinstance(email_codes, list)
+            if any(code == "already_exists" for code in email_codes):
+                # NOTE: Always return a 201 here - a noticeable change in
+                # behaviour would allow email enumeration.
+                return Response(status=status.HTTP_201_CREATED)
+
+            raise error
+
+        self.perform_create(serializer)
+
+        return Response(status=status.HTTP_201_CREATED)
 
     def destroy(self, request, *args, **kwargs):
         teacher = self.get_object()
