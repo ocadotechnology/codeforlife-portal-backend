@@ -3,9 +3,19 @@
 Created on 02/02/2024 at 15:31:21(+00:00).
 """
 
+from unittest.mock import PropertyMock, patch
+
 from codeforlife.permissions import OR, AllowNone
 from codeforlife.tests import ModelViewSetTestCase
-from codeforlife.user.models import School, User
+from codeforlife.user.models import (
+    AdminSchoolTeacherUser,
+    Class,
+    NonSchoolTeacherUser,
+    School,
+    StudentUser,
+    TeacherUser,
+    User,
+)
 from codeforlife.user.permissions import IsStudent, IsTeacher
 
 from .school import SchoolViewSet
@@ -17,9 +27,18 @@ class TestSchoolViewSet(ModelViewSetTestCase[User, School]):
     model_view_set_class = SchoolViewSet
     fixtures = ["non_school_teacher", "school_1"]
 
+    def setUp(self):
+        self.non_school_teacher_user = NonSchoolTeacherUser.objects.get(
+            email="teacher@noschool.com"
+        )
+        self.admin_school_teacher_user = AdminSchoolTeacherUser.objects.get(
+            email="admin.teacher@school1.com"
+        )
+
+    # test: get permissions
+
     def test_get_permissions__bulk(self):
         """No one is allowed to perform bulk actions."""
-
         self.assert_get_permissions(
             permissions=[AllowNone()],
             action="bulk",
@@ -27,7 +46,6 @@ class TestSchoolViewSet(ModelViewSetTestCase[User, School]):
 
     def test_get_permissions__list(self):
         """No one is allowed to list schools."""
-
         self.assert_get_permissions(
             permissions=[AllowNone()],
             action="list",
@@ -35,7 +53,6 @@ class TestSchoolViewSet(ModelViewSetTestCase[User, School]):
 
     def test_get_permissions__create(self):
         """Only teachers not in a school can create a school."""
-
         self.assert_get_permissions(
             permissions=[IsTeacher(in_school=False)],
             action="create",
@@ -43,7 +60,6 @@ class TestSchoolViewSet(ModelViewSetTestCase[User, School]):
 
     def test_get_permissions__partial_update(self):
         """Only admin-teachers in a school can update a school."""
-
         self.assert_get_permissions(
             permissions=[IsTeacher(is_admin=True)],
             action="partial_update",
@@ -51,20 +67,23 @@ class TestSchoolViewSet(ModelViewSetTestCase[User, School]):
 
     def test_get_permissions__retrieve(self):
         """Anyone in a school can retrieve a school."""
-
         self.assert_get_permissions(
             permissions=[OR(IsStudent(), IsTeacher(in_school=True))],
             action="retrieve",
         )
 
-    def test_create(self):
-        """Can successfully create a school."""
-
-        self.client.login_non_school_teacher(
-            email="teacher@noschool.com",
-            password="password",
+    def test_get_permissions__destroy(self):
+        """Only admin-teachers in a school can destroy a school."""
+        self.assert_get_permissions(
+            permissions=[IsTeacher(is_admin=True)],
+            action="destroy",
         )
 
+    # test: actions
+
+    def test_create(self):
+        """Can successfully create a school."""
+        self.client.login_as(self.non_school_teacher_user)
         self.client.create(
             {
                 "name": "ExampleSchool",
@@ -75,12 +94,9 @@ class TestSchoolViewSet(ModelViewSetTestCase[User, School]):
 
     def test_partial_update(self):
         """Can successfully update a school."""
+        user = self.admin_school_teacher_user
 
-        user = self.client.login_admin_school_teacher(
-            email="admin.teacher@school1.com",
-            password="password",
-        )
-
+        self.client.login_as(user)
         self.client.partial_update(
             user.teacher.school,
             {
@@ -89,3 +105,50 @@ class TestSchoolViewSet(ModelViewSetTestCase[User, School]):
                 "country": "GB",
             },
         )
+
+    def test_destroy(self):
+        """
+        Can successfully anonymize a school, including all of its students,
+        teachers and classes.
+        """
+
+        def assert_user_is_anonymized(user: User):
+            assert user.first_name == ""
+            assert user.last_name == ""
+            assert user.email == ""
+            assert user.username == ""
+            assert not user.is_active
+
+        user = self.admin_school_teacher_user
+        school = user.teacher.school
+
+        self.client.login_as(user)
+
+        anonymized_name = "abc"
+        with patch(
+            "uuid.UUID.hex",
+            new_callable=PropertyMock,
+            return_value=anonymized_name,
+        ):
+            self.client.destroy(school)
+
+        school.refresh_from_db()
+        assert school.name == anonymized_name
+        assert not school.is_active
+
+        for klass in Class.objects.filter(teacher__school=school):
+            for student_user in StudentUser.objects.filter(
+                new_student__class_field=klass
+            ):
+                assert_user_is_anonymized(student_user)
+
+            assert klass.name == anonymized_name
+            assert klass.access_code == ""
+            assert not klass.is_active
+
+        for teacher_user in TeacherUser.objects.filter(
+            new_teacher__school=school
+        ):
+            assert_user_is_anonymized(teacher_user)
+
+        school.anonymise()

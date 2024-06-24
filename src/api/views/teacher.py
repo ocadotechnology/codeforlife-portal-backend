@@ -10,6 +10,7 @@ from codeforlife.user.models import (
     SchoolTeacher,
     StudentUser,
     Teacher,
+    TeacherUser,
     User,
     teacher_as_type,
 )
@@ -96,21 +97,6 @@ class TeacherViewSet(ModelViewSet[User, Teacher]):
     def destroy(self, request, *args, **kwargs):
         teacher = self.get_object()
 
-        def anonymize_user(user: User):
-            user.first_name = ""
-            user.last_name = ""
-            user.email = ""
-            user.is_active = False
-            user.save(
-                update_fields=[
-                    "first_name",
-                    "last_name",
-                    "email",
-                    "username",
-                    "is_active",
-                ]
-            )
-
         if teacher.school:
             if (
                 not SchoolTeacher.objects.filter(school=teacher.school)
@@ -129,11 +115,11 @@ class TeacherViewSet(ModelViewSet[User, Teacher]):
             for student_user in StudentUser.objects.filter(
                 new_student__class_field=klass
             ):
-                anonymize_user(student_user)
+                student_user.anonymize()
 
             klass.anonymise()
 
-        anonymize_user(teacher.new_user)
+        TeacherUser.objects.get(id=teacher.new_user_id).anonymize()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
