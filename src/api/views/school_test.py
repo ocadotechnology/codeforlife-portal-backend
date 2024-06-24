@@ -3,6 +3,7 @@
 Created on 02/02/2024 at 15:31:21(+00:00).
 """
 
+import typing as t
 from unittest.mock import PropertyMock, patch
 
 from codeforlife.permissions import OR, AllowNone
@@ -13,7 +14,7 @@ from codeforlife.user.models import (
     NonSchoolTeacherUser,
     School,
     StudentUser,
-    TeacherUser,
+    Teacher,
     User,
 )
 from codeforlife.user.permissions import IsStudent, IsTeacher
@@ -121,6 +122,7 @@ class TestSchoolViewSet(ModelViewSetTestCase[User, School]):
 
         user = self.admin_school_teacher_user
         school = user.teacher.school
+        teachers: t.List[Teacher] = list(school.teacher_school.all())
 
         self.client.login_as(user)
 
@@ -146,9 +148,8 @@ class TestSchoolViewSet(ModelViewSetTestCase[User, School]):
             assert klass.access_code == ""
             assert not klass.is_active
 
-        for teacher_user in TeacherUser.objects.filter(
-            new_teacher__school=school
-        ):
-            assert_user_is_anonymized(teacher_user)
+        for teacher in teachers:
+            teacher.refresh_from_db()
+            assert not teacher.school
 
         school.anonymise()

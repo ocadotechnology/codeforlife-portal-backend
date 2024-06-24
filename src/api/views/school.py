@@ -5,7 +5,7 @@ Created on 23/01/2024 at 17:53:50(+00:00).
 
 from codeforlife.permissions import AllowNone
 from codeforlife.response import Response
-from codeforlife.user.models import Class, StudentUser, TeacherUser
+from codeforlife.user.models import Class, StudentUser, Teacher
 from codeforlife.user.permissions import IsTeacher
 from codeforlife.user.views import SchoolViewSet as _SchoolViewSet
 from rest_framework import status
@@ -42,10 +42,7 @@ class SchoolViewSet(_SchoolViewSet):
 
             klass.anonymise()
 
-        for teacher_user in TeacherUser.objects.filter(
-            new_teacher__school=school
-        ):
-            teacher_user.anonymize()
+        Teacher.objects.filter(school=school).update(school=None)
 
         school.anonymise()
 
