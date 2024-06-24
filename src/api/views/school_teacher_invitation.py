@@ -114,6 +114,7 @@ class SchoolTeacherInvitationViewSet(
             },
         )
 
+        # pylint: disable=duplicate-code
         try:
             serializer.is_valid(raise_exception=True)
         except ValidationError as error:
@@ -129,6 +130,7 @@ class SchoolTeacherInvitationViewSet(
                 return Response(status=status.HTTP_204_NO_CONTENT)
 
             raise error
+        # pylint: enable=duplicate-code
 
         serializer.save()
 
