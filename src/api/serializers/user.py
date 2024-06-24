@@ -3,12 +3,14 @@
 Created on 18/01/2024 at 15:14:32(+00:00).
 """
 import typing as t
-from datetime import date
+from datetime import date, timedelta
 
+from codeforlife.mail import send_mail
 from codeforlife.types import DataDict
 from codeforlife.user.models import (
     AnyUser,
     Class,
+    ContactableUser,
     IndependentUser,
     Student,
     StudentUser,
@@ -24,6 +26,7 @@ from django.contrib.auth.password_validation import (
     validate_password as _validate_password,
 )
 from django.core.exceptions import ValidationError as CoreValidationError
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -45,7 +48,21 @@ from ..auth import (
 class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
     # TODO: make email unique in new models and remove this validation.
     def validate_email(self, value: str):
-        if User.objects.filter(email__iexact=value).exists():
+        user = User.objects.filter(email__iexact=value).first()
+        if user:
+            send_mail(
+                settings.DOTDIGITAL_CAMPAIGN_IDS["User already registered"],
+                to_addresses=[value],
+                personalization_values={
+                    "EMAIL": value,
+                    "LOGIN_URL": (
+                        settings.PAGE_TEACHER_LOGIN
+                        if user.teacher
+                        else settings.PAGE_INDY_LOGIN
+                    ),
+                },
+            )
+
             raise serializers.ValidationError(
                 "Already exists.", code="already_exists"
             )
@@ -95,34 +112,63 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
     date_of_birth = serializers.DateField(write_only=True)
     add_to_newsletter = serializers.BooleanField(write_only=True)
 
-    class Meta(_UserSerializer.Meta):
+    # pylint: disable=duplicate-code
+    class Meta(BaseUserSerializer.Meta):
         fields = [
-            *_UserSerializer.Meta.fields,
+            *BaseUserSerializer.Meta.fields,
             "password",
             "date_of_birth",
             "add_to_newsletter",
         ]
         extra_kwargs = {
-            **_UserSerializer.Meta.extra_kwargs,
+            **BaseUserSerializer.Meta.extra_kwargs,
             "first_name": {"min_length": 1},
             "last_name": {"min_length": 1},
             "password": {"write_only": True},
             "email": {"read_only": False},
         }
 
+    # pylint: enable=duplicate-code
+
     def create(self, validated_data):
         add_to_newsletter: bool = validated_data.pop("add_to_newsletter")
-        # pylint: disable-next=unused-variable
         date_of_birth: date = validated_data.pop("date_of_birth")
-
-        # TODO: Use date of birth in post email save signal to send
-        #  appropriate verification email depending on age, cf
-        # pylint: disable-next=line-too-long
-        #  https://github.com/ocadotechnology/codeforlife-portal/blob/master/portal/views/home.py#L192
 
         independent_user = IndependentUser.objects.create_user(**validated_data)
         if add_to_newsletter:
             independent_user.add_contact_to_dot_digital()
+
+        verify_email_address_link = settings.SERVICE_API_URL + reverse(
+            "user-verify-email-address",
+            kwargs={
+                "pk": independent_user.pk,
+                "token": email_verification_token_generator.make_token(
+                    independent_user.pk
+                ),
+            },
+        )
+
+        # TODO: send in signal instead in new schema.
+        if (
+            date_of_birth
+            <= (timezone.now() - timedelta(days=365.25 * 13)).date()
+        ):
+            independent_user.email_user(
+                settings.DOTDIGITAL_CAMPAIGN_IDS["Verify new user email"],
+                personalization_values={
+                    "VERIFICATION_LINK": verify_email_address_link
+                },
+            )
+        else:
+            independent_user.email_user(
+                settings.DOTDIGITAL_CAMPAIGN_IDS[
+                    "Verify new user email - parents"
+                ],
+                personalization_values={
+                    "ACTIVATION_LINK": verify_email_address_link,
+                    "FIRST_NAME": independent_user.first_name,
+                },
+            )
 
         return independent_user
 
@@ -254,42 +300,33 @@ class HandleIndependentUserJoinClassRequestSerializer(
 
         return value
 
-    def update(self, instance, validated_data):
+    def update(self, instance: IndependentUser, validated_data):
         if validated_data["accept"]:
-            instance.student.class_field = (
-                instance.student.pending_class_request
-            )
-            instance.student.pending_class_request = None
-
-            instance.student.save(
-                update_fields=["class_field", "pending_class_request"]
-            )
-
             instance.username = StudentUser.get_random_username()
             instance.first_name = validated_data.get(
                 "first_name", instance.first_name
             )
             instance.last_name = ""
             instance.email = ""
-
             instance.save(
                 update_fields=["username", "first_name", "last_name", "email"]
             )
 
-            # TODO: Send new student user an email notifying them that their
-            #  request has been accepted.
-
+            instance.student.class_field = (
+                instance.student.pending_class_request
+            )
+            instance.student.pending_class_request = None
+            instance.student.save(
+                update_fields=["class_field", "pending_class_request"]
+            )
         else:
             instance.student.pending_class_request = None
             instance.student.save(update_fields=["pending_class_request"])
 
-            # TODO: Send independent user an email notifying them that their
-            #  request has been rejected.
-
         return instance
 
 
-class RequestUserPasswordResetSerializer(_UserSerializer[User]):
+class RequestUserPasswordResetSerializer(_UserSerializer[ContactableUser]):
     class Meta(_UserSerializer.Meta):
         extra_kwargs = {
             **_UserSerializer.Meta.extra_kwargs,
@@ -298,18 +335,18 @@ class RequestUserPasswordResetSerializer(_UserSerializer[User]):
 
     def validate_email(self, value: str):
         try:
-            return User.objects.get(email__iexact=value)
-        except User.DoesNotExist as ex:
+            return ContactableUser.objects.get(email__iexact=value)
+        except ContactableUser.DoesNotExist as ex:
             raise serializers.ValidationError(code="does_not_exist") from ex
 
     def create(self, validated_data: DataDict):
-        user: User = validated_data["email"]
+        user: ContactableUser = validated_data["email"]
 
         # Generate reset-password url for the frontend.
         # pylint: disable-next=unused-variable
         reset_password_url = "/".join(
             [
-                settings.SERVICE_BASE_URL,
+                settings.SERVICE_SITE_URL,
                 "reset-password",
                 "teacher" if user.teacher else "independent",  # user type
                 str(user.pk),
@@ -317,7 +354,10 @@ class RequestUserPasswordResetSerializer(_UserSerializer[User]):
             ]
         )
 
-        # TODO: Send email to user with URL to reset password.
+        user.email_user(
+            settings.DOTDIGITAL_CAMPAIGN_IDS["Reset password"],
+            personalization_values={"RESET_PASSWORD_LINK": reset_password_url},
+        )
 
         return user
 

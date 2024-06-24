@@ -16,9 +16,26 @@ from pathlib import Path
 
 EMAIL_VERIFICATION_TIMEOUT = 60 * 60 * 24
 
+# ⚠️ The template keys must match their names on Dotdigital.
 DOTDIGITAL_CAMPAIGN_IDS = {
-    "verify_email_address_1st_reminder": 0,  # TODO: set correct id
-    "verify_email_address_2nd_reminder": 0,  # TODO: set correct id
+    "Verify new user email - first reminder": 1557170,
+    "Verify new user email - second reminder": 1557173,
+    "Verify new user email": 1551577,
+    "Verify new user email - parents": 1551587,
+    "Verify released student email": 1580574,
+    "Reset password": 1557153,
+    "Student join request rejected": 1569470,
+    "Student join request notification": 1569486,
+    "Student join request sent": 1569477,
+    "Admin given": 1569057,
+    "Admin revoked": 1569071,
+    "Invite teacher - account doesn't exist": 1569607,
+    "Invite teacher - account exists": 1569599,
+    "User already registered": 1569539,
+    "Teacher released from school": 1569537,
+    "Email change notification": 1551600,
+    "Verify changed user email": 1551594,
+    "Account deletion": 1567477,
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -281,3 +298,9 @@ INSTALLED_APPS = [
     "treebeard",
     *INSTALLED_APPS,
 ]
+
+# Frontend pages.
+PAGE_TEACHER_LOGIN = f"{SERVICE_SITE_URL}/login/teacher"
+PAGE_INDY_LOGIN = f"{SERVICE_SITE_URL}/login/independent"
+PAGE_TEACHER_DASHBOARD_SCHOOL = f"{SERVICE_SITE_URL}/teacher/dashboard/school"
+PAGE_REGISTER = f"{SERVICE_SITE_URL}/register"

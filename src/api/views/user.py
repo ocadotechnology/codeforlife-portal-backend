@@ -4,7 +4,6 @@ Created on 23/01/2024 at 17:53:44(+00:00).
 """
 import logging
 from datetime import timedelta
-from urllib.parse import urlencode
 
 from codeforlife.mail import send_mail
 from codeforlife.permissions import (
@@ -21,6 +20,7 @@ from codeforlife.user.views import UserViewSet as _UserViewSet
 from codeforlife.views import action, cron_job
 from django.conf import settings
 from django.db.models import F
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.serializers import ValidationError
@@ -105,6 +105,27 @@ class UserViewSet(_UserViewSet):
 
         return queryset
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as error:
+            codes = error.get_codes()
+            assert isinstance(codes, dict)
+            email_codes = codes.get("email", [])
+            assert isinstance(email_codes, list)
+            if any(code == "already_exists" for code in email_codes):
+                # NOTE: Always return a 201 here - a noticeable change in
+                # behaviour would allow email enumeration.
+                return Response(status=status.HTTP_201_CREATED)
+
+            raise error
+
+        self.perform_create(serializer)
+
+        return Response(status=status.HTTP_201_CREATED)
+
     def destroy(self, request, *args, **kwargs):
         self.get_object().anonymize()
 
@@ -134,11 +155,39 @@ class UserViewSet(_UserViewSet):
 
         return Response()
 
+    @action(
+        detail=True,
+        url_path="verify-email-address/(?P<token>.+)",
+        methods=["get"],
+    )
+    def verify_email_address(self, request: Request, **url_params: str):
+        """
+        Verify a user's email address and redirect them back to the login page.
+
+        NOTE: This should normally use HTTP PUT, not GET. However, GET is the
+        default method used when users click on the link in their email.
+        """
+        user = self.get_object()
+
+        serializer = self.get_serializer(
+            instance=user, data={**request.data, "token": url_params["token"]}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            status=status.HTTP_303_SEE_OTHER,
+            headers={
+                "Location": settings.PAGE_TEACHER_LOGIN
+                if user.teacher
+                else settings.PAGE_INDY_LOGIN
+            },
+        )
+
     reset_password = _UserViewSet.update_action("reset_password")
     handle_join_class_request = _UserViewSet.update_action(
         "handle_join_class_request"
     )
-    verify_email_address = _UserViewSet.update_action("verify_email_address")
 
     def _get_unverified_users(self, days: int, same_day: bool):
         now = timezone.now()
@@ -179,12 +228,14 @@ class UserViewSet(_UserViewSet):
             for user_fields in user_queryset.values("id", "email").iterator(
                 chunk_size=500
             ):
-                url = f"{settings.SERVICE_BASE_URL}/?" + urlencode(
-                    {
+                url = settings.SERVICE_API_URL + reverse(
+                    "user-verify-email-address",
+                    kwargs={
+                        "pk": user_fields["id"],
                         "token": email_verification_token_generator.make_token(
                             user_fields["id"]
-                        )
-                    }
+                        ),
+                    },
                 )
 
                 try:
@@ -212,7 +263,7 @@ class UserViewSet(_UserViewSet):
         email address.
         """
         return self._send_verify_email_reminder(
-            days=7, campaign_name="verify_email_address_1st_reminder"
+            days=7, campaign_name="Verify new user email - first reminder"
         )
 
     @cron_job
@@ -222,7 +273,7 @@ class UserViewSet(_UserViewSet):
         email address.
         """
         return self._send_verify_email_reminder(
-            days=14, campaign_name="verify_email_address_2nd_reminder"
+            days=14, campaign_name="Verify new user email - second reminder"
         )
 
     @cron_job

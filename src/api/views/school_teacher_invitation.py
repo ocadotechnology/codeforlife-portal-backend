@@ -16,6 +16,7 @@ from codeforlife.user.models import (
 from codeforlife.user.permissions import IsTeacher
 from codeforlife.views import ModelViewSet, action
 from rest_framework import status
+from rest_framework.serializers import ValidationError
 
 from ..models import SchoolTeacherInvitation
 from ..permissions import IsInvitedSchoolTeacher
@@ -112,7 +113,25 @@ class SchoolTeacherInvitationViewSet(
                 "user_type": "teacher",
             },
         )
-        serializer.is_valid(raise_exception=True)
+
+        # pylint: disable=duplicate-code
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as error:
+            codes = error.get_codes()
+            assert isinstance(codes, dict)
+            user_codes = codes.get("user", {})
+            assert isinstance(user_codes, dict)
+            email_codes = user_codes.get("email", [])
+            assert isinstance(email_codes, list)
+            if any(code == "already_exists" for code in email_codes):
+                # NOTE: Always return a 204 here - a noticeable change in
+                # behaviour would allow email enumeration.
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            raise error
+        # pylint: enable=duplicate-code
+
         serializer.save()
 
         invitation.delete()
