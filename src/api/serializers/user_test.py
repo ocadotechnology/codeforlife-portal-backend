@@ -22,6 +22,7 @@ from .user import (
     BaseUserSerializer,
     CreateUserSerializer,
     HandleIndependentUserJoinClassRequestSerializer,
+    RegisterEmailToNewsletter,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
     UpdateUserSerializer,
@@ -451,3 +452,18 @@ class TestVerifyUserEmailAddressSerializer(ModelSerializerTestCase[User, User]):
             validated_data={},
             new_data={"userprofile": {"is_verified": True}},
         )
+
+
+class TestRegisterEmailToNewsletter(
+    ModelSerializerTestCase[User, ContactableUser]
+):
+    model_serializer_class = RegisterEmailToNewsletter
+
+    def test_create(self):
+        """Can successfully register an email address to our newsletter."""
+        email = "example@email.com"
+
+        with patch("codeforlife.mail.add_contact") as add_contact:
+            self.assert_create(validated_data={"email": email})
+
+            add_contact.assert_called_once_with(email)

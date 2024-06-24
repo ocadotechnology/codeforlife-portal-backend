@@ -95,7 +95,7 @@ class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
 
         return value
 
-    def update(self, instance, validated_data):
+    def update(self, instance: AnyUser, validated_data: DataDict):
         password = validated_data.pop("password", None)
         if password is not None:
             instance.set_password(password)
@@ -300,7 +300,7 @@ class HandleIndependentUserJoinClassRequestSerializer(
 
         return value
 
-    def update(self, instance: IndependentUser, validated_data):
+    def update(self, instance, validated_data):
         if validated_data["accept"]:
             instance.username = StudentUser.get_random_username()
             instance.first_name = validated_data.get(
@@ -386,7 +386,7 @@ class ResetUserPasswordSerializer(BaseUserSerializer[User], _UserSerializer):
 
         return value
 
-    def update(self, instance: User, validated_data: DataDict):
+    def update(self, instance, validated_data):
         password = validated_data.pop("password", None)
         if password is not None:
             instance.set_password(password)
@@ -422,3 +422,16 @@ class VerifyUserEmailAddressSerializer(_UserSerializer[User]):
         instance.userprofile.save(update_fields=["is_verified"])
 
         return instance
+
+
+class RegisterEmailToNewsletter(_BaseUserSerializer[ContactableUser]):
+    class Meta(_BaseUserSerializer.Meta):
+        fields = ["email"]
+        extra_kwargs = {"email": {"write_only": True}}
+
+    def create(self, validated_data):
+        # NOTE: this user instance is not (and should not) be saved to the db.
+        user = ContactableUser(email=validated_data["email"])
+        user.add_contact_to_dot_digital()
+
+        return user

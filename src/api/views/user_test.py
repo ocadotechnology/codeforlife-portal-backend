@@ -45,6 +45,7 @@ from ..auth import email_verification_token_generator
 from ..serializers import (
     CreateUserSerializer,
     HandleIndependentUserJoinClassRequestSerializer,
+    RegisterEmailToNewsletter,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
     UpdateUserSerializer,
@@ -157,6 +158,13 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         self.assert_get_permissions(
             permissions=[IsCronRequestFromGoogle()],
             action="anonymize_unverified_accounts",
+        )
+
+    def test_get_permissions__register_to_newsletter(self):
+        """Any one can register to our newsletter."""
+        self.assert_get_permissions(
+            permissions=[AllowAny()],
+            action="register_to_newsletter",
         )
 
     # test: get queryset
@@ -283,6 +291,13 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         self.assert_get_serializer_class(
             serializer_class=UserSerializer,
             action="list",
+        )
+
+    def test_get_serializer_class__register_to_newsletter(self):
+        """Register users to our newsletter has a dedicated serializer."""
+        self.assert_get_serializer_class(
+            serializer_class=RegisterEmailToNewsletter,
+            action="register_to_newsletter",
         )
 
     # test: class join request actions
@@ -707,3 +722,17 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
             is_verified=False,
             is_anonymized=True,
         )
+
+    # test: other actions
+
+    def test_register_to_newsletter(self):
+        """Can successfully register an email address to our newsletter."""
+        email = "example@email.com"
+
+        with patch("codeforlife.mail.add_contact") as add_contact:
+            self.client.post(
+                self.reverse_action("register_to_newsletter"),
+                data={"email": email},
+            )
+
+            add_contact.assert_called_once_with(email)

@@ -29,6 +29,7 @@ from ..auth import email_verification_token_generator
 from ..serializers import (
     CreateUserSerializer,
     HandleIndependentUserJoinClassRequestSerializer,
+    RegisterEmailToNewsletter,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
     UpdateUserSerializer,
@@ -49,6 +50,7 @@ class UserViewSet(_UserViewSet):
             "request_password_reset",
             "reset_password",
             "verify_email_address",
+            "register_to_newsletter",
         ]:
             return [AllowAny()]
         if self.action == "handle_join_class_request":
@@ -88,6 +90,8 @@ class UserViewSet(_UserViewSet):
             return HandleIndependentUserJoinClassRequestSerializer
         if self.action == "verify_email_address":
             return VerifyUserEmailAddressSerializer
+        if self.action == "register_to_newsletter":
+            return RegisterEmailToNewsletter
 
         return super().get_serializer_class()
 
@@ -183,6 +187,15 @@ class UserViewSet(_UserViewSet):
                 else settings.PAGE_INDY_LOGIN
             },
         )
+
+    @action(detail=False, methods=["post"])
+    def register_to_newsletter(self, request: Request):
+        """Register email address to our newsletter."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_201_CREATED)
 
     reset_password = _UserViewSet.update_action("reset_password")
     handle_join_class_request = _UserViewSet.update_action(
