@@ -71,6 +71,7 @@ class TeacherViewSet(ModelViewSet[User, Teacher]):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
+        # pylint: disable=duplicate-code
         try:
             serializer.is_valid(raise_exception=True)
         except ValidationError as error:
@@ -86,6 +87,7 @@ class TeacherViewSet(ModelViewSet[User, Teacher]):
                 return Response(status=status.HTTP_201_CREATED)
 
             raise error
+        # pylint: enable=duplicate-code
 
         self.perform_create(serializer)
 

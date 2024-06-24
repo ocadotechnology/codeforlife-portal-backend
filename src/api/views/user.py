@@ -4,7 +4,6 @@ Created on 23/01/2024 at 17:53:44(+00:00).
 """
 import logging
 from datetime import timedelta
-from urllib.parse import urlencode
 
 from codeforlife.mail import send_mail
 from codeforlife.permissions import (
