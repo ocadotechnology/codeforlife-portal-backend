@@ -300,7 +300,7 @@ class HandleIndependentUserJoinClassRequestSerializer(
 
         return value
 
-    def update(self, instance, validated_data):
+    def update(self, instance: IndependentUser, validated_data):
         if validated_data["accept"]:
             instance.username = StudentUser.get_random_username()
             instance.first_name = validated_data.get(
