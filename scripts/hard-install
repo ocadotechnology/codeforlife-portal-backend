@@ -1,10 +1,6 @@
 #!/bin/bash
 set -e
 
-cd "${BASH_SOURCE%/*}"
+cd "${BASH_SOURCE%/*}/.."
 
-rm -f ../Pipfile.lock
-shopt -s extglob
-rm -rf ../.venv/!(".gitkeep")
-shopt -u extglob
-pipenv install --dev
+wget -O - https://raw.githubusercontent.com/ocadotechnology/codeforlife-workspace/main/scripts/backend/hard-install | bash

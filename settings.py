@@ -60,31 +60,8 @@ MODULE_NAME = os.getenv("MODULE_NAME", "local")
 """RAPID ROUTER SETTINGS"""
 # TODO: The settings in this section are needed for the old Rapid Router
 #  package. Remove once RR has moved to the new system.
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.contrib.auth.context_processors.auth",
-                "django.template.context_processors.request",
-                "django.contrib.messages.context_processors.messages",
-                "sekizai.context_processors.sekizai",
-                # TODO: replace in new system and remove here
-                # "common.context_processors.module_name",
-                # "common.context_processors.cookie_management_enabled",
-                # TODO: use when integrating dotmailer
-                # "portal.context_processors.process_newsletter_form",
-            ]
-        },
-    }
-]
-
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 PIPELINE_ENABLED = False  # True if assets should be compressed, False if not.
 PIPELINE = {}
@@ -262,6 +239,8 @@ CSP_MANIFEST_SRC = (f"{domain()}/static/manifest.json",)
 from codeforlife.settings import *
 
 DATABASES = get_databases(BASE_DIR)
+ROOT_URLCONF = "src.urls"
+STATIC_ROOT = get_static_root(BASE_DIR)
 
 # TODO: Go through the commented out middleware and decide if we still need them
 MIDDLEWARE = [
@@ -277,30 +256,43 @@ MIDDLEWARE = [
 ]
 
 INSTALLED_APPS = [
+    "src.api",
     "src.sso",
     "src.rapid_router",
-    "aimmo",
-    "game",
     "pipeline",
-    "portal",
     "captcha",
-    "common",
-    "django.contrib.admin",
-    "django.contrib.admindocs",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.sites",
-    "django.contrib.staticfiles",
     "import_export",
     "sekizai",  # for javascript and css management
     "treebeard",
     *INSTALLED_APPS,
 ]
+INSTALLED_APPS.remove("api")
 
 # Frontend pages.
 PAGE_TEACHER_LOGIN = f"{SERVICE_SITE_URL}/login/teacher"
 PAGE_INDY_LOGIN = f"{SERVICE_SITE_URL}/login/independent"
 PAGE_TEACHER_DASHBOARD_SCHOOL = f"{SERVICE_SITE_URL}/teacher/dashboard/school"
 PAGE_REGISTER = f"{SERVICE_SITE_URL}/register"
+
+"""RAPID ROUTER SETTINGS"""
+# TODO: The settings in this section are needed for the old Rapid Router
+#  package. Remove once RR has moved to the new system.
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.request",
+                "django.contrib.messages.context_processors.messages",
+                "sekizai.context_processors.sekizai",
+                # TODO: replace in new system and remove here
+                # "common.context_processors.module_name",
+                # "common.context_processors.cookie_management_enabled",
+                # TODO: use when integrating dotmailer
+                # "portal.context_processors.process_newsletter_form",
+            ]
+        },
+    }
+]

@@ -22,6 +22,8 @@ from portal.views.aimmo.dashboard import (  # type: ignore[import-untyped]
     TeacherAimmoDashboard,
 )
 
+from .api.urls import urlpatterns
+
 urlpatterns = [
     path(
         "rapidrouter/",
@@ -43,7 +45,7 @@ urlpatterns = [
         include(aimmo_urls),
         name="kurono",
     ),
-    *get_urlpatterns(include_user_urls=False),
+    *get_urlpatterns(urlpatterns, include_user_urls=False),
     path(
         "api/sso/",
         include("src.sso.urls"),
