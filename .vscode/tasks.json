@@ -1,14 +1,21 @@
 {
   "tasks": [
     {
+      "command": "sudo chmod u+x scripts/setup && scripts/setup",
+      "label": "setup",
+      "problemMatcher": [],
+      "type": "shell"
+    },
+    {
       "command": "sudo chmod u+x scripts/hard-install && scripts/hard-install",
       "label": "hard-install",
       "problemMatcher": [],
       "type": "shell"
     },
     {
-      "command": "sudo chmod u+x scripts/setup && scripts/setup",
-      "label": "setup",
+      "command": "sudo chmod u+x scripts/run && scripts/run",
+      "isBackground": true,
+      "label": "run",
       "problemMatcher": [],
       "type": "shell"
     }
