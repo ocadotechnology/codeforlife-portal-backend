@@ -24,6 +24,7 @@ DOTDIGITAL_CAMPAIGN_IDS = {
     "Verify new user email - parents": 1551587,
     "Verify released student email": 1580574,
     "Reset password": 1557153,
+    "Student join request accepted": 1605779,
     "Student join request rejected": 1569470,
     "Student join request notification": 1569486,
     "Student join request sent": 1569477,

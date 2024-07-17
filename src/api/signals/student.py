@@ -121,18 +121,17 @@ def student__post_save(
                     },
                 )
             else:
-                pass
                 # TODO: user student.user.email_user() in new schema.
-                # send_mail(
-                #     settings.DOTDIGITAL_CAMPAIGN_IDS[
-                #         "Student join request accepted"
-                #     ],
-                #     to_addresses=[instance.new_user.email],
-                #     personalization_values={
-                #         "SCHOOL_NAME": klass.teacher.school.name,
-                #         "ACCESS_CODE": klass.access_code,
-                #     },
-                # )
+                send_mail(
+                    settings.DOTDIGITAL_CAMPAIGN_IDS[
+                        "Student join request accepted"
+                    ],
+                    to_addresses=[instance.new_user.email],
+                    personalization_values={
+                        "SCHOOL_NAME": previous_pending_class_request.teacher.school.name,
+                        "ACCESS_CODE": previous_pending_class_request.access_code,
+                    },
+                )
         else:
             # TODO: user student.user.email_user() in new schema.
             send_mail(
