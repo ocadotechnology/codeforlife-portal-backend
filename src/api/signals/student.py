@@ -128,8 +128,12 @@ def student__post_save(
                     ],
                     to_addresses=[instance.new_user.email],
                     personalization_values={
-                        "SCHOOL_NAME": previous_pending_class_request.teacher.school.name,
-                        "ACCESS_CODE": previous_pending_class_request.access_code,
+                        "SCHOOL_NAME": (
+                            previous_pending_class_request.teacher.school.name
+                        ),
+                        "ACCESS_CODE": (
+                            previous_pending_class_request.access_code
+                        ),
                     },
                 )
         else:
