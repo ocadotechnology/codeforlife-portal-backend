@@ -135,7 +135,7 @@ def student__post_save(
                         "ACCESS_CODE": access_code,
                         "LOGIN_URL": (
                             f"{settings.PAGE_STUDENT_LOGIN}/{access_code}"
-                        )
+                        ),
                     },
                 )
         else:
