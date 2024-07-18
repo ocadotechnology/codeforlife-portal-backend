@@ -122,16 +122,14 @@ def student__post_save(
                 )
             else:
                 # TODO: user student.user.email_user() in new schema.
-                access_code = previous_pending_class_request.access_code
+                access_code = instance.class_field.access_code
                 send_mail(
                     settings.DOTDIGITAL_CAMPAIGN_IDS[
                         "Student join request accepted"
                     ],
                     to_addresses=[instance.new_user.email],
                     personalization_values={
-                        "SCHOOL_NAME": (
-                            previous_pending_class_request.teacher.school.name
-                        ),
+                        "SCHOOL_NAME": instance.class_field.teacher.school.name,
                         "ACCESS_CODE": access_code,
                         "LOGIN_URL": (
                             f"{settings.PAGE_STUDENT_LOGIN}/{access_code}"
