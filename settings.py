@@ -24,6 +24,7 @@ DOTDIGITAL_CAMPAIGN_IDS = {
     "Verify new user email - parents": 1551587,
     "Verify released student email": 1580574,
     "Reset password": 1557153,
+    "Student join request accepted": 1605779,
     "Student join request rejected": 1569470,
     "Student join request notification": 1569486,
     "Student join request sent": 1569477,
@@ -273,6 +274,7 @@ PAGE_TEACHER_LOGIN = f"{SERVICE_SITE_URL}/login/teacher"
 PAGE_INDY_LOGIN = f"{SERVICE_SITE_URL}/login/independent"
 PAGE_TEACHER_DASHBOARD_SCHOOL = f"{SERVICE_SITE_URL}/teacher/dashboard/school"
 PAGE_REGISTER = f"{SERVICE_SITE_URL}/register"
+PAGE_STUDENT_LOGIN = f"{SERVICE_SITE_URL}/login/student"
 
 """RAPID ROUTER SETTINGS"""
 # TODO: The settings in this section are needed for the old Rapid Router
