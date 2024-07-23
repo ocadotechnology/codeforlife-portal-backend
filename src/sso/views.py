@@ -112,7 +112,7 @@ class LoginView(_LoginView):
         # Return session metadata in response and a non-HTTP-only cookie.
         response = JsonResponse(session_metadata)
         response.set_cookie(
-            key="session_metadata",
+            key=settings.SESSION_METADATA_COOKIE_NAME,
             value=quote_plus(
                 json.dumps(
                     session_metadata,
