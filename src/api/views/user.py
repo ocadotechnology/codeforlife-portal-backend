@@ -19,7 +19,7 @@ from codeforlife.user.permissions import IsIndependent, IsTeacher
 from codeforlife.user.views import UserViewSet as _UserViewSet
 from codeforlife.views import action, cron_job
 from django.conf import settings
-from django.db.models import F
+from django.db.models import F, Q
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
@@ -340,3 +340,116 @@ class UserViewSet(_UserViewSet):
         )
 
         return Response()
+
+    def _get_inactive_users(self, days: int, same_day: bool):
+        now = timezone.now()
+
+        # All users who haven't logged in in X days OR who've never logged in
+        # and registered over X days ago.
+        user_queryset = User.objects.filter(
+            Q(
+                last_login__isnull=False,
+                last_login__lte=now - timedelta(days=days),
+            )
+            | Q(
+                last_login__isnull=True,
+                date_joined__lte=now - timedelta(days=days),
+            )
+        )
+
+        if same_day:
+            user_queryset = user_queryset.filter(
+                Q(
+                    last_login__isnull=False,
+                    last_login__gt=now - timedelta(days=days + 1),
+                )
+                | Q(
+                    last_login__isnull=True,
+                    date_joined__gt=now - timedelta(days=days + 1),
+                )
+            )
+
+        teacher_queryset = user_queryset.filter(
+            new_teacher__isnull=False,
+            new_student__isnull=True,
+        )
+        independent_student_queryset = user_queryset.filter(
+            new_teacher__isnull=True,
+            new_student__class_field__isnull=True,
+        )
+
+        return teacher_queryset, independent_student_queryset
+
+    def _send_inactivity_reminder(self, days: int, campaign_name: str):
+        (
+            teacher_queryset,
+            independent_student_queryset,
+        ) = self._get_inactive_users(
+            days,
+            same_day=True,
+        )
+        user_queryset = teacher_queryset.union(independent_student_queryset)
+
+        user_count = user_queryset.count()
+
+        logging.info(
+            "%d inactive users after %d days.",
+            user_count - user_queryset.count(),
+            days,
+        )
+
+        if user_count > 0:
+            sent_email_count = 0
+            for email in user_queryset.values_list("email", flat=True).iterator(
+                chunk_size=500
+            ):
+                try:
+                    send_mail(
+                        campaign_id=settings.DOTDIGITAL_CAMPAIGN_IDS[
+                            campaign_name
+                        ],
+                        to_addresses=[email],
+                    )
+
+                    sent_email_count += 1
+                # pylint: disable-next=broad-exception-caught
+                except Exception as ex:
+                    logging.exception(ex)
+
+            logging.info(
+                "Reminded %d/%d inactive users.", sent_email_count, user_count
+            )
+
+        return Response()
+
+    @cron_job
+    def send_1st_inactivity_reminder(self, request: Request):
+        """
+        Send the first reminder email to teachers and independent users who
+        haven't been active in a while.
+        """
+        return self._send_verify_email_reminder(
+            days=730, campaign_name="Inactive users on website - first reminder"
+        )
+
+    @cron_job
+    def send_2nd_inactivity_reminder(self, request: Request):
+        """
+        Send the second reminder email to teachers and independent users who
+        haven't been active in a while.
+        """
+        return self._send_verify_email_reminder(
+            days=973,
+            campaign_name="Inactive users on website - second reminder",
+        )
+
+    @cron_job
+    def send_final_inactivity_reminder(self, request: Request):
+        """
+        Send the final reminder email to teachers and independent users who
+        haven't been active in a while.
+        """
+        return self._send_verify_email_reminder(
+            days=1065,
+            campaign_name="Inactive users on website - final reminder",
+        )

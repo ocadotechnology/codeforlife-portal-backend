@@ -723,6 +723,53 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
             is_anonymized=True,
         )
 
+    def _test_send_inactivity_reminder(
+        self, action: str, days: int, campaign_name: str
+    ):
+        def test_send_inactivity_reminder(days: int, mail_sent: bool):
+            date_joined = timezone.now() - timedelta(days, hours=12)
+            last_login = timezone.now() - timedelta(days, hours=12)
+
+            assert StudentUser.objects.update(date_joined=date_joined)
+
+            teacher_users = list(TeacherUser.objects.all())
+            assert teacher_users
+            indy_users = list(IndependentUser.objects.all())
+            assert indy_users
+
+            for user in teacher_users:
+                user.date_joined = date_joined
+                user.save()
+
+            for user in indy_users:
+                user.last_login = last_login
+                user.save()
+
+            with patch("src.api.views.user.send_mail") as send_mail_mock:
+                self.client.cron_job(action)
+
+                if mail_sent:
+                    send_mail_mock.assert_has_calls(
+                        [
+                            call(
+                                campaign_id=(
+                                    settings.DOTDIGITAL_CAMPAIGN_IDS[
+                                        campaign_name
+                                    ]
+                                ),
+                                to_addresses=[user.email],
+                            )
+                            for user in teacher_users + indy_users
+                        ],
+                        any_order=True,
+                    )
+                else:
+                    send_mail_mock.assert_not_called()
+
+        test_send_inactivity_reminder(days=days - 1, mail_sent=False)
+        test_send_inactivity_reminder(days=days, mail_sent=True)
+        test_send_inactivity_reminder(days=days + 1, mail_sent=False)
+
     # test: other actions
 
     def test_register_to_newsletter(self):
