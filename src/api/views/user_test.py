@@ -160,6 +160,27 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
             action="anonymize_unverified_accounts",
         )
 
+    def test_get_permissions__send_1st_inactivity_reminder(self):
+        """Only Google can send the 1st inactivity reminder."""
+        self.assert_get_permissions(
+            permissions=[IsCronRequestFromGoogle()],
+            action="send_1st_inactivity_reminder",
+        )
+
+    def test_get_permissions__send_2nd_inactivity_reminder(self):
+        """Only Google can send the 2nd inactivity reminder."""
+        self.assert_get_permissions(
+            permissions=[IsCronRequestFromGoogle()],
+            action="send_2nd_inactivity_reminder",
+        )
+
+    def test_get_permissions__send_final_inactivity_reminder(self):
+        """Only Google can send the final inactivity reminder."""
+        self.assert_get_permissions(
+            permissions=[IsCronRequestFromGoogle()],
+            action="send_final_inactivity_reminder",
+        )
+
     def test_get_permissions__register_to_newsletter(self):
         """Any one can register to our newsletter."""
         self.assert_get_permissions(

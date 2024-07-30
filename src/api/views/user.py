@@ -64,6 +64,9 @@ class UserViewSet(_UserViewSet):
             "send_1st_verify_email_reminder",
             "send_2nd_verify_email_reminder",
             "anonymize_unverified_accounts",
+            "send_1st_inactivity_reminder",
+            "send_2nd_inactivity_reminder",
+            "send_final_inactivity_reminder",
         ]:
             return [IsCronRequestFromGoogle()]
 
