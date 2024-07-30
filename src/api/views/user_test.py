@@ -737,13 +737,13 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
             indy_users = list(IndependentUser.objects.all())
             assert indy_users
 
-            for user in teacher_users:
-                user.date_joined = date_joined
-                user.save()
+            for teacher_user in teacher_users:
+                teacher_user.date_joined = date_joined
+                teacher_user.save()
 
-            for user in indy_users:
-                user.last_login = last_login
-                user.save()
+            for indy_user in indy_users:
+                indy_user.last_login = last_login
+                indy_user.save()
 
             with patch("src.api.views.user.send_mail") as send_mail_mock:
                 self.client.cron_job(action)
