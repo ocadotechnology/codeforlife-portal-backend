@@ -344,7 +344,7 @@ class UserViewSet(_UserViewSet):
 
         return Response()
 
-    def _get_inactive_users(self, days: int, same_day: bool):
+    def _get_inactive_users(self, days: int):
         now = timezone.now()
 
         # All users who haven't logged in in X days OR who've never logged in
@@ -353,24 +353,14 @@ class UserViewSet(_UserViewSet):
             Q(
                 last_login__isnull=False,
                 last_login__lte=now - timedelta(days=days),
+                last_login__gt=now - timedelta(days=days + 1),
             )
             | Q(
                 last_login__isnull=True,
                 date_joined__lte=now - timedelta(days=days),
+                date_joined__gt=now - timedelta(days=days + 1),
             )
         )
-
-        if same_day:
-            user_queryset = user_queryset.filter(
-                Q(
-                    last_login__isnull=False,
-                    last_login__gt=now - timedelta(days=days + 1),
-                )
-                | Q(
-                    last_login__isnull=True,
-                    date_joined__gt=now - timedelta(days=days + 1),
-                )
-            )
 
         teacher_queryset = user_queryset.filter(
             new_teacher__isnull=False,
@@ -381,18 +371,10 @@ class UserViewSet(_UserViewSet):
             new_student__class_field__isnull=True,
         )
 
-        return teacher_queryset, independent_student_queryset
+        return teacher_queryset.union(independent_student_queryset)
 
     def _send_inactivity_reminder(self, days: int, campaign_name: str):
-        (
-            teacher_queryset,
-            independent_student_queryset,
-        ) = self._get_inactive_users(
-            days,
-            same_day=True,
-        )
-        user_queryset = teacher_queryset.union(independent_student_queryset)
-
+        user_queryset = self._get_inactive_users(days)
         user_count = user_queryset.count()
 
         logging.info(
@@ -431,7 +413,7 @@ class UserViewSet(_UserViewSet):
         Send the first reminder email to teachers and independent users who
         haven't been active in a while.
         """
-        return self._send_verify_email_reminder(
+        return self._send_inactivity_reminder(
             days=730, campaign_name="Inactive users on website - first reminder"
         )
 
@@ -441,7 +423,7 @@ class UserViewSet(_UserViewSet):
         Send the second reminder email to teachers and independent users who
         haven't been active in a while.
         """
-        return self._send_verify_email_reminder(
+        return self._send_inactivity_reminder(
             days=973,
             campaign_name="Inactive users on website - second reminder",
         )
@@ -452,7 +434,7 @@ class UserViewSet(_UserViewSet):
         Send the final reminder email to teachers and independent users who
         haven't been active in a while.
         """
-        return self._send_verify_email_reminder(
+        return self._send_inactivity_reminder(
             days=1065,
             campaign_name="Inactive users on website - final reminder",
         )
