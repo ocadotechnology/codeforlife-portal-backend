@@ -791,6 +791,30 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         test_send_inactivity_reminder(days=days, mail_sent=True)
         test_send_inactivity_reminder(days=days + 1, mail_sent=False)
 
+    def test_send_1st_inactivity_reminder(self):
+        """Can send the 1st inactivity reminder."""
+        self._test_send_inactivity_reminder(
+            action="send_1st_inactivity_reminder",
+            days=730,
+            campaign_name="Inactive users on website - first reminder",
+        )
+
+    def test_send_2nd_inactivity_reminder(self):
+        """Can send the 2nd inactivity reminder."""
+        self._test_send_inactivity_reminder(
+            action="send_2nd_inactivity_reminder",
+            days=973,
+            campaign_name="Inactive users on website - second reminder",
+        )
+
+    def test_send_final_inactivity_reminder(self):
+        """Can send the final inactivity reminder."""
+        self._test_send_inactivity_reminder(
+            action="send_final_inactivity_reminder",
+            days=1065,
+            campaign_name="Inactive users on website - final reminder",
+        )
+
     # test: other actions
 
     def test_register_to_newsletter(self):

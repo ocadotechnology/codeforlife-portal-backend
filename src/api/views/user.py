@@ -362,26 +362,13 @@ class UserViewSet(_UserViewSet):
             )
         )
 
-        teacher_queryset = user_queryset.filter(
-            new_teacher__isnull=False,
-            new_student__isnull=True,
-        )
-        independent_student_queryset = user_queryset.filter(
-            new_teacher__isnull=True,
-            new_student__class_field__isnull=True,
-        )
-
-        return teacher_queryset.union(independent_student_queryset)
+        return user_queryset.exclude(email__isnull=True).exclude(email="")
 
     def _send_inactivity_reminder(self, days: int, campaign_name: str):
         user_queryset = self._get_inactive_users(days)
         user_count = user_queryset.count()
 
-        logging.info(
-            "%d inactive users after %d days.",
-            user_count - user_queryset.count(),
-            days,
-        )
+        logging.info("%d inactive users after %d days.", user_count, days)
 
         if user_count > 0:
             sent_email_count = 0
