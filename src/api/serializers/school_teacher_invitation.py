@@ -71,8 +71,15 @@ class RefreshSchoolTeacherInvitationSerializer(
     BaseSchoolTeacherInvitationSerializer
 ):
     def update(self, instance, validated_data):
+        token = get_random_string(length=32)
+
         instance.expiry = timezone.now() + timedelta(days=30)
-        instance.save(update_fields=["expiry"])
+        instance.token = make_password(token)
+        instance.save(update_fields=["expiry", "token"])
+
+        # pylint: disable-next=protected-access
+        instance._token = token
+
         return instance
 
 
