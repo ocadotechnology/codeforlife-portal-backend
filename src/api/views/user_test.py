@@ -760,6 +760,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
 
             for teacher_user in teacher_users:
                 teacher_user.date_joined = date_joined
+                teacher_user.last_login = None
                 teacher_user.save()
 
             for indy_user in indy_users:
