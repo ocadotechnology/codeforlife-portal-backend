@@ -22,13 +22,9 @@ from ..models import SchoolTeacherInvitation
 def school_teacher_invitation__post_save(
     sender,
     instance: SchoolTeacherInvitation,
-    created: bool,
     **kwargs,
 ):
     """Send invitation email to invited teacher."""
-
-    if not created:
-        return
 
     raw_token = getattr(instance, "_token", None)
     if raw_token:
