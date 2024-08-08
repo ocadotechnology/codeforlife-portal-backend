@@ -37,6 +37,9 @@ DOTDIGITAL_CAMPAIGN_IDS = {
     "Email change notification": 1551600,
     "Verify changed user email": 1551594,
     "Account deletion": 1567477,
+    "Inactive users on website - first reminder": 1604381,
+    "Inactive users on website - second reminder": 1606208,
+    "Inactive users on website - final reminder": 1606215,
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

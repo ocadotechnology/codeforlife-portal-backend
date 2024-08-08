@@ -160,6 +160,27 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
             action="anonymize_unverified_accounts",
         )
 
+    def test_get_permissions__send_1st_inactivity_reminder(self):
+        """Only Google can send the 1st inactivity reminder."""
+        self.assert_get_permissions(
+            permissions=[IsCronRequestFromGoogle()],
+            action="send_1st_inactivity_reminder",
+        )
+
+    def test_get_permissions__send_2nd_inactivity_reminder(self):
+        """Only Google can send the 2nd inactivity reminder."""
+        self.assert_get_permissions(
+            permissions=[IsCronRequestFromGoogle()],
+            action="send_2nd_inactivity_reminder",
+        )
+
+    def test_get_permissions__send_final_inactivity_reminder(self):
+        """Only Google can send the final inactivity reminder."""
+        self.assert_get_permissions(
+            permissions=[IsCronRequestFromGoogle()],
+            action="send_final_inactivity_reminder",
+        )
+
     def test_get_permissions__register_to_newsletter(self):
         """Any one can register to our newsletter."""
         self.assert_get_permissions(
@@ -721,6 +742,72 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
             days=20,
             is_verified=False,
             is_anonymized=True,
+        )
+
+    def _test_send_inactivity_reminder(
+        self, action: str, days: int, campaign_name: str
+    ):
+        def test_send_inactivity_reminder(days: int, mail_sent: bool):
+            date_joined = timezone.now() - timedelta(days, hours=12)
+            last_login = timezone.now() - timedelta(days, hours=12)
+
+            assert StudentUser.objects.update(date_joined=date_joined)
+
+            TeacherUser.objects.update(date_joined=date_joined, last_login=None)
+            IndependentUser.objects.update(last_login=last_login)
+
+            teacher_users = list(TeacherUser.objects.all())
+            assert teacher_users
+            indy_users = list(IndependentUser.objects.all())
+            assert indy_users
+
+            with patch("src.api.views.user.send_mail") as send_mail_mock:
+                self.client.cron_job(action)
+
+                if mail_sent:
+                    send_mail_mock.assert_has_calls(
+                        [
+                            call(
+                                campaign_id=(
+                                    settings.DOTDIGITAL_CAMPAIGN_IDS[
+                                        campaign_name
+                                    ]
+                                ),
+                                to_addresses=[user.email],
+                            )
+                            for user in teacher_users + indy_users
+                        ],
+                        any_order=True,
+                    )
+                else:
+                    send_mail_mock.assert_not_called()
+
+        test_send_inactivity_reminder(days=days - 1, mail_sent=False)
+        test_send_inactivity_reminder(days=days, mail_sent=True)
+        test_send_inactivity_reminder(days=days + 1, mail_sent=False)
+
+    def test_send_1st_inactivity_reminder(self):
+        """Can send the 1st inactivity reminder."""
+        self._test_send_inactivity_reminder(
+            action="send_1st_inactivity_reminder",
+            days=730,
+            campaign_name="Inactive users on website - first reminder",
+        )
+
+    def test_send_2nd_inactivity_reminder(self):
+        """Can send the 2nd inactivity reminder."""
+        self._test_send_inactivity_reminder(
+            action="send_2nd_inactivity_reminder",
+            days=973,
+            campaign_name="Inactive users on website - second reminder",
+        )
+
+    def test_send_final_inactivity_reminder(self):
+        """Can send the final inactivity reminder."""
+        self._test_send_inactivity_reminder(
+            action="send_final_inactivity_reminder",
+            days=1065,
+            campaign_name="Inactive users on website - final reminder",
         )
 
     # test: other actions
