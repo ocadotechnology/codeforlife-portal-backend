@@ -753,13 +753,13 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
 
             assert StudentUser.objects.update(date_joined=date_joined)
 
+            TeacherUser.objects.update(date_joined=date_joined, last_login=None)
+            IndependentUser.objects.update(last_login=last_login)
+
             teacher_users = list(TeacherUser.objects.all())
             assert teacher_users
             indy_users = list(IndependentUser.objects.all())
             assert indy_users
-
-            TeacherUser.objects.update(date_joined=date_joined, last_login=None)
-            IndependentUser.objects.update(last_login=last_login)
 
             with patch("src.api.views.user.send_mail") as send_mail_mock:
                 self.client.cron_job(action)
