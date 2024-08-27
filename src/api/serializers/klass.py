@@ -6,8 +6,9 @@ Created on 24/01/2024 at 12:14:21(+00:00).
 import string
 
 from codeforlife.serializers import ModelListSerializer
-from codeforlife.user.models import Class, Teacher, User
+from codeforlife.user.models import Class, SchoolTeacher, Teacher, User
 from codeforlife.user.serializers import ClassSerializer as _ClassSerializer
+from codeforlife.user.serializers import TeacherSerializer
 from django.utils.crypto import get_random_string
 from rest_framework import serializers
 
@@ -16,7 +17,7 @@ from rest_framework import serializers
 # pylint: disable=too-many-ancestors
 
 
-class ClassListSerializer(ModelListSerializer[User, Class]):
+class WriteClassListSerializer(ModelListSerializer[User, Class]):
     def update(self, instance, validated_data):
         for klass, data in zip(instance, validated_data):
             klass.name = data.get("name", klass.name)
@@ -26,7 +27,7 @@ class ClassListSerializer(ModelListSerializer[User, Class]):
         return instance
 
 
-class ClassSerializer(_ClassSerializer):
+class WriteClassSerializer(_ClassSerializer):
     read_classmates_data = serializers.BooleanField(
         source="classmates_data_viewable",
     )
@@ -42,7 +43,7 @@ class ClassSerializer(_ClassSerializer):
             "name": {"read_only": False},
             "teacher": {"required": False},
         }
-        list_serializer_class = ClassListSerializer
+        list_serializer_class = WriteClassListSerializer
 
     def validate_teacher(self, value: Teacher):
         user = self.request.school_teacher_user
@@ -97,3 +98,7 @@ class ClassSerializer(_ClassSerializer):
                 ),
             }
         )
+
+
+class ReadClassSerializer(_ClassSerializer):
+    teacher = TeacherSerializer[SchoolTeacher](read_only=True)

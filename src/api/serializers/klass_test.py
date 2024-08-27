@@ -11,13 +11,13 @@ from codeforlife.user.models import (
     User,
 )
 
-from .klass import ClassSerializer
+from .klass import WriteClassSerializer
 
 # pylint: disable=missing-class-docstring
 
 
-class TestClassSerializer(ModelSerializerTestCase[User, Class]):
-    model_serializer_class = ClassSerializer
+class TestWriteClassSerializer(ModelSerializerTestCase[User, Class]):
+    model_serializer_class = WriteClassSerializer
     fixtures = ["school_1", "school_2"]
 
     def setUp(self):

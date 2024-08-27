@@ -12,6 +12,7 @@ from codeforlife.user.permissions import IsStudent, IsTeacher
 from django.utils import timezone
 from rest_framework import status
 
+from ..serializers import ReadClassSerializer, WriteClassSerializer
 from .klass import ClassViewSet
 
 
@@ -101,6 +102,36 @@ class TestClassViewSet(ModelViewSetTestCase[User, Class]):
                 )
             ],
             action="retrieve",
+        )
+
+    # test: get serializer class
+
+    def test_get_serializer_class__create(self):
+        """Creating a class has a dedicated serializer."""
+        self.assert_get_serializer_class(
+            serializer_class=WriteClassSerializer,
+            action="create",
+        )
+
+    def test_get_serializer_class__partial_update(self):
+        """Partially updating a class has a dedicated serializer."""
+        self.assert_get_serializer_class(
+            serializer_class=WriteClassSerializer,
+            action="partial_update",
+        )
+
+    def test_get_serializer_class__retrieve(self):
+        """Retrieving a class has a dedicated serializer."""
+        self.assert_get_serializer_class(
+            serializer_class=ReadClassSerializer,
+            action="retrieve",
+        )
+
+    def test_get_serializer_class__list(self):
+        """Listing classes has a dedicated serializer."""
+        self.assert_get_serializer_class(
+            serializer_class=ReadClassSerializer,
+            action="list",
         )
 
     # test: default actions
