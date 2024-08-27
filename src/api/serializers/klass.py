@@ -6,9 +6,16 @@ Created on 24/01/2024 at 12:14:21(+00:00).
 import string
 
 from codeforlife.serializers import ModelListSerializer
-from codeforlife.user.models import Class, SchoolTeacher, Teacher, User
+from codeforlife.user.models import (
+    Class,
+    SchoolTeacher,
+    SchoolTeacherUser,
+    Teacher,
+    User,
+)
+from codeforlife.user.serializers import BaseUserSerializer
 from codeforlife.user.serializers import ClassSerializer as _ClassSerializer
-from codeforlife.user.serializers import TeacherSerializer
+from codeforlife.user.serializers import TeacherSerializer as _TeacherSerializer
 from django.utils.crypto import get_random_string
 from rest_framework import serializers
 
@@ -101,4 +108,13 @@ class WriteClassSerializer(_ClassSerializer):
 
 
 class ReadClassSerializer(_ClassSerializer):
-    teacher = TeacherSerializer[SchoolTeacher](read_only=True)
+    class TeacherSerializer(_TeacherSerializer[SchoolTeacher]):
+        user = BaseUserSerializer[SchoolTeacherUser](
+            source="new_user",
+            read_only=True,
+        )
+
+        class Meta(_TeacherSerializer.Meta):
+            fields = [*_TeacherSerializer.Meta.fields, "user"]
+
+    teacher = TeacherSerializer(read_only=True)
