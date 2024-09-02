@@ -12,14 +12,18 @@ from codeforlife.user.models import (
     Class,
     ContactableUser,
     IndependentUser,
+    SchoolTeacher,
     Student,
     StudentUser,
     Teacher,
+    TeacherUser,
     User,
 )
 from codeforlife.user.serializers import (
     BaseUserSerializer as _BaseUserSerializer,
 )
+from codeforlife.user.serializers import ClassSerializer as _ClassSerializer
+from codeforlife.user.serializers import TeacherSerializer as _TeacherSerializer
 from codeforlife.user.serializers import UserSerializer as _UserSerializer
 from django.conf import settings
 from django.contrib.auth.password_validation import (
@@ -435,3 +439,39 @@ class RegisterEmailToNewsletter(_BaseUserSerializer[ContactableUser]):
         user.add_contact_to_dot_digital()
 
         return user
+
+
+class ReadUserSerializer(_UserSerializer[User]):
+    class ClassSerializer(_ClassSerializer):
+        class TeacherSerializer(_TeacherSerializer[SchoolTeacher]):
+            user = _BaseUserSerializer[TeacherUser](
+                source="new_user", read_only=True
+            )
+
+            class Meta(_TeacherSerializer.Meta):
+                fields = [*_TeacherSerializer.Meta.fields, "user"]
+
+        teacher = TeacherSerializer(read_only=True)
+
+    requesting_to_join_class = ClassSerializer(  # type: ignore[assignment]
+        source="new_student.pending_class_request",
+        read_only=True,
+    )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        try:
+            if (
+                instance.new_student
+                and instance.new_student.pending_class_request
+            ):
+                representation[
+                    "requesting_to_join_class"
+                ] = self.ClassSerializer(
+                    instance.new_student.pending_class_request
+                ).data
+        except Student.DoesNotExist:
+            pass
+
+        return representation

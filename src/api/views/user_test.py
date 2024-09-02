@@ -31,7 +31,6 @@ from codeforlife.user.models import (
     UserProfile,
 )
 from codeforlife.user.permissions import IsIndependent, IsTeacher
-from codeforlife.user.serializers import UserSerializer
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.tokens import (
@@ -45,6 +44,7 @@ from ..auth import email_verification_token_generator
 from ..serializers import (
     CreateUserSerializer,
     HandleIndependentUserJoinClassRequestSerializer,
+    ReadUserSerializer,
     RegisterEmailToNewsletter,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
@@ -303,14 +303,14 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
     def test_get_serializer_class__retrieve(self):
         """Retrieving a user uses the general serializer."""
         self.assert_get_serializer_class(
-            serializer_class=UserSerializer,
+            serializer_class=ReadUserSerializer,
             action="retrieve",
         )
 
     def test_get_serializer_class__list(self):
         """Listing users uses the general serializer."""
         self.assert_get_serializer_class(
-            serializer_class=UserSerializer,
+            serializer_class=ReadUserSerializer,
             action="list",
         )
 

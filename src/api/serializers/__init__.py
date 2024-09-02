@@ -25,6 +25,7 @@ from .teacher import (
 from .user import (
     CreateUserSerializer,
     HandleIndependentUserJoinClassRequestSerializer,
+    ReadUserSerializer,
     RegisterEmailToNewsletter,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
