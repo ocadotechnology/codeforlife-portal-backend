@@ -145,11 +145,11 @@ class BaseStudentPasswordSerializer(BaseStudentSerializer):
         representation = super().to_representation(instance)
 
         # Return student's auto-generated password.
-        # pylint: disable-next=protected-access
-        password = instance.new_user._password
-        if password is not None:
+        password = getattr(instance.new_user, "_password", None)
+        auto_gen_password = getattr(instance.new_user, "_login_id", None)
+        if password is not None and auto_gen_password is not None:
             representation["user"]["password"] = password
-            representation["login_id"] = instance.login_id
+            representation["auto_gen_password"] = auto_gen_password
 
         return representation
 
