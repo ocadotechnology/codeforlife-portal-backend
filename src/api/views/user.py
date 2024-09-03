@@ -29,6 +29,7 @@ from ..auth import email_verification_token_generator
 from ..serializers import (
     CreateUserSerializer,
     HandleIndependentUserJoinClassRequestSerializer,
+    ReadUserSerializer,
     RegisterEmailToNewsletter,
     RequestUserPasswordResetSerializer,
     ResetUserPasswordSerializer,
@@ -96,7 +97,7 @@ class UserViewSet(_UserViewSet):
         if self.action == "register_to_newsletter":
             return RegisterEmailToNewsletter
 
-        return super().get_serializer_class()
+        return ReadUserSerializer
 
     def get_queryset(self, user_class=User):
         if self.action in ["reset_password", "verify_email_address"]:
