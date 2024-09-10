@@ -304,7 +304,7 @@ class TestResetStudentPasswordSerializer(
                             "new_user": {
                                 "password": user_make_password.return_value
                             },
-                            "login_id": get_random_login_id.return_value,
+                            "login_id": get_random_login_id.return_value[1],
                         }
                     ],
                 )

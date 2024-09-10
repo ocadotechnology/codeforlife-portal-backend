@@ -17,6 +17,9 @@ from codeforlife.user.models import (
     User,
 )
 from codeforlife.user.permissions import IsTeacher
+from common.helpers.generators import (  # type: ignore[import-untyped]
+    get_hashed_login_id,
+)
 
 from ..serializers import (
     CreateStudentSerializer,
@@ -81,18 +84,20 @@ class TestStudentViewSet(ModelViewSetTestCase[User, Student]):
         for student_fields in response_json:
             assert isinstance(student_fields, dict)
 
-            login_id = student_fields["login_id"]
-            assert isinstance(login_id, str) and login_id
+            auto_gen_password = student_fields["auto_gen_password"]
+            assert isinstance(auto_gen_password, str) and auto_gen_password
 
             student_id = student_fields["id"]
             assert isinstance(student_id, int)
             student = student_lookup[student_id]
 
-            login_id_is_valid = student.login_id == login_id
+            auto_gen_password_is_valid = (
+                student.login_id == get_hashed_login_id(auto_gen_password)
+            )
             if are_valid:
-                assert login_id_is_valid
+                assert auto_gen_password_is_valid
             else:
-                assert not login_id_is_valid
+                assert not auto_gen_password_is_valid
 
             student_user_fields = student_fields["user"]
             assert isinstance(student_user_fields, dict)
