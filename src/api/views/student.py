@@ -29,6 +29,13 @@ class StudentViewSet(ModelViewSet[User, Student]):
     def get_queryset(self):
         return self.request.school_teacher_user.teacher.students
 
+    def get_serializer_context(self):
+        serializer_context = super().get_serializer_context()
+        if self.action == "reset_password":
+            serializer_context["user_type"] = "student"
+
+        return serializer_context
+
     def get_serializer_class(self):
         if self.action == "release":
             return ReleaseStudentSerializer
