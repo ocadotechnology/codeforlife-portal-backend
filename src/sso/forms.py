@@ -3,7 +3,6 @@
 Created on 01/12/2023 at 16:00:24(+00:00).
 """
 
-
 from codeforlife.user.models import User
 from django import forms
 from django.contrib.auth import authenticate

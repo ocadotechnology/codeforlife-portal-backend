@@ -49,8 +49,8 @@ class AuthFactorSerializer(ModelSerializer[User, AuthFactor]):
             self.view.action == "create"
             and instance.type == AuthFactor.Type.OTP
         ):
-            representation[
-                "totp_provisioning_uri"
-            ] = self.request.auth_user.totp_provisioning_uri
+            representation["totp_provisioning_uri"] = (
+                self.request.auth_user.totp_provisioning_uri
+            )
 
         return representation

@@ -2,6 +2,7 @@
 © Ocado Group
 Created on 29/01/2024 at 10:13:58(+00:00).
 """
+
 import typing as t
 
 from codeforlife.types import DataDict
@@ -16,6 +17,7 @@ from codeforlife.user.serializers import TeacherSerializer
 from rest_framework import serializers
 
 from .user import BaseUserSerializer
+
 
 # pylint: disable=missing-class-docstring
 # pylint: disable=too-many-ancestors

@@ -2,6 +2,7 @@
 © Ocado Group
 Created on 09/02/2024 at 16:14:00(+00:00).
 """
+
 import typing as t
 
 from codeforlife.mail import send_mail
