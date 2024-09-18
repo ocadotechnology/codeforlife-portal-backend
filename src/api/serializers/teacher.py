@@ -18,7 +18,6 @@ from rest_framework import serializers
 
 from .user import BaseUserSerializer
 
-
 # pylint: disable=missing-class-docstring
 # pylint: disable=too-many-ancestors
 # pylint: disable=missing-function-docstring
