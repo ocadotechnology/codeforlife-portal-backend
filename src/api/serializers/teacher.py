@@ -2,6 +2,7 @@
 © Ocado Group
 Created on 29/01/2024 at 10:13:58(+00:00).
 """
+
 import typing as t
 
 from codeforlife.types import DataDict

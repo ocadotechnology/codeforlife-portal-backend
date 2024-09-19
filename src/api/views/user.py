@@ -2,6 +2,7 @@
 © Ocado Group
 Created on 23/01/2024 at 17:53:44(+00:00).
 """
+
 import logging
 from datetime import timedelta
 
@@ -186,9 +187,11 @@ class UserViewSet(_UserViewSet):
         return Response(
             status=status.HTTP_303_SEE_OTHER,
             headers={
-                "Location": settings.PAGE_TEACHER_LOGIN
-                if user.teacher
-                else settings.PAGE_INDY_LOGIN
+                "Location": (
+                    settings.PAGE_TEACHER_LOGIN
+                    if user.teacher
+                    else settings.PAGE_INDY_LOGIN
+                )
             },
         )
 

@@ -2,6 +2,7 @@
 © Ocado Group
 Created on 23/01/2024 at 17:53:37(+00:00).
 """
+
 from codeforlife.permissions import OR, AllowNone
 from codeforlife.user.permissions import IsTeacher
 from codeforlife.user.views import ClassViewSet as _ClassViewSet
