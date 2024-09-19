@@ -218,6 +218,15 @@ class TestStudentViewSet(ModelViewSetTestCase[User, Student]):
             request_method="put",
         )
 
+    # test: get serializer context
+
+    def test_get_serializer_context__reset_password(self):
+        """Serializer context sets user type as student."""
+        self.assert_get_serializer_context(
+            serializer_context={"user_type": "student"},
+            action="reset_password",
+        )
+
     # test: get serializer class
 
     def test_get_serializer_class__release(self):

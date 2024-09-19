@@ -17,6 +17,7 @@ from codeforlife.user.models import (
     User,
 )
 from django.contrib.auth.hashers import make_password
+from django.db.models import Count
 
 from ..auth import password_reset_token_generator
 from .user import (
@@ -36,6 +37,27 @@ from .user import (
 class TestBaseUserSerializer(ModelSerializerTestCase[User, User]):
     model_serializer_class = BaseUserSerializer[User]
     # fixtures = ["school_1"]
+
+    def test_validate_first_name__student_name_in_class(self):
+        """
+        Cannot assign a student-user a name that already exists in their class.
+        """
+        klass = (
+            Class.objects.annotate(student_count=Count("students"))
+            .filter(student_count__gte=2)
+            .first()
+        )
+        assert klass
+        students = klass.students.all()
+        student_user_1 = StudentUser.objects.get(new_student=students[0])
+        student_user_2 = StudentUser.objects.get(new_student=students[1])
+
+        self.assert_validate_field(
+            name="first_name",
+            value=student_user_2.first_name,
+            error_code="student_name_in_class",
+            instance=student_user_1,
+        )
 
     def test_validate_email__already_exists(self):
         """Cannot assign a user an email that already exists."""
