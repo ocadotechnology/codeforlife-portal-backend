@@ -2,6 +2,7 @@
 © Ocado Group
 Created on 18/01/2024 at 15:14:32(+00:00).
 """
+
 import typing as t
 from datetime import date, timedelta
 
@@ -480,11 +481,11 @@ class ReadUserSerializer(_UserSerializer[User]):
                 instance.new_student
                 and instance.new_student.pending_class_request
             ):
-                representation[
-                    "requesting_to_join_class"
-                ] = self.ClassSerializer(
-                    instance.new_student.pending_class_request
-                ).data
+                representation["requesting_to_join_class"] = (
+                    self.ClassSerializer(
+                        instance.new_student.pending_class_request
+                    ).data
+                )
         except Student.DoesNotExist:
             pass
 

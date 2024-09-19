@@ -81,4 +81,5 @@ class TestAuthFactorSerializer(ModelSerializerTestCase[User, AuthFactor]):
                     user=self.multi_auth_factor_teacher_user
                 ),
             },
+            non_model_fields={"totp_provisioning_uri"},
         )
