@@ -50,6 +50,20 @@ from ..auth import (
 
 
 class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
+    def validate_first_name(self, value: str):
+        user = self.instance
+        if user and user.student and user.student.class_field:
+            if User.objects.filter(
+                first_name=value,
+                new_student__class_field=user.student.class_field,
+            ).exists():
+                raise serializers.ValidationError(
+                    "A student in this class already has this name.",
+                    code="student_name_in_class",
+                )
+
+        return value
+
     # TODO: make email unique in new models and remove this validation.
     def validate_email(self, value: str):
         user = User.objects.filter(email__iexact=value).first()
