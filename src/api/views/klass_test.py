@@ -85,9 +85,7 @@ class TestClassViewSet(ModelViewSetTestCase[User, Class]):
     def test_get_permissions__list(self):
         """Only admin-teachers and class-teachers can list classes."""
         self.assert_get_permissions(
-            permissions=[
-                OR(IsTeacher(is_admin=True), IsTeacher(in_class=True))
-            ],
+            permissions=[IsTeacher(in_school=True)],
             action="list",
         )
 
@@ -96,12 +94,7 @@ class TestClassViewSet(ModelViewSetTestCase[User, Class]):
         Only students, admin-teachers or class-teachers can retrieve a class.
         """
         self.assert_get_permissions(
-            permissions=[
-                OR(
-                    IsStudent(),
-                    OR(IsTeacher(is_admin=True), IsTeacher(in_class=True)),
-                )
-            ],
+            permissions=[OR(IsStudent(), IsTeacher(in_school=True))],
             action="retrieve",
         )
 

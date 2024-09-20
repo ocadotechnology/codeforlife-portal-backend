@@ -37,6 +37,17 @@ class ClassViewSet(_ClassViewSet):
 
         return ReadClassSerializer
 
+    def get_queryset(self):
+        if self.action in ["retrieve", "list"]:
+            return super().get_queryset()
+
+        teacher = self.request.school_teacher_user.teacher
+        return (
+            teacher.classes
+            if teacher.is_admin
+            else teacher.classes.filter(teacher=teacher)
+        )
+
     def destroy(self, request, *args, **kwargs):
         klass = self.get_object()
 
