@@ -746,9 +746,17 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         )
 
     def _test_send_inactivity_reminder(
-        self, action: str, days: int, campaign_name: str
+        self,
+        action: str,
+        days: int,
+        campaign_name: str,
+        personalization_values: t.Optional[dict] = None,
     ):
-        def test_send_inactivity_reminder(days: int, mail_sent: bool):
+        def test_send_inactivity_reminder(
+            days: int,
+            mail_sent: bool,
+            personalization_values: t.Optional[dict] = None,
+        ):
             date_joined = timezone.now() - timedelta(days, hours=12)
             last_login = timezone.now() - timedelta(days, hours=12)
 
@@ -766,25 +774,47 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
                 self.client.cron_job(action)
 
                 if mail_sent:
-                    send_mail_mock.assert_has_calls(
-                        [
-                            call(
-                                campaign_id=(
-                                    settings.DOTDIGITAL_CAMPAIGN_IDS[
-                                        campaign_name
-                                    ]
-                                ),
-                                to_addresses=[user.email],
-                            )
-                            for user in teacher_users + indy_users
-                        ],
-                        any_order=True,
-                    )
+                    if personalization_values is not None:
+                        send_mail_mock.assert_has_calls(
+                            [
+                                call(
+                                    campaign_id=(
+                                        settings.DOTDIGITAL_CAMPAIGN_IDS[
+                                            campaign_name
+                                        ]
+                                    ),
+                                    to_addresses=[user.email],
+                                    # pylint: disable-next=line-too-long
+                                    personalization_values=personalization_values,
+                                )
+                                for user in teacher_users + indy_users
+                            ],
+                            any_order=True,
+                        )
+                    else:
+                        send_mail_mock.assert_has_calls(
+                            [
+                                call(
+                                    campaign_id=(
+                                        settings.DOTDIGITAL_CAMPAIGN_IDS[
+                                            campaign_name
+                                        ]
+                                    ),
+                                    to_addresses=[user.email],
+                                )
+                                for user in teacher_users + indy_users
+                            ],
+                            any_order=True,
+                        )
                 else:
                     send_mail_mock.assert_not_called()
 
         test_send_inactivity_reminder(days=days - 1, mail_sent=False)
-        test_send_inactivity_reminder(days=days, mail_sent=True)
+        test_send_inactivity_reminder(
+            days=days,
+            mail_sent=True,
+            personalization_values=personalization_values,
+        )
         test_send_inactivity_reminder(days=days + 1, mail_sent=False)
 
     def test_send_1st_inactivity_reminder(self):
@@ -801,6 +831,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
             action="send_2nd_inactivity_reminder",
             days=973,
             campaign_name="Inactive users on website - second reminder",
+            personalization_values={"DAYS_LEFT": 123},
         )
 
     def test_send_final_inactivity_reminder(self):
@@ -809,6 +840,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
             action="send_final_inactivity_reminder",
             days=1065,
             campaign_name="Inactive users on website - final reminder",
+            personalization_values={"DAYS_LEFT": 31},
         )
 
     # test: other actions

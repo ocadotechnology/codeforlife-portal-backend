@@ -4,6 +4,7 @@ Created on 23/01/2024 at 17:53:44(+00:00).
 """
 
 import logging
+import typing as t
 from datetime import timedelta
 
 from codeforlife.mail import send_mail
@@ -368,7 +369,12 @@ class UserViewSet(_UserViewSet):
 
         return user_queryset.exclude(email__isnull=True).exclude(email="")
 
-    def _send_inactivity_reminder(self, days: int, campaign_name: str):
+    def _send_inactivity_reminder(
+        self,
+        days: int,
+        campaign_name: str,
+        personalization_values: t.Optional[dict] = None,
+    ):
         user_queryset = self._get_inactive_users(days)
         user_count = user_queryset.count()
 
@@ -380,12 +386,21 @@ class UserViewSet(_UserViewSet):
                 chunk_size=500
             ):
                 try:
-                    send_mail(
-                        campaign_id=settings.DOTDIGITAL_CAMPAIGN_IDS[
-                            campaign_name
-                        ],
-                        to_addresses=[email],
-                    )
+                    if personalization_values is not None:
+                        send_mail(
+                            campaign_id=settings.DOTDIGITAL_CAMPAIGN_IDS[
+                                campaign_name
+                            ],
+                            to_addresses=[email],
+                            personalization_values=personalization_values,
+                        )
+                    else:
+                        send_mail(
+                            campaign_id=settings.DOTDIGITAL_CAMPAIGN_IDS[
+                                campaign_name
+                            ],
+                            to_addresses=[email],
+                        )
 
                     sent_email_count += 1
                 # pylint: disable-next=broad-exception-caught
@@ -417,6 +432,7 @@ class UserViewSet(_UserViewSet):
         return self._send_inactivity_reminder(
             days=973,
             campaign_name="Inactive users on website - second reminder",
+            personalization_values={"DAYS_LEFT": 123},
         )
 
     @cron_job
@@ -428,4 +444,5 @@ class UserViewSet(_UserViewSet):
         return self._send_inactivity_reminder(
             days=1065,
             campaign_name="Inactive users on website - final reminder",
+            personalization_values={"DAYS_LEFT": 31},
         )
