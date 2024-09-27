@@ -71,7 +71,7 @@ class TestLevelViewSet(ModelViewSetTestCase[User, Level]):
     def test_get_queryset__lock(self):
         """Only default levels can be locked for classes."""
         self.assert_get_queryset(
-            values=Level.objects.filter(default=True),
+            values=Level.objects.filter(default=True).order_by("pk"),
             action="lock",
         )
 
@@ -83,9 +83,11 @@ class TestLevelViewSet(ModelViewSetTestCase[User, Level]):
         user = self.user_with_custom_and_shared_levels
 
         self.assert_get_queryset(
-            values=Level.objects.filter(default=True)
-            | user.shared_levels.all()
-            | user.levels.all(),
+            values=(
+                Level.objects.filter(default=True)
+                | user.shared_levels.all()
+                | user.levels.all()
+            ).order_by("pk"),
             action="list",
             request=self.client.request_factory.get(user=user),
         )
@@ -98,9 +100,11 @@ class TestLevelViewSet(ModelViewSetTestCase[User, Level]):
         user = self.user_with_custom_and_shared_levels
 
         self.assert_get_queryset(
-            values=Level.objects.filter(default=True)
-            | user.shared_levels.all()
-            | user.levels.all(),
+            values=(
+                Level.objects.filter(default=True)
+                | user.shared_levels.all()
+                | user.levels.all()
+            ).order_by("pk"),
             action="retrieve",
             request=self.client.request_factory.get(user=user),
         )
@@ -155,9 +159,11 @@ class TestLevelViewSet(ModelViewSetTestCase[User, Level]):
 
         self.client.login(email=user.email, password="Password1")
         self.client.list(
-            models=Level.objects.filter(default=True)
-            | user.shared_levels.all()
-            | user.levels.all(),
+            models=(
+                Level.objects.filter(default=True)
+                | user.shared_levels.all()
+                | user.levels.all()
+            ).order_by("pk"),
         )
 
     def test_list__default(self):
@@ -166,7 +172,7 @@ class TestLevelViewSet(ModelViewSetTestCase[User, Level]):
 
         self.client.login(email=user.email, password="Password1")
         self.client.list(
-            models=Level.objects.filter(default=True),
+            models=Level.objects.filter(default=True).order_by("pk"),
             filters={"default": "true"},
         )
 

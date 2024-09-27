@@ -23,7 +23,7 @@ name = "pypi"
 # 5. Run `pipenv install --dev` in your terminal.
 
 [packages]
-codeforlife = {ref = "v0.18.13", git = "https://github.com/ocadotechnology/codeforlife-package-python.git"}
+codeforlife = {ref = "v0.19.1", git = "https://github.com/ocadotechnology/codeforlife-package-python.git"}
 # 🚫 Don't add [packages] below that are inherited from the CFL package.
 pyjwt = "==2.6.0" # TODO: upgrade to latest version
 # TODO: Needed by RR. Remove when RR has moved to new system.
@@ -32,7 +32,7 @@ django-sekizai = "==2.0.0"
 django-classy-tags = "==2.0.0"
 
 [dev-packages]
-codeforlife = {ref = "v0.18.13", git = "https://github.com/ocadotechnology/codeforlife-package-python.git", extras = ["dev"]}
+codeforlife = {ref = "v0.19.1", git = "https://github.com/ocadotechnology/codeforlife-package-python.git", extras = ["dev"]}
 # codeforlife = {file = "../codeforlife-package-python", editable = true, extras = ["dev"]}
 # 🚫 Don't add [dev-packages] below that are inherited from the CFL package.
 

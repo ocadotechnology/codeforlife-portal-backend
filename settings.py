@@ -243,7 +243,6 @@ CSP_MANIFEST_SRC = (f"{domain()}/static/manifest.json",)
 # pylint: disable-next=wrong-import-position,wildcard-import,unused-wildcard-import
 from codeforlife.settings import *
 
-DATABASES = get_databases(BASE_DIR)
 ROOT_URLCONF = "src.urls"
 STATIC_ROOT = get_static_root(BASE_DIR)
 
