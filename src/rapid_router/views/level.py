@@ -33,7 +33,9 @@ class LevelViewSet(ModelViewSet[User, Level]):
         if self.action in ["list", "retrieve"]:
             user = self.request.user
             if isinstance(user, User):
-                return queryset | user.shared_levels.all() | user.levels.all()
+                return (
+                    queryset | user.shared_levels.all() | user.levels.all()
+                ).order_by("pk")
 
         return queryset
 
