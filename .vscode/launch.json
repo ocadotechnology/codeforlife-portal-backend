@@ -26,10 +26,6 @@
         "localhost:8000"
       ],
       "django": true,
-      "env": {
-        "SERVICE_IS_ROOT": "1",
-        "SERVICE_NAME": "portal"
-      },
       "justMyCode": false,
       "name": "Django Server",
       "preLaunchTask": "setup",
