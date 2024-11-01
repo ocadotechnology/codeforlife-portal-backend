@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 
+# NOTE: Must come before importing CFL settings.
+os.environ["SERVICE_NAME"] = "portal"
+os.environ["SERVICE_IS_ROOT"] = "1"
+
 # Custom
 
 EMAIL_VERIFICATION_TIMEOUT = 60 * 60 * 24
