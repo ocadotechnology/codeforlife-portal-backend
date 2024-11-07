@@ -9,8 +9,10 @@ from codeforlife.user.models import School, User
 from ..views.school import SchoolViewSet
 from .school import SchoolSerializer
 
+# pylint: disable=missing-class-docstring
+# pylint: disable=too-many-ancestors
 
-# pylint: disable-next=missing-class-docstring
+
 class TestSchoolSerializer(ModelSerializerTestCase[User, School]):
     model_serializer_class = SchoolSerializer
     fixtures = ["school_1"]

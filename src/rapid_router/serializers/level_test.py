@@ -12,6 +12,7 @@ from ..models import Level, User
 from .level import LockLevelListSerializer, LockLevelSerializer
 
 # pylint: disable=missing-class-docstring
+# pylint: disable=too-many-ancestors
 
 
 class TestLockLevelSerializer(ModelSerializerTestCase[User, Level]):

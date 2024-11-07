@@ -24,6 +24,7 @@ from .school_teacher_invitation import (
 )
 
 # pylint: disable=missing-class-docstring
+# pylint: disable=too-many-ancestors
 
 
 class TestSchoolTeacherInvitationSerializer(
@@ -68,7 +69,6 @@ class TestSchoolTeacherInvitationSerializer(
         invitation_make_password.assert_called_once()
 
 
-# pylint: disable-next=missing-class-docstring
 class TestRefreshSchoolTeacherInvitationSerializer(
     ModelSerializerTestCase[User, SchoolTeacherInvitation]
 ):
