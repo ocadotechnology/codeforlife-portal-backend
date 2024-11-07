@@ -7,26 +7,20 @@ into one folder. If in the future the number of views grows, it's recommended to
 split these views into multiple files.
 """
 
-import json
 import logging
 import typing as t
-from urllib.parse import quote_plus
 
 from codeforlife.mixins import CronMixin
 from codeforlife.request import HttpRequest
+from codeforlife.user.models import User
+from codeforlife.views import BaseLoginView
 from common.models import UserSession  # type: ignore
-from django.conf import settings
-from django.contrib.auth import login
-from django.contrib.auth.views import LoginView as _LoginView
 from django.contrib.sessions.models import Session, SessionManager
 from django.core import management
-from django.http import JsonResponse
-from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .forms import (
-    BaseLoginForm,
     EmailLoginForm,
     OtpBypassTokenLoginForm,
     OtpLoginForm,
@@ -36,7 +30,7 @@ from .forms import (
 
 
 # pylint: disable-next=too-many-ancestors
-class LoginView(_LoginView):
+class LoginView(BaseLoginView[HttpRequest[User], User]):
     """
     Extends Django's login view to allow a user to log in using one of the
     approved forms.
@@ -44,8 +38,6 @@ class LoginView(_LoginView):
     WARNING: It's critical that to inherit Django's login view as it implements
         industry standard security measures that a login view should have.
     """
-
-    request: HttpRequest
 
     def get_form_class(self):
         form = self.kwargs["form"]
@@ -62,21 +54,7 @@ class LoginView(_LoginView):
 
         raise NameError(f'Unsupported form: "{form}".')
 
-    def get_form_kwargs(self):
-        form_kwargs = super().get_form_kwargs()
-        form_kwargs["data"] = json.loads(self.request.body)
-
-        return form_kwargs
-
-    def form_valid(self, form: BaseLoginForm):  # type: ignore
-        user = form.user
-
-        # Clear expired sessions.
-        self.request.session.clear_expired(user.pk)
-
-        # Create session (without data).
-        login(self.request, user)
-
+    def get_session_metadata(self, user):
         # TODO: use google analytics
         user_session: t.Dict[str, t.Any] = {"user": user}
         if self.get_form_class() in [StudentAutoLoginForm, StudentLoginForm]:
@@ -88,17 +66,13 @@ class LoginView(_LoginView):
             )
         UserSession.objects.create(**user_session)
 
-        # Save session (with data).
-        self.request.session.save()
-
         user_type = "indy"
         if user.teacher:
             user_type = "teacher"
         elif user.student and user.student.class_field:
             user_type = "student"
 
-        # Get session metadata.
-        session_metadata = {
+        return {
             "user_id": user.id,
             "user_type": user_type,
             "auth_factors": list(
@@ -108,36 +82,6 @@ class LoginView(_LoginView):
             ),
             "otp_bypass_token_exists": user.otp_bypass_tokens.exists(),
         }
-
-        # Return session metadata in response and a non-HTTP-only cookie.
-        response = JsonResponse(session_metadata)
-        response.set_cookie(
-            key=settings.SESSION_METADATA_COOKIE_NAME,
-            value=quote_plus(
-                json.dumps(
-                    session_metadata,
-                    separators=(",", ":"),
-                    indent=None,
-                )
-            ),
-            max_age=(
-                None
-                if settings.SESSION_EXPIRE_AT_BROWSER_CLOSE
-                else settings.SESSION_COOKIE_AGE
-            ),
-            secure=settings.SESSION_COOKIE_SECURE,
-            samesite=t.cast(
-                t.Optional[t.Literal["Lax", "Strict", "None", False]],
-                settings.SESSION_COOKIE_SAMESITE,
-            ),
-            domain=settings.SESSION_COOKIE_DOMAIN,
-            httponly=False,
-        )
-
-        return response
-
-    def form_invalid(self, form: BaseLoginForm):  # type: ignore
-        return JsonResponse(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ClearExpiredView(CronMixin, APIView):  # type: ignore

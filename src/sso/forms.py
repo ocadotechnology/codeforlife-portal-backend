@@ -3,77 +3,13 @@
 Created on 01/12/2023 at 16:00:24(+00:00).
 """
 
+from codeforlife.forms import BaseLoginForm
 from codeforlife.user.models import User
 from django import forms
-from django.contrib.auth import authenticate
-from django.core.exceptions import ValidationError
-from django.core.handlers.wsgi import WSGIRequest
 from django.core.validators import RegexValidator
 
 
-class BaseLoginForm(forms.Form):
-    """
-    Base login form that all other login forms must inherit.
-    """
-
-    user: User
-
-    def __init__(self, request: WSGIRequest, *args, **kwargs):
-        self.request = request
-        super().__init__(*args, **kwargs)
-
-    def clean(self):
-        """Authenticates a user.
-
-        Raises:
-            ValidationError: If there are form errors.
-            ValidationError: If the user's credentials were incorrect.
-            ValidationError: If the user's account is deactivated.
-
-        Returns:
-            The cleaned form data.
-        """
-
-        if self.errors:
-            raise ValidationError(
-                "Found form errors. Skipping authentication.",
-                code="form_errors",
-            )
-
-        user = authenticate(
-            self.request,
-            **{key: self.cleaned_data[key] for key in self.fields.keys()}
-        )
-        if user is None:
-            raise ValidationError(
-                self.get_invalid_login_error_message(),
-                code="invalid_login",
-            )
-        if not isinstance(user, User):
-            raise ValidationError(
-                "Incorrect user class.",
-                code="incorrect_user_class",
-            )
-        self.user = user
-
-        if not user.is_active:
-            raise ValidationError(
-                "User is not active",
-                code="user_not_active",
-            )
-
-        return self.cleaned_data
-
-    def get_invalid_login_error_message(self) -> str:
-        """Returns the error message if the user failed to login.
-
-        Raises:
-            NotImplementedError: If message is not set.
-        """
-        raise NotImplementedError()
-
-
-class EmailLoginForm(BaseLoginForm):
+class EmailLoginForm(BaseLoginForm[User]):
     """Log in with an email address."""
 
     email = forms.EmailField()
@@ -86,7 +22,7 @@ class EmailLoginForm(BaseLoginForm):
         )
 
 
-class OtpLoginForm(BaseLoginForm):
+class OtpLoginForm(BaseLoginForm[User]):
     """Log in with an OTP code."""
 
     otp = forms.CharField(
@@ -99,7 +35,7 @@ class OtpLoginForm(BaseLoginForm):
         return "Please enter the correct one-time password."
 
 
-class OtpBypassTokenLoginForm(BaseLoginForm):
+class OtpBypassTokenLoginForm(BaseLoginForm[User]):
     """Log in with an OTP-bypass token."""
 
     token = forms.CharField(min_length=8, max_length=8)
@@ -108,7 +44,7 @@ class OtpBypassTokenLoginForm(BaseLoginForm):
         return "Must be exactly 8 characters. A token can only be used once."
 
 
-class StudentLoginForm(BaseLoginForm):
+class StudentLoginForm(BaseLoginForm[User]):
     """Log in as a student."""
 
     first_name = forms.CharField()
@@ -133,7 +69,7 @@ class StudentLoginForm(BaseLoginForm):
         )
 
 
-class StudentAutoLoginForm(BaseLoginForm):
+class StudentAutoLoginForm(BaseLoginForm[User]):
     """Log in with the user's id."""
 
     student_id = forms.IntegerField(min_value=1)
