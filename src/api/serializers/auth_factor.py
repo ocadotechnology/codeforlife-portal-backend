@@ -9,7 +9,7 @@ from codeforlife.user.models import AuthFactor, User
 from rest_framework import serializers
 
 
-# pylint: disable-next=missing-class-docstring
+# pylint: disable-next=missing-class-docstring,too-many-ancestors
 class AuthFactorSerializer(ModelSerializer[User, AuthFactor]):
     class Meta:
         model = AuthFactor

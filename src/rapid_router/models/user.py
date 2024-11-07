@@ -20,6 +20,7 @@ else:
     TypedModelMeta = object
 
 
+# pylint: disable-next=too-many-ancestors
 class User(_User):
     """A Rapid Router user."""
 
