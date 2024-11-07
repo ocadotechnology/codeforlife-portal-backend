@@ -84,6 +84,7 @@ class LoginView(BaseLoginView[HttpRequest[User], User]):
         }
 
 
+# TODO: move to python package and make work on AWS
 class ClearExpiredView(CronMixin, APIView):  # type: ignore
     """Clear all expired sessions."""
 
