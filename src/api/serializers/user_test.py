@@ -32,6 +32,7 @@ from .user import (
 )
 
 # pylint: disable=missing-class-docstring
+# pylint: disable=too-many-ancestors
 
 
 class TestBaseUserSerializer(ModelSerializerTestCase[User, User]):

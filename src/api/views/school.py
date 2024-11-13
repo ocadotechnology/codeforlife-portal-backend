@@ -31,6 +31,7 @@ class SchoolViewSet(_SchoolViewSet):
 
         return super().get_permissions()
 
+    # pylint: disable-next=missing-function-docstring
     def destroy(self, request, *args, **kwargs):
         school = self.get_object()
 

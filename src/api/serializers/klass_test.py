@@ -14,6 +14,7 @@ from codeforlife.user.models import (
 from .klass import WriteClassSerializer
 
 # pylint: disable=missing-class-docstring
+# pylint: disable=too-many-ancestors
 
 
 class TestWriteClassSerializer(ModelSerializerTestCase[User, Class]):

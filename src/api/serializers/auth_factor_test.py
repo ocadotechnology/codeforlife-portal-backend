@@ -9,8 +9,10 @@ from codeforlife.user.models import AuthFactor, TeacherUser, User
 from ..views import AuthFactorViewSet
 from .auth_factor import AuthFactorSerializer
 
+# pylint: disable=missing-class-docstring
+# pylint: disable=too-many-ancestors
 
-# pylint: disable-next=missing-class-docstring
+
 class TestAuthFactorSerializer(ModelSerializerTestCase[User, AuthFactor]):
     model_serializer_class = AuthFactorSerializer
     fixtures = ["school_2", "non_school_teacher"]
