@@ -27,12 +27,12 @@ urlpatterns = [
     ),
     *get_urlpatterns(urlpatterns, include_user_urls=False),
     path(
-        "api/sso/",
+        "sso/",
         include("src.sso.urls"),
         name="sso",
     ),
     path(
-        "api/rapid_router/",
+        "rapid_router/",
         include("src.rapid_router.urls"),
         name="rapid-router",
     ),

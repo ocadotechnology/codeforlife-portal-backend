@@ -77,7 +77,7 @@ class TestUser(TestCase):
                         to_addresses=[email],
                         personalization_values={
                             "VERIFICATION_LINK": (
-                                settings.SERVICE_API_URL
+                                settings.SERVICE_BASE_URL
                                 + reverse(
                                     "user-verify-email-address",
                                     kwargs={

@@ -56,7 +56,7 @@ class TestStudent(TestCase):
             to_addresses=[student.new_user.email],
             personalization_values={
                 "SCHOOL_NAME": klass.teacher.school.name,
-                "VERIFICATION_LINK": settings.SERVICE_API_URL
+                "VERIFICATION_LINK": settings.SERVICE_BASE_URL
                 + reverse(
                     "user-verify-email-address",
                     kwargs={

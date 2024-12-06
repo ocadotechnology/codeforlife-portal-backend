@@ -72,7 +72,7 @@ def student__post_save(
             instance, "class_field", Class
         )
 
-        verify_email_address_link = settings.SERVICE_API_URL + reverse(
+        verify_email_address_link = settings.SERVICE_BASE_URL + reverse(
             "user-verify-email-address",
             kwargs={
                 "pk": instance.new_user.pk,
