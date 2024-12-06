@@ -17,7 +17,7 @@ from codeforlife.user.models import (
     Teacher,
     User,
 )
-from codeforlife.user.permissions import IsStudent, IsTeacher
+from codeforlife.user.permissions import IsIndependent, IsStudent, IsTeacher
 
 from .school import SchoolViewSet
 
@@ -69,7 +69,12 @@ class TestSchoolViewSet(ModelViewSetTestCase[User, School]):
     def test_get_permissions__retrieve(self):
         """Anyone in a school can retrieve a school."""
         self.assert_get_permissions(
-            permissions=[OR(IsStudent(), IsTeacher(in_school=True))],
+            permissions=[
+                OR(
+                    OR(IsStudent(), IsTeacher(in_school=True)),
+                    IsIndependent(is_requesting_to_join_class=True),
+                )
+            ],
             action="retrieve",
         )
 
