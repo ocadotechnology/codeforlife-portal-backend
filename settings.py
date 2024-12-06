@@ -13,11 +13,16 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 
-# NOTE: Must come before importing CFL settings.
-os.environ["SERVICE_NAME"] = "portal"
-os.environ["SERVICE_IS_ROOT"] = "1"
+from codeforlife import set_up_settings
 
-# Custom
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent
+
+secrets = set_up_settings(BASE_DIR, service_name="portal")
+
+# ------------------------------------------------------------------------------
+# TODO: Clean settings below
+# ------------------------------------------------------------------------------
 
 EMAIL_VERIFICATION_TIMEOUT = 60 * 60 * 24
 
@@ -46,9 +51,6 @@ DOTDIGITAL_CAMPAIGN_IDS = {
     "Inactive users on website - second reminder": 1606208,
     "Inactive users on website - final reminder": 1606215,
 }
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent
 
 # Custom
 LOGIN_REDIRECT_URL = "/teach/dashboard/"
@@ -244,11 +246,14 @@ CSP_MEDIA_SRC = (
 )
 CSP_MANIFEST_SRC = (f"{domain()}/static/manifest.json",)
 
+# ------------------------------------------------------------------------------
+# TODO: Clean settings above
+# ------------------------------------------------------------------------------
+
 # pylint: disable-next=wrong-import-position,wildcard-import,unused-wildcard-import
 from codeforlife.settings import *
 
 ROOT_URLCONF = "src.urls"
-STATIC_ROOT = get_static_root(BASE_DIR)
 
 # TODO: Go through the commented out middleware and decide if we still need them
 MIDDLEWARE = [
