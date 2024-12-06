@@ -248,7 +248,7 @@ class UserViewSet(_UserViewSet):
             for user_fields in user_queryset.values("id", "email").iterator(
                 chunk_size=500
             ):
-                url = settings.SERVICE_API_URL + reverse(
+                url = settings.SERVICE_BASE_URL + reverse(
                     "user-verify-email-address",
                     kwargs={
                         "pk": user_fields["id"],
