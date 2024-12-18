@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.1...v1.0.2) (2024-12-18)
+
+
+### Bug Fixes
+
+* env ([fa239c1](https://github.com/ocadotechnology/codeforlife-portal-backend/commit/fa239c13c33e0afc9f0980def3bc81ef51ab2ca1))
+
 ## [1.0.1](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.0...v1.0.1) (2024-12-17)
 
 
