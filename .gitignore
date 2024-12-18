@@ -127,7 +127,7 @@ celerybeat.pid
 # Environments
 .env.local.secrets
 .venv
-env/
+# env/
 venv/
 ENV/
 env.bak/
