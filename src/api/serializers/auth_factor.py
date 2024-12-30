@@ -13,12 +13,10 @@ from rest_framework import serializers
 class AuthFactorSerializer(ModelSerializer[User, AuthFactor]):
     class Meta:
         model = AuthFactor
-        fields = [
-            "id",
-            "type",
-        ]
+        fields = ["id", "type", "user"]
         extra_kwargs = {
             "id": {"read_only": True},
+            "user": {"read_only": True},
         }
 
     # pylint: disable-next=missing-function-docstring
