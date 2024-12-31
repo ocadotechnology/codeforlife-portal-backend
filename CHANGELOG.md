@@ -1,3 +1,11 @@
+## [1.0.5](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.4...v1.0.5) (2024-12-31)
+
+
+### Bug Fixes
+
+* new cfl package ([364924d](https://github.com/ocadotechnology/codeforlife-portal-backend/commit/364924d3442c46767e9bff25c888d1530b6963f7))
+* new cfl package ([5fde797](https://github.com/ocadotechnology/codeforlife-portal-backend/commit/5fde79763a2d04da08860e3b2f2c1d030289d59a))
+
 ## [1.0.4](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.3...v1.0.4) (2024-12-31)
 
 
