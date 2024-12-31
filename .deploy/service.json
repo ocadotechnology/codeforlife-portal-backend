@@ -1,5 +1,6 @@
 {
   "type": "rolling",
+  "secondaryServerGroupName": "REPLACE_IN_PIPELINE",
   "targetPlatform": "REPLACE_IN_PIPELINE",
   "applicationData": {
     "artifactUrl": "REPLACE_IN_PIPELINE",
@@ -10,8 +11,8 @@
     "pythonVersion": "REPLACE_IN_PIPELINE"
   },
   "profiles": [
-    { "name": "loadBalancer", "healthCheckPath": "/health-check/" },
-    { "name": "healthcheck", "interval": 30 },
+    { "name": "loadBalancer", "healthCheckPath": "REPLACE_IN_PIPELINE" },
+    { "name": "healthcheck", "interval": "REPLACE_IN_PIPELINE" },
     {
       "name": "environmentVariables",
       "variables": {
