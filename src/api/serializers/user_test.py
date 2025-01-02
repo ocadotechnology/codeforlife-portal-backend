@@ -5,7 +5,7 @@ Created on 31/01/2024 at 16:07:32(+00:00).
 
 import typing as t
 from datetime import date
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, call, patch
 
 from codeforlife.tests import ModelSerializerTestCase
 from codeforlife.user.models import (
@@ -16,10 +16,15 @@ from codeforlife.user.models import (
     StudentUser,
     User,
 )
+from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.db.models import Count
+from django.urls import reverse
 
-from ..auth import password_reset_token_generator
+from ..auth import (
+    email_verification_token_generator,
+    password_reset_token_generator,
+)
 from .user import (
     BaseUserSerializer,
     CreateUserSerializer,
@@ -132,7 +137,7 @@ class TestBaseUserSerializer(ModelSerializerTestCase[User, User]):
             instance=user,
         )
 
-    def test_update(self):
+    def test_update__password(self):
         """Updating a user's password saves the password's hash."""
         user = User.objects.first()
         assert user
@@ -156,6 +161,58 @@ class TestBaseUserSerializer(ModelSerializerTestCase[User, User]):
             set_password.assert_called_once_with(password)
 
         assert user.check_password(password)
+
+    @patch("src.api.signals.user.send_mail")
+    def test_update__email(self, send_mail: Mock):
+        """Updating the email field sends a verification email."""
+        user = User.objects.first()
+        assert user
+
+        previous_email = user.email
+        email = "example@codeforelife.com"
+        assert previous_email != email
+        user.email = email
+
+        with patch.object(
+            email_verification_token_generator,
+            "make_token",
+            return_value=email_verification_token_generator.make_token(
+                user, new_email=email
+            ),
+        ) as make_token:
+            user.save()
+
+            make_token.assert_called_once_with(user.pk)
+
+            send_mail.assert_has_calls(
+                [
+                    call(
+                        settings.DOTDIGITAL_CAMPAIGN_IDS[
+                            "Email change notification"
+                        ],
+                        to_addresses=[previous_email],
+                        personalization_values={"NEW_EMAIL_ADDRESS": email},
+                    ),
+                    call(
+                        settings.DOTDIGITAL_CAMPAIGN_IDS[
+                            "Verify changed user email"
+                        ],
+                        to_addresses=[email],
+                        personalization_values={
+                            "VERIFICATION_LINK": (
+                                settings.SERVICE_BASE_URL
+                                + reverse(
+                                    "user-verify-email-address",
+                                    kwargs={
+                                        "pk": user.pk,
+                                        "token": make_token.return_value,
+                                    },
+                                )
+                            )
+                        },
+                    ),
+                ]
+            )
 
 
 class TestCreateTeacherSerializer(
