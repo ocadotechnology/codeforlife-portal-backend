@@ -127,6 +127,7 @@ class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
                 personalization_values={"NEW_EMAIL_ADDRESS": instance.email},
             )
 
+            # pylint: disable-next=duplicate-code
             verify_email_address_link = settings.SERVICE_BASE_URL + reverse(
                 "user-verify-email-address",
                 kwargs={
