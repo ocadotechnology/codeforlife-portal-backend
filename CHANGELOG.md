@@ -1,3 +1,10 @@
+## [1.0.8](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.7...v1.0.8) (2025-01-06)
+
+
+### Bug Fixes
+
+* no deploy descriptors ([b6d2fe0](https://github.com/ocadotechnology/codeforlife-portal-backend/commit/b6d2fe0551600093f84c2394f3c7e95386f609bc))
+
 ## [1.0.7](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.6...v1.0.7) (2025-01-02)
 
 
