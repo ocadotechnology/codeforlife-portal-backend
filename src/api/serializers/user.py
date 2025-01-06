@@ -119,33 +119,6 @@ class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
         if password is not None:
             instance.set_password(password)
 
-        new_email = validated_data.pop("email", None)
-        if new_email is not None and new_email != instance.email:
-            send_mail(
-                settings.DOTDIGITAL_CAMPAIGN_IDS["Email change notification"],
-                to_addresses=[instance.email],
-                personalization_values={"NEW_EMAIL_ADDRESS": instance.email},
-            )
-
-            # pylint: disable-next=duplicate-code
-            verify_email_address_link = settings.SERVICE_BASE_URL + reverse(
-                "user-verify-email-address",
-                kwargs={
-                    "pk": instance.pk,
-                    "token": email_verification_token_generator.make_token(
-                        instance.pk, new_email=new_email
-                    ),
-                },
-            )
-
-            send_mail(
-                settings.DOTDIGITAL_CAMPAIGN_IDS["Verify changed user email"],
-                to_addresses=[new_email],
-                personalization_values={
-                    "VERIFICATION_LINK": verify_email_address_link
-                },
-            )
-
         return super().update(instance, validated_data)
 
 
@@ -308,6 +281,33 @@ class UpdateUserSerializer(BaseUserSerializer[User], _UserSerializer):
                 #  join request.
                 # TODO: Send email in signal to teacher of selected class to
                 #  notify them of join request.
+
+        new_email = validated_data.pop("email", None)
+        if new_email is not None and new_email != instance.email:
+            send_mail(
+                settings.DOTDIGITAL_CAMPAIGN_IDS["Email change notification"],
+                to_addresses=[instance.email],
+                personalization_values={"NEW_EMAIL_ADDRESS": instance.email},
+            )
+
+            # pylint: disable-next=duplicate-code
+            verify_email_address_link = settings.SERVICE_BASE_URL + reverse(
+                "user-verify-email-address",
+                kwargs={
+                    "pk": instance.pk,
+                    "token": email_verification_token_generator.make_token(
+                        instance.pk, new_email=new_email
+                    ),
+                },
+            )
+
+            send_mail(
+                settings.DOTDIGITAL_CAMPAIGN_IDS["Verify changed user email"],
+                to_addresses=[new_email],
+                personalization_values={
+                    "VERIFICATION_LINK": verify_email_address_link
+                },
+            )
 
         return super().update(instance, validated_data)
 

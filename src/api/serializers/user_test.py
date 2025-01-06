@@ -162,58 +162,6 @@ class TestBaseUserSerializer(ModelSerializerTestCase[User, User]):
 
         assert user.check_password(password)
 
-    @patch("src.api.signals.user.send_mail")
-    def test_update__email(self, send_mail: Mock):
-        """Updating the email field sends a verification email."""
-        user = User.objects.first()
-        assert user
-
-        previous_email = user.email
-        email = "example@codeforelife.com"
-        assert previous_email != email
-        user.email = email
-
-        with patch.object(
-            email_verification_token_generator,
-            "make_token",
-            return_value=email_verification_token_generator.make_token(
-                user, new_email=email
-            ),
-        ) as make_token:
-            user.save()
-
-            make_token.assert_called_once_with(user.pk)
-
-            send_mail.assert_has_calls(
-                [
-                    call(
-                        settings.DOTDIGITAL_CAMPAIGN_IDS[
-                            "Email change notification"
-                        ],
-                        to_addresses=[previous_email],
-                        personalization_values={"NEW_EMAIL_ADDRESS": email},
-                    ),
-                    call(
-                        settings.DOTDIGITAL_CAMPAIGN_IDS[
-                            "Verify changed user email"
-                        ],
-                        to_addresses=[email],
-                        personalization_values={
-                            "VERIFICATION_LINK": (
-                                settings.SERVICE_BASE_URL
-                                + reverse(
-                                    "user-verify-email-address",
-                                    kwargs={
-                                        "pk": user.pk,
-                                        "token": make_token.return_value,
-                                    },
-                                )
-                            )
-                        },
-                    ),
-                ]
-            )
-
 
 class TestCreateTeacherSerializer(
     ModelSerializerTestCase[User, IndependentUser]
@@ -321,7 +269,7 @@ class TestUpdateUserSerializer(ModelSerializerTestCase[User, User]):
             error_code="no_longer_accepts_requests",
         )
 
-    def test_update(self):
+    def test_update__requesting_to_join_class(self):
         """Can update the class an independent user is requesting join."""
         self.assert_update(
             instance=self.indy_user,
@@ -332,6 +280,58 @@ class TestUpdateUserSerializer(ModelSerializerTestCase[User, User]):
             },
             new_data={"new_student": {"pending_class_request": self.class_2}},
         )
+
+    @patch("src.api.signals.user.send_mail")
+    def test_update__email(self, send_mail: Mock):
+        """Updating the email field sends a verification email."""
+        user = User.objects.first()
+        assert user
+
+        previous_email = user.email
+        email = "example@codeforlife.com"
+        assert previous_email != email
+        user.email = email
+
+        with patch.object(
+            email_verification_token_generator,
+            "make_token",
+            return_value=email_verification_token_generator.make_token(
+                user, new_email=email
+            ),
+        ) as make_token:
+            user.save()
+
+            make_token.assert_called_once_with(user.pk, new_email=email)
+
+            send_mail.assert_has_calls(
+                [
+                    call(
+                        settings.DOTDIGITAL_CAMPAIGN_IDS[
+                            "Email change notification"
+                        ],
+                        to_addresses=[previous_email],
+                        personalization_values={"NEW_EMAIL_ADDRESS": email},
+                    ),
+                    call(
+                        settings.DOTDIGITAL_CAMPAIGN_IDS[
+                            "Verify changed user email"
+                        ],
+                        to_addresses=[email],
+                        personalization_values={
+                            "VERIFICATION_LINK": (
+                                settings.SERVICE_BASE_URL
+                                + reverse(
+                                    "user-verify-email-address",
+                                    kwargs={
+                                        "pk": user.pk,
+                                        "token": make_token.return_value,
+                                    },
+                                )
+                            )
+                        },
+                    ),
+                ]
+            )
 
 
 class TestHandleIndependentUserJoinClassRequestSerializer(
