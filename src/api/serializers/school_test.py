@@ -3,8 +3,15 @@
 Created on 02/02/2024 at 15:38:51(+00:00).
 """
 
+import typing as t
+
 from codeforlife.tests import ModelSerializerTestCase
-from codeforlife.user.models import School, User
+from codeforlife.user.models import (
+    AdminSchoolTeacherUser,
+    NonSchoolTeacherUser,
+    School,
+    User,
+)
 
 from ..views.school import SchoolViewSet
 from .school import SchoolSerializer
@@ -15,10 +22,14 @@ from .school import SchoolSerializer
 
 class TestSchoolSerializer(ModelSerializerTestCase[User, School]):
     model_serializer_class = SchoolSerializer
-    fixtures = ["school_1"]
+    fixtures = ["school_1", "non_school_teacher"]
 
     def setUp(self):
         self.school_1 = School.objects.get(pk=2)
+
+        non_school_teacher_user = NonSchoolTeacherUser.objects.first()
+        assert non_school_teacher_user
+        self.non_school_teacher_user = non_school_teacher_user
 
     def test_validate__country_ne_gb(self):
         """
@@ -44,3 +55,21 @@ class TestSchoolSerializer(ModelSerializerTestCase[User, School]):
             value=self.school_1.name,
             error_code="name_not_unique",
         )
+
+    def test_create(self):
+        """Can successfully create a school."""
+        user = self.non_school_teacher_user
+
+        self.assert_create(
+            validated_data={
+                "name": "Test School",
+                "country": "CY",
+            },
+            context={"request": self.request_factory.post(user=user)},
+            new_data={"county": None},
+        )
+
+        user = t.cast(AdminSchoolTeacherUser, user)  # type: ignore[assignment]
+        user.teacher.refresh_from_db()
+        assert user.teacher.school
+        assert user.teacher.is_admin
