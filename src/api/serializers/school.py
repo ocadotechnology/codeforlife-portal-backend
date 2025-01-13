@@ -430,3 +430,11 @@ class SchoolSerializer(_SchoolSerializer):
         user.teacher.save(update_fields=["school", "is_admin"])
 
         return school
+
+    def to_representation(self, instance):
+        return {
+            "id": instance.id,
+            "name": instance.name,
+            "country": instance.country.code,
+            "uk_county": instance.county,
+        }
