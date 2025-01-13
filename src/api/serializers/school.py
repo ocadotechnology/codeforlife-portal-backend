@@ -11,6 +11,7 @@ from rest_framework import serializers
 # pylint: disable-next=missing-class-docstring,too-many-ancestors
 class SchoolSerializer(_SchoolSerializer):
     country = serializers.ChoiceField(  # type: ignore[assignment]
+        required=False,
         choices=[
             "AF",
             "AX",
