@@ -418,7 +418,8 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         assert user.userprofile.is_verified
 
     def test_verify_new_email_address(self):
-        """Can verify a user's new email address following email change request."""
+        """Can verify a user's new email address following email change
+        request."""
         user = User.objects.filter(userprofile__is_verified=True).first()
         assert user
 
