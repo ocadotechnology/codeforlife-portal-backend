@@ -138,7 +138,7 @@ class TestBaseUserSerializer(ModelSerializerTestCase[User, User]):
             instance=user,
         )
 
-    def test_update__password(self):
+    def test_update(self):
         """Updating a user's password saves the password's hash."""
         user = User.objects.first()
         assert user
