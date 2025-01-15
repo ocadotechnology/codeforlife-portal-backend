@@ -29,6 +29,8 @@ from ..serializers import (
 
 # pylint: disable-next=missing-class-docstring,too-many-ancestors
 class TeacherViewSet(ModelViewSet[User, Teacher]):
+    request_user_class = User
+    model_class = Teacher
     http_method_names = ["post", "put", "delete"]
 
     def get_permissions(self):

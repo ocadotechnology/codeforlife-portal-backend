@@ -13,6 +13,8 @@ from ..serializers import AuthFactorSerializer
 
 # pylint: disable-next=missing-class-docstring,too-many-ancestors
 class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
+    request_user_class = User
+    model_class = AuthFactor
     http_method_names = ["get", "post", "delete"]
     serializer_class = AuthFactorSerializer
 

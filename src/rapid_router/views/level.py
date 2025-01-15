@@ -18,6 +18,8 @@ from ..serializers import (
 
 # pylint: disable-next=too-many-ancestors,missing-class-docstring
 class LevelViewSet(ModelViewSet[User, Level]):
+    request_user_class = User
+    model_class = Level
     http_method_names = ["get", "put"]
     filterset_class = LevelFilterSet
 

@@ -43,7 +43,10 @@ class SchoolViewSet(_SchoolViewSet):
 
             klass.anonymise()
 
-        Teacher.objects.filter(school=school).update(school=None)
+        Teacher.objects.filter(school=school).update(
+            school=None,
+            is_admin=False,
+        )
 
         school.anonymise()
 

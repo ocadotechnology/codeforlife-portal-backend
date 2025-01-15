@@ -32,6 +32,8 @@ from ..serializers import (
 class SchoolTeacherInvitationViewSet(
     ModelViewSet[User, SchoolTeacherInvitation]
 ):
+    request_user_class = User
+    model_class = SchoolTeacherInvitation
     http_method_names = ["get", "post", "put", "delete"]
 
     def get_permissions(self):

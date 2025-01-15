@@ -14,6 +14,8 @@ from rest_framework.response import Response
 
 # pylint: disable-next=missing-class-docstring,too-many-ancestors
 class OtpBypassTokenViewSet(ModelViewSet[User, OtpBypassToken]):
+    request_user_class = User
+    model_class = OtpBypassToken
     http_method_names = ["post"]
 
     def get_permissions(self):
