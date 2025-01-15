@@ -4,9 +4,9 @@ Created on 31/01/2024 at 16:07:32(+00:00).
 """
 
 import typing as t
+from copy import deepcopy
 from datetime import date
 from unittest.mock import Mock, call, patch
-from copy import deepcopy
 
 from codeforlife.tests import ModelSerializerTestCase
 from codeforlife.user.models import (
