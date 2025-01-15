@@ -100,6 +100,9 @@ def user__post_save(
         # TODO: add nullable date_of_birth field to user model and send
         #   verification email to independents in new schema.
 
+    # TODO: Send a email address update confirmation email (new template 
+    # required) to old email address after successful email update
+
     # TODO: remove in new schema
     elif (
         instance.email == ""

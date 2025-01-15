@@ -41,7 +41,6 @@ class EmailVerificationTokenGenerator:
         Returns:
             A token used to verify user's email address.
         """
-        print("MAKING TOKEN")
         return jwt.encode(
             payload={
                 "exp": (

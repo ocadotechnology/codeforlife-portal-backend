@@ -6,6 +6,7 @@ Created on 31/01/2024 at 16:07:32(+00:00).
 import typing as t
 from datetime import date
 from unittest.mock import Mock, call, patch
+from copy import deepcopy
 
 from codeforlife.tests import ModelSerializerTestCase
 from codeforlife.user.models import (
@@ -281,27 +282,27 @@ class TestUpdateUserSerializer(ModelSerializerTestCase[User, User]):
             new_data={"new_student": {"pending_class_request": self.class_2}},
         )
 
-    @patch("src.api.signals.user.send_mail")
+    @patch("src.api.serializers.user.send_mail")
     def test_update__email(self, send_mail: Mock):
-        """Updating the email field sends a verification email."""
-        user = User.objects.first()
-        assert user
+        """Requesting to update the email field sends a notification email to
+        the old address and a verification email to the new address."""
+        instance = self.admin_school_teacher_user
+        previous_email = instance.email
+        new_email = "admin.teacher@newemail.com"
+        validated_data = {"email": new_email}
 
-        previous_email = user.email
-        email = "example@codeforlife.com"
-        assert previous_email != email
-        user.email = email
+        serializer = self._init_model_serializer()
 
         with patch.object(
             email_verification_token_generator,
             "make_token",
             return_value=email_verification_token_generator.make_token(
-                user, new_email=email
+                instance, new_email=new_email
             ),
         ) as make_token:
-            user.save()
+            model = serializer.update(instance, deepcopy(validated_data))
 
-            make_token.assert_called_once_with(user.pk, new_email=email)
+            make_token.assert_called_once_with(instance.pk, new_email=new_email)
 
             send_mail.assert_has_calls(
                 [
@@ -310,20 +311,20 @@ class TestUpdateUserSerializer(ModelSerializerTestCase[User, User]):
                             "Email change notification"
                         ],
                         to_addresses=[previous_email],
-                        personalization_values={"NEW_EMAIL_ADDRESS": email},
+                        personalization_values={"NEW_EMAIL_ADDRESS": new_email},
                     ),
                     call(
                         settings.DOTDIGITAL_CAMPAIGN_IDS[
                             "Verify changed user email"
                         ],
-                        to_addresses=[email],
+                        to_addresses=[new_email],
                         personalization_values={
                             "VERIFICATION_LINK": (
                                 settings.SERVICE_BASE_URL
                                 + reverse(
                                     "user-verify-email-address",
                                     kwargs={
-                                        "pk": user.pk,
+                                        "pk": instance.pk,
                                         "token": make_token.return_value,
                                     },
                                 )

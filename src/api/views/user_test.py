@@ -417,6 +417,30 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         user.refresh_from_db()
         assert user.userprofile.is_verified
 
+    def test_verify_new_email_address(self):
+        """Can verify a user's new email address following email change request."""
+        user = User.objects.filter(userprofile__is_verified=True).first()
+        assert user
+
+        new_email = "user@newemail.com"
+
+        self.client.get(
+            self.reverse_action(
+                "verify_email_address",
+                model=user,
+                kwargs={
+                    "token": email_verification_token_generator.make_token(
+                        user, new_email=new_email
+                    )
+                },
+            ),
+            status_code_assertion=status.HTTP_303_SEE_OTHER,
+        )
+
+        user.refresh_from_db()
+        assert user.email == new_email
+        assert user.username == new_email
+
     # test: generic actions
 
     @patch("codeforlife.mail.send_mail", side_effect=send_mail)

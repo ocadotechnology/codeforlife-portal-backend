@@ -287,7 +287,7 @@ class UpdateUserSerializer(BaseUserSerializer[User], _UserSerializer):
             send_mail(
                 settings.DOTDIGITAL_CAMPAIGN_IDS["Email change notification"],
                 to_addresses=[instance.email],
-                personalization_values={"NEW_EMAIL_ADDRESS": instance.email},
+                personalization_values={"NEW_EMAIL_ADDRESS": new_email},
             )
 
             # pylint: disable-next=duplicate-code

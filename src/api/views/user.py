@@ -187,12 +187,10 @@ class UserViewSet(_UserViewSet):
         new_email = email_verification_token_generator.get_new_email(
             user, url_params["token"]
         )
-        print(new_email)
         if new_email != "":
             user.email = new_email
             user.username = new_email
             user.save()
-            print("user saved!")
 
         return Response(
             status=status.HTTP_303_SEE_OTHER,
