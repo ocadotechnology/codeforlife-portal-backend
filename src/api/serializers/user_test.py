@@ -300,7 +300,7 @@ class TestUpdateUserSerializer(ModelSerializerTestCase[User, User]):
                 instance, new_email=new_email
             ),
         ) as make_token:
-            model = serializer.update(instance, deepcopy(validated_data))
+            serializer.update(instance, deepcopy(validated_data))
 
             make_token.assert_called_once_with(instance.pk, new_email=new_email)
 
