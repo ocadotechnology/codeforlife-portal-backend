@@ -18,6 +18,7 @@ class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
     http_method_names = ["get", "post", "delete"]
     serializer_class = AuthFactorSerializer
 
+    # pylint: disable-next=missing-function-docstring
     def get_queryset(self):
         queryset = AuthFactor.objects.all()
         user = self.request.teacher_user
@@ -28,6 +29,7 @@ class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
 
         return queryset.filter(user=user)
 
+    # pylint: disable-next=missing-function-docstring
     def get_permissions(self):
         if self.action in ["retrieve", "bulk"]:
             return [AllowNone()]

@@ -22,15 +22,18 @@ class StudentViewSet(ModelViewSet[User, Student]):
     model_class = Student
     http_method_names = ["post", "put", "delete"]
 
+    # pylint: disable-next=missing-function-docstring
     def get_permissions(self):
         if self.action == "create":
             return [AllowNone()]
 
         return [OR(IsTeacher(is_admin=True), IsTeacher(in_class=True))]
 
+    # pylint: disable-next=missing-function-docstring
     def get_queryset(self):
         return self.request.school_teacher_user.teacher.students
 
+    # pylint: disable-next=missing-function-docstring
     def get_serializer_context(self):
         serializer_context = super().get_serializer_context()
         if self.action == "reset_password":
@@ -38,6 +41,7 @@ class StudentViewSet(ModelViewSet[User, Student]):
 
         return serializer_context
 
+    # pylint: disable-next=missing-function-docstring
     def get_serializer_class(self):
         if self.action == "release":
             return ReleaseStudentSerializer
@@ -52,6 +56,7 @@ class StudentViewSet(ModelViewSet[User, Student]):
     transfer = ModelViewSet.bulk_update_action("transfer")
     reset_password = ModelViewSet.bulk_update_action("reset_password")
 
+    # pylint: disable-next=missing-function-docstring
     def perform_bulk_destroy(self, queryset):
         for student in queryset:
             student.new_user.first_name = ""

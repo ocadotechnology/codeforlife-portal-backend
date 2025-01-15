@@ -33,6 +33,7 @@ class TeacherViewSet(ModelViewSet[User, Teacher]):
     model_class = Teacher
     http_method_names = ["post", "put", "delete"]
 
+    # pylint: disable-next=missing-function-docstring
     def get_permissions(self):
         if self.action == "create":
             return [AllowAny()]
@@ -43,6 +44,7 @@ class TeacherViewSet(ModelViewSet[User, Teacher]):
 
         return [IsTeacher(is_admin=True)]  # action == "set_admin_access"
 
+    # pylint: disable-next=missing-function-docstring
     def get_queryset(self):
         teacher = self.request.teacher_user.teacher
         if self.action == "set_admin_access":
@@ -56,6 +58,7 @@ class TeacherViewSet(ModelViewSet[User, Teacher]):
 
         return Teacher.objects.filter(pk=teacher.pk)  # action == "destroy"
 
+    # pylint: disable-next=missing-function-docstring
     def get_serializer_context(self):
         context = super().get_serializer_context()
         if self.action == "create":
@@ -63,6 +66,7 @@ class TeacherViewSet(ModelViewSet[User, Teacher]):
 
         return context
 
+    # pylint: disable-next=missing-function-docstring
     def get_serializer_class(self):
         if self.action == "remove_from_school":
             return RemoveTeacherFromSchoolSerializer
@@ -71,6 +75,7 @@ class TeacherViewSet(ModelViewSet[User, Teacher]):
 
         return CreateTeacherSerializer  # action == "create"
 
+    # pylint: disable-next=missing-function-docstring
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
@@ -96,6 +101,7 @@ class TeacherViewSet(ModelViewSet[User, Teacher]):
 
         return Response(status=status.HTTP_201_CREATED)
 
+    # pylint: disable-next=missing-function-docstring
     def destroy(self, request, *args, **kwargs):
         teacher = self.get_object()
 

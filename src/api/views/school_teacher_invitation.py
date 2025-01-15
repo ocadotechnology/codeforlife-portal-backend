@@ -36,6 +36,7 @@ class SchoolTeacherInvitationViewSet(
     model_class = SchoolTeacherInvitation
     http_method_names = ["get", "post", "put", "delete"]
 
+    # pylint: disable-next=missing-function-docstring
     def get_permissions(self):
         if self.action in ["accept", "reject"]:
             return [IsInvitedSchoolTeacher()]
@@ -52,6 +53,7 @@ class SchoolTeacherInvitationViewSet(
 
         return super().get_permissions()
 
+    # pylint: disable-next=missing-function-docstring
     def get_queryset(self):
         queryset = SchoolTeacherInvitation.objects.all()
         if self.action in ["accept", "reject"]:
@@ -61,6 +63,7 @@ class SchoolTeacherInvitationViewSet(
             school=self.request.admin_school_teacher_user.teacher.school
         )
 
+    # pylint: disable-next=missing-function-docstring
     def get_serializer_class(self):
         if self.action == "accept":
             return AcceptSchoolTeacherInvitationSerializer

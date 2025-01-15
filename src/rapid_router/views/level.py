@@ -23,6 +23,7 @@ class LevelViewSet(ModelViewSet[User, Level]):
     http_method_names = ["get", "put"]
     filterset_class = LevelFilterSet
 
+    # pylint: disable-next=missing-function-docstring
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
             return [AllowAny()]
@@ -30,6 +31,7 @@ class LevelViewSet(ModelViewSet[User, Level]):
         # action == "lock"
         return [OR(IsTeacher(is_admin=True), IsTeacher(in_class=True))]
 
+    # pylint: disable-next=missing-function-docstring
     def get_queryset(self):
         queryset = Level.objects.filter(default=True)
         if self.action in ["list", "retrieve"]:
@@ -41,6 +43,7 @@ class LevelViewSet(ModelViewSet[User, Level]):
 
         return queryset
 
+    # pylint: disable-next=missing-function-docstring
     def get_serializer_class(self):
         if self.action == "lock":
             return LockLevelSerializer

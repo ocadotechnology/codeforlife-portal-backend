@@ -18,6 +18,7 @@ class OtpBypassTokenViewSet(ModelViewSet[User, OtpBypassToken]):
     model_class = OtpBypassToken
     http_method_names = ["post"]
 
+    # pylint: disable-next=missing-function-docstring
     def get_permissions(self):
         if self.action in ["create", "bulk"]:
             return [AllowNone()]
