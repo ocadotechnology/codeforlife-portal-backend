@@ -266,6 +266,7 @@ class SchoolSerializer(_SchoolSerializer):
 
     uk_county = serializers.ChoiceField(  # type: ignore[assignment]
         source="county",
+        required=False,
         choices=[
             "Aberdeen City",
             "Aberdeenshire",
@@ -418,3 +419,13 @@ class SchoolSerializer(_SchoolSerializer):
                 )
 
         return attrs
+
+    def create(self, validated_data):
+        school = School.objects.create(**validated_data)
+
+        user = self.request.non_school_teacher_user
+        user.teacher.school = school
+        user.teacher.is_admin = True
+        user.teacher.save(update_fields=["school", "is_admin"])
+
+        return school

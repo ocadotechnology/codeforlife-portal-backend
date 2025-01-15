@@ -1,3 +1,10 @@
+## [1.0.9](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.8...v1.0.9) (2025-01-10)
+
+
+### Bug Fixes
+
+* cerate school ([#377](https://github.com/ocadotechnology/codeforlife-portal-backend/issues/377)) ([4b35af5](https://github.com/ocadotechnology/codeforlife-portal-backend/commit/4b35af5a4aaddfeb970198fb166e52964c0129d0))
+
 ## [1.0.8](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.7...v1.0.8) (2025-01-06)
 
 
