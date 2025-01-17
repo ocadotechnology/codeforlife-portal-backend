@@ -3,10 +3,11 @@
 Created on 15/02/2024 at 15:44:25(+00:00).
 """
 
+from unittest.mock import Mock, patch
+
 from codeforlife.tests import ModelSerializerTestCase
 from codeforlife.user.models import AuthFactor, TeacherUser, User
 
-from ..views import AuthFactorViewSet
 from .auth_factor import AuthFactorSerializer
 
 # pylint: disable=missing-class-docstring
@@ -46,42 +47,41 @@ class TestAuthFactorSerializer(ModelSerializerTestCase[User, AuthFactor]):
             },
         )
 
-    # test: create
+    def test_validate_otp__format(self):
+        """OTP must be 6 digits."""
+        self.assert_validate_field(
+            name="otp",
+            value="12345",
+            error_code="format",
+        )
 
-    def test_create(self):
-        """Enabling OTP will ensure the user's OTP-secret is set."""
-        user = self.uni_auth_factor_teacher_user
-        assert user.otp_secret
+    @patch("codeforlife.user.models.user.TOTP.verify", return_value=False)
+    def test_validate_otp__invalid(self, totp__verify: Mock):
+        """Cannot enable the OTP without providing the current OTP."""
+        user = TeacherUser.objects.filter(
+            # TODO: make otp_secret non-nullable
+            userprofile__otp_secret__isnull=False
+        ).first()
+        assert user
 
-        self.assert_create(
-            validated_data={"type": AuthFactor.Type.OTP},
-            context={"request": self.request_factory.post(user=user)},
-            new_data={
-                "user": {
-                    "id": user.id,
-                    "userprofile": {"otp_secret": user.otp_secret},
-                },
+        value = "123456"
+
+        self.assert_validate_field(
+            name="otp",
+            value=value,
+            error_code="invalid",
+            context={
+                "request": self.request_factory.post(
+                    user=self.multi_auth_factor_teacher_user
+                )
             },
         )
 
-    # test: to representation
+        totp__verify.assert_called_once_with(value)
 
-    def test_to_representation(self):
-        """User's TOTP provisioning URI is returned when enabling OTP."""
-        assert self.multi_auth_factor_teacher_user.otp_secret
-
-        self.assert_to_representation(
-            instance=AuthFactor(type=AuthFactor.Type.OTP),
-            new_data={
-                "totp_provisioning_uri": (
-                    self.multi_auth_factor_teacher_user.totp_provisioning_uri
-                ),
-            },
-            context={
-                "view": AuthFactorViewSet(action="create"),
-                "request": self.request_factory.post(
-                    user=self.multi_auth_factor_teacher_user
-                ),
-            },
-            non_model_fields={"totp_provisioning_uri"},
+    def test_validate__otp__required(self):
+        """Current OTP is required when enabling OTP."""
+        self.assert_validate(
+            attrs={"type": AuthFactor.Type.OTP.value},
+            error_code="otp__required",
         )
