@@ -102,7 +102,7 @@ class TestRemoveTeacherFromSchoolSerializer(
         self.assert_update(
             instance=self.admin_school_1_teacher,
             validated_data={},
-            new_data={"school": None},
+            new_data={"school": None, "is_admin": False},
         )
 
 

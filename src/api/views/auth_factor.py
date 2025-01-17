@@ -13,9 +13,12 @@ from ..serializers import AuthFactorSerializer
 
 # pylint: disable-next=missing-class-docstring,too-many-ancestors
 class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
+    request_user_class = User
+    model_class = AuthFactor
     http_method_names = ["get", "post", "delete"]
     serializer_class = AuthFactorSerializer
 
+    # pylint: disable-next=missing-function-docstring
     def get_queryset(self):
         queryset = AuthFactor.objects.all()
         user = self.request.teacher_user
@@ -26,6 +29,7 @@ class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
 
         return queryset.filter(user=user)
 
+    # pylint: disable-next=missing-function-docstring
     def get_permissions(self):
         if self.action in ["retrieve", "bulk"]:
             return [AllowNone()]

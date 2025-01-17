@@ -54,7 +54,7 @@ DOTDIGITAL_CAMPAIGN_IDS = {
 
 # Custom
 LOGIN_REDIRECT_URL = "/teach/dashboard/"
-SILENCED_SYSTEM_CHECKS = ["captcha.recaptcha_test_key_error"]
+SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
 RECAPTCHA_DOMAIN = "www.recaptcha.net"
 
 PASSWORD_RESET_TIMEOUT = 3600
@@ -273,7 +273,7 @@ INSTALLED_APPS = [
     "src.sso",
     "src.rapid_router",
     "pipeline",
-    "captcha",
+    "django_recaptcha",
     "import_export",
     "sekizai",  # for javascript and css management
     "treebeard",

@@ -82,7 +82,8 @@ class RemoveTeacherFromSchoolSerializer(TeacherSerializer[SchoolTeacher]):
 
     def update(self, instance, validated_data):
         instance.school = None
-        instance.save(update_fields=["school"])
+        instance.is_admin = False
+        instance.save(update_fields=["school", "is_admin"])
         return instance
 
 
