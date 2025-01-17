@@ -297,12 +297,12 @@ class TestUpdateUserSerializer(ModelSerializerTestCase[User, User]):
             email_verification_token_generator,
             "make_token",
             return_value=email_verification_token_generator.make_token(
-                instance, new_email=new_email
+                instance, new_email
             ),
         ) as make_token:
             serializer.update(instance, deepcopy(validated_data))
 
-            make_token.assert_called_once_with(instance.pk, new_email=new_email)
+            make_token.assert_called_once_with(instance.pk, new_email)
 
             send_mail.assert_has_calls(
                 [
@@ -528,7 +528,7 @@ class TestVerifyUserEmailAddressSerializer(ModelSerializerTestCase[User, User]):
         )
 
     def test_update(self):
-        """Can successfully reset a user's password."""
+        """Can successfully verify a user's email."""
         self.assert_update(
             instance=self.user,
             validated_data={},

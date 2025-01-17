@@ -28,15 +28,14 @@ class EmailVerificationTokenGenerator:
         pk = user_or_pk.pk if isinstance(user_or_pk, User) else user_or_pk
         return f"user:{pk}"
 
-    def make_token(self, user_or_pk: t.Union[User, t.Any], new_email: str = ""):
+    def make_token(self, user_or_pk: t.Union[User, t.Any], email: str):
         """Generate a token used to verify user's email address.
 
         https://pyjwt.readthedocs.io/en/stable/usage.html
 
         Args:
             user: The user to generate a token for.
-            new_email: The user's new email address to be verified, if updating
-            it.
+            email: The user's email address to be verified.
 
         Returns:
             A token used to verify user's email address.
@@ -48,7 +47,7 @@ class EmailVerificationTokenGenerator:
                     + timedelta(seconds=settings.EMAIL_VERIFICATION_TIMEOUT)
                 ),
                 "aud": [self._get_audience(user_or_pk)],
-                "new_email": new_email,
+                "email": email,
             },
             key=settings.SECRET_KEY,
             algorithm="HS256",
@@ -66,7 +65,7 @@ class EmailVerificationTokenGenerator:
             expired.
         """
         try:
-            jwt.decode(
+            decoded_jwt = jwt.decode(
                 jwt=token,
                 key=settings.SECRET_KEY,
                 audience=self._get_audience(user_or_pk),
@@ -77,28 +76,9 @@ class EmailVerificationTokenGenerator:
             jwt.ExpiredSignatureError,
             jwt.InvalidAudienceError,
         ):
-            return False
+            return None
 
-        return True
-
-    def get_new_email(self, user_or_pk: t.Union[User, t.Any], token: str):
-        """Retrieve token's new_email value.
-
-        Args:
-            user: The user to check.
-            token: The token to check.
-
-        Returns:
-            The token's new_email value.
-        """
-        decoded_jwt = jwt.decode(
-            jwt=token,
-            key=settings.SECRET_KEY,
-            audience=self._get_audience(user_or_pk),
-            algorithms=["HS256"],
-        )
-
-        return decoded_jwt["new_email"]
+        return decoded_jwt
 
 
 email_verification_token_generator = EmailVerificationTokenGenerator()

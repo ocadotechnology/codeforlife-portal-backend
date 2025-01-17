@@ -403,26 +403,6 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         user = User.objects.filter(userprofile__is_verified=False).first()
         assert user
 
-        self.client.get(
-            self.reverse_action(
-                "verify_email_address",
-                model=user,
-                kwargs={
-                    "token": email_verification_token_generator.make_token(user)
-                },
-            ),
-            status_code_assertion=status.HTTP_303_SEE_OTHER,
-        )
-
-        user.refresh_from_db()
-        assert user.userprofile.is_verified
-
-    def test_verify_new_email_address(self):
-        """Can verify a user's new email address following email change
-        request."""
-        user = User.objects.filter(userprofile__is_verified=True).first()
-        assert user
-
         new_email = "user@newemail.com"
 
         self.client.get(
@@ -430,15 +410,14 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
                 "verify_email_address",
                 model=user,
                 kwargs={
-                    "token": email_verification_token_generator.make_token(
-                        user, new_email=new_email
-                    )
+                    "token": email_verification_token_generator.make_token(user, new_email)
                 },
             ),
             status_code_assertion=status.HTTP_303_SEE_OTHER,
         )
 
         user.refresh_from_db()
+        assert user.userprofile.is_verified
         assert user.email == new_email
         assert user.username == new_email
 
@@ -480,7 +459,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
 
         add_contact_to_dot_digital.assert_called_once()
 
-        make_token.assert_called_once_with(user_id)
+        make_token.assert_called_once_with(user_id, data["email"])
 
         send_mail_mock.assert_called_once_with(
             campaign_id=settings.DOTDIGITAL_CAMPAIGN_IDS[
@@ -620,7 +599,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
                     if mail_sent:
                         make_token.assert_has_calls(
                             [
-                                call(user.id)
+                                call(user.id, user.email)
                                 for user in teacher_users + indy_users
                             ],
                             any_order=True,

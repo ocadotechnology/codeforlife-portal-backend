@@ -39,7 +39,7 @@ class TestStudent(TestCase):
         student.class_field = None
 
         email_verification_token = (
-            email_verification_token_generator.make_token(student.new_user.pk)
+            email_verification_token_generator.make_token(student.new_user.pk, student.new_user.email)
         )
 
         with patch.object(
@@ -49,7 +49,7 @@ class TestStudent(TestCase):
         ) as make_token:
             student.save(update_fields=["class_field"])
 
-            make_token.assert_called_once_with(student.new_user.pk)
+            make_token.assert_called_once_with(student.new_user.pk, student.new_user.email)
 
         send_mail.assert_called_once_with(
             settings.DOTDIGITAL_CAMPAIGN_IDS["Verify released student email"],

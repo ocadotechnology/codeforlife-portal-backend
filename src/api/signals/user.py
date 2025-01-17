@@ -84,7 +84,7 @@ def user__post_save(
                 kwargs={
                     "pk": instance.pk,
                     "token": email_verification_token_generator.make_token(
-                        instance.pk
+                        instance.pk, instance.email
                     ),
                 },
             )
