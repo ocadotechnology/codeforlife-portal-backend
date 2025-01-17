@@ -410,7 +410,9 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
                 "verify_email_address",
                 model=user,
                 kwargs={
-                    "token": email_verification_token_generator.make_token(user, new_email)
+                    "token": email_verification_token_generator.make_token(
+                        user, new_email
+                    )
                 },
             ),
             status_code_assertion=status.HTTP_303_SEE_OTHER,

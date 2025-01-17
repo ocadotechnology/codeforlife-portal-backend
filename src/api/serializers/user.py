@@ -453,7 +453,7 @@ class VerifyUserEmailAddressSerializer(_UserSerializer[User]):
                 "Can only verify the email address of an existing user.",
                 code="user_does_not_exist",
             )
-        
+
         token = email_verification_token_generator.check_token(
             self.instance, value
         )
