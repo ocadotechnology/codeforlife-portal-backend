@@ -46,7 +46,7 @@ class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
 
         return [IsTeacher()]
 
-    @action(detail=False, methods=["post"])
+    @action(detail=False, methods=["get"])
     def generate_otp_provisioning_uri(self, request: Request[User]):
         """Generate a time-based one-time-password provisioning URI."""
         # TODO: make otp_secret non-nullable and delete code block

@@ -221,7 +221,7 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
         with patch.object(
             TOTP, "provisioning_uri", return_value=user.totp_provisioning_uri
         ) as provisioning_uri:
-            response = self.client.post(
+            response = self.client.get(
                 self.reverse_action("generate_otp_provisioning_uri")
             )
 
