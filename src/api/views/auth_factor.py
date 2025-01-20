@@ -11,6 +11,7 @@ from codeforlife.user.models import AuthFactor, User
 from codeforlife.user.permissions import IsTeacher
 from codeforlife.views import ModelViewSet, action
 
+from ..filters import AuthFactorFilterSet
 from ..serializers import AuthFactorSerializer
 
 
@@ -20,6 +21,7 @@ class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
     model_class = AuthFactor
     http_method_names = ["get", "post", "delete"]
     serializer_class = AuthFactorSerializer
+    filterset_class = AuthFactorFilterSet
 
     # pylint: disable-next=missing-function-docstring
     def get_queryset(self):

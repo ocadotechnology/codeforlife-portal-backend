@@ -12,10 +12,12 @@ from codeforlife.user.models import (
     AdminSchoolTeacherUser,
     AuthFactor,
     NonAdminSchoolTeacherUser,
+    School,
     TeacherUser,
     User,
 )
 from codeforlife.user.permissions import IsTeacher
+from django.db.models import Count
 from pyotp import TOTP
 
 from .auth_factor import AuthFactorViewSet
@@ -147,6 +149,35 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
 
         self.client.login_as(user)
         self.client.list(user.auth_factors.all())
+
+    def test_list__user(self):
+        """Can list enabled auth-factors, filtered by a user's ID."""
+        # Get a school that has at least:
+        #  - one admin teacher;
+        #  - two teachers with auth factors enabled.
+        school = (
+            School.objects.filter(
+                id__in=School.objects.filter(
+                    teacher_school__is_admin=True,
+                ).values_list("id", flat=True)
+            )
+            .filter(teacher_school__new_user__auth_factors__isnull=False)
+            .annotate(teacher_count=Count("teacher_school"))
+            .filter(teacher_count__gte=2)
+            .first()
+        )
+        assert school
+
+        user = AdminSchoolTeacherUser.objects.filter(
+            new_teacher__school=school
+        ).first()
+        assert user
+
+        self.client.login_as(user)
+        self.client.list(
+            user.auth_factors.all(),
+            filters={"user": str(user.pk)},
+        )
 
     def test_create__otp(self):
         """Can enable OTP."""
