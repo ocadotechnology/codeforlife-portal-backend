@@ -85,3 +85,17 @@ class TestAuthFactorSerializer(ModelSerializerTestCase[User, AuthFactor]):
             attrs={"type": AuthFactor.Type.OTP.value},
             error_code="otp__required",
         )
+
+    def test_create__otp(self):
+        """Can successfully enable an auth factor."""
+        user = TeacherUser.objects.exclude(
+            auth_factors__type__in=["otp"]
+        ).first()
+        assert user
+
+        self.assert_create(
+            validated_data={"type": AuthFactor.Type.OTP, "otp": "123456"},
+            non_model_fields={"otp"},
+            new_data={"user": user.id},
+            context={"request": self.request_factory.post(user=user)},
+        )

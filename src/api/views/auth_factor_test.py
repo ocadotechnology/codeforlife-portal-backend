@@ -5,6 +5,7 @@ Created on 23/01/2024 at 11:22:16(+00:00).
 
 from unittest.mock import patch
 
+import pyotp
 from codeforlife.permissions import AllowNone
 from codeforlife.tests import ModelViewSetTestCase
 from codeforlife.user.models import (
@@ -149,14 +150,23 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
 
     def test_create__otp(self):
         """Can enable OTP."""
-        teacher_user = TeacherUser.objects.filter(
-            auth_factors__isnull=True
+        teacher_user = TeacherUser.objects.exclude(
+            auth_factors__type__in=["otp"]
         ).first()
         assert teacher_user
 
+        # TODO: make "otp_secret" non-nullable and delete code block
+        teacher_user.userprofile.otp_secret = pyotp.random_base32()
+        teacher_user.userprofile.save(update_fields=["otp_secret"])
+
         # TODO: set password="password" on all user fixtures
         self.client.login_as(teacher_user, password="abc123")
-        self.client.create({"type": "otp"})
+        self.client.create(
+            {
+                "type": AuthFactor.Type.OTP,
+                "otp": teacher_user.totp.now(),
+            }
+        )
 
     def test_destroy(self):
         """Can disable an auth-factor."""

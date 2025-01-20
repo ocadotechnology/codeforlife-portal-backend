@@ -54,3 +54,8 @@ class AuthFactorSerializer(ModelSerializer[User, AuthFactor]):
             )
 
         return attrs
+
+    def create(self, validated_data):
+        validated_data["user_id"] = self.request.auth_user.id
+        validated_data.pop("otp", None)
+        return super().create(validated_data)
