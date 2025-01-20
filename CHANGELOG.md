@@ -1,3 +1,10 @@
+## [1.0.13](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.12...v1.0.13) (2025-01-20)
+
+
+### Bug Fixes
+
+* otp flow ([#388](https://github.com/ocadotechnology/codeforlife-portal-backend/issues/388)) ([58f563f](https://github.com/ocadotechnology/codeforlife-portal-backend/commit/58f563fe4571eb0c0d04843d7302243697601aef))
+
 ## [1.0.12](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.11...v1.0.12) (2025-01-16)
 
 
