@@ -285,7 +285,7 @@ class UpdateUserSerializer(BaseUserSerializer[User], _UserSerializer):
         email = validated_data.pop("email", None)
         if email is not None and email.lower() != instance.email.lower():
             send_mail(
-                settings.DOTDIGITAL_CAMPAIGN_IDS["Email change notification"],
+                settings.DOTDIGITAL_CAMPAIGN_IDS["Email will change"],
                 to_addresses=[instance.email],
                 personalization_values={"NEW_EMAIL_ADDRESS": email},
             )

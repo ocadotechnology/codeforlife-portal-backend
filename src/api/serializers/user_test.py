@@ -307,9 +307,7 @@ class TestUpdateUserSerializer(ModelSerializerTestCase[User, User]):
             send_mail.assert_has_calls(
                 [
                     call(
-                        settings.DOTDIGITAL_CAMPAIGN_IDS[
-                            "Email change notification"
-                        ],
+                        settings.DOTDIGITAL_CAMPAIGN_IDS["Email will change"],
                         to_addresses=[previous_email],
                         personalization_values={"NEW_EMAIL_ADDRESS": new_email},
                     ),
@@ -529,10 +527,17 @@ class TestVerifyUserEmailAddressSerializer(ModelSerializerTestCase[User, User]):
 
     def test_update(self):
         """Can successfully verify a user's email."""
+        email = "new@email.com"
+
         self.assert_update(
             instance=self.user,
-            validated_data={},
-            new_data={"userprofile": {"is_verified": True}},
+            non_model_fields={"token"},
+            validated_data={"token": {"email": email}},
+            new_data={
+                "userprofile": {"is_verified": True},
+                "email": email,
+                "username": email,
+            },
         )
 
 

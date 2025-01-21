@@ -100,8 +100,25 @@ def user__post_save(
         # TODO: add nullable date_of_birth field to user model and send
         #   verification email to independents in new schema.
 
-    # TODO: Send a email address update confirmation email (new template
-    # required) to old email address after successful email update
+    elif instance.email != "":
+        if post_save.check_previous_values(
+            instance,
+            {
+                "email": lambda value: (
+                    isinstance(value, str)
+                    and value.lower() not in ["", instance.email.lower()]
+                )
+            },
+        ):
+            previous_email = post_save.get_previous_value(
+                instance, "email", str
+            )
+
+            send_mail(
+                settings.DOTDIGITAL_CAMPAIGN_IDS["Email has changed"],
+                to_addresses=[previous_email],
+                personalization_values={"NEW_EMAIL_ADDRESS": instance.email},
+            )
 
     # TODO: remove in new schema
     elif (
