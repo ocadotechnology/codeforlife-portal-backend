@@ -3,7 +3,8 @@
 Created on 23/01/2024 at 11:05:37(+00:00).
 """
 
-import pyotp
+import re
+
 from codeforlife.serializers import ModelSerializer
 from codeforlife.user.models import AuthFactor, User
 from rest_framework import serializers
@@ -11,9 +12,16 @@ from rest_framework import serializers
 
 # pylint: disable-next=missing-class-docstring,too-many-ancestors
 class AuthFactorSerializer(ModelSerializer[User, AuthFactor]):
+    otp = serializers.CharField(required=False, write_only=True)
+
     class Meta:
         model = AuthFactor
-        fields = ["id", "type", "user"]
+        fields = [
+            "id",
+            "type",
+            "otp",
+            "user",
+        ]
         extra_kwargs = {
             "id": {"read_only": True},
             "user": {"read_only": True},
@@ -31,24 +39,25 @@ class AuthFactorSerializer(ModelSerializer[User, AuthFactor]):
 
         return value
 
-    def create(self, validated_data):
-        user = self.request.auth_user
-        if not user.userprofile.otp_secret:
-            user.userprofile.otp_secret = pyotp.random_base32()
-            user.userprofile.save()
+    # pylint: disable-next=missing-function-docstring
+    def validate_otp(self, value: str):
+        if not re.match(r"^[0-9]{6}$", value):
+            raise serializers.ValidationError("Must be 6 digits", code="format")
+        if not self.request.auth_user.totp.verify(value):
+            raise serializers.ValidationError("Invalid OTP.", code="invalid")
 
-        validated_data["user"] = user
-        return super().create(validated_data)
+        return value
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-
-        if (
-            self.view.action == "create"
-            and instance.type == AuthFactor.Type.OTP
-        ):
-            representation["totp_provisioning_uri"] = (
-                self.request.auth_user.totp_provisioning_uri
+    def validate(self, attrs):
+        if attrs["type"] == "otp" and "otp" not in attrs:
+            raise serializers.ValidationError(
+                "Current OTP required to enable OTP.",
+                code="otp__required",
             )
 
-        return representation
+        return attrs
+
+    def create(self, validated_data):
+        validated_data["user_id"] = self.request.auth_user.id
+        validated_data.pop("otp", None)
+        return super().create(validated_data)
