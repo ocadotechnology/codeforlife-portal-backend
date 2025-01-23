@@ -26,6 +26,7 @@ from .auth_factor import AuthFactorViewSet
 
 # pylint: disable=missing-class-docstring
 # pylint: disable=too-many-ancestors
+# pylint: disable=too-many-public-methods
 
 
 class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
