@@ -65,7 +65,11 @@ class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
         serializer.is_valid(raise_exception=True)
 
         return Response(
-            self.get_queryset().filter(**serializer.validated_data).exists()
+            {
+                "auth_factor_exists": self.get_queryset()
+                .filter(**serializer.validated_data)
+                .exists()
+            }
         )
 
     @action(detail=False, methods=["get"])

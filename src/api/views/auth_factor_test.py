@@ -282,7 +282,7 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
             },
         )
 
-        assert response.json() is True
+        self.assertDictEqual(response.json(), {"auth_factor_exists": True})
 
     def test_get_otp_secret(self):
         """Can successfully generate a OTP provisioning URI."""

@@ -16,6 +16,7 @@ from ..serializers import ReadClassSerializer, WriteClassSerializer
 class ClassViewSet(_ClassViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
 
+    # pylint: disable-next=missing-function-docstring
     def get_permissions(self):
         # Only bulk-partial-update allowed for classes.
         if self.action == "bulk":
@@ -31,12 +32,14 @@ class ClassViewSet(_ClassViewSet):
 
         return super().get_permissions()
 
+    # pylint: disable-next=missing-function-docstring
     def get_serializer_class(self):
         if self.action in ["create", "partial_update", "bulk"]:
             return WriteClassSerializer
 
         return ReadClassSerializer
 
+    # pylint: disable-next=missing-function-docstring
     def get_queryset(self):
         if self.action in ["retrieve", "list"]:
             return super().get_queryset()
@@ -48,6 +51,7 @@ class ClassViewSet(_ClassViewSet):
             else teacher.classes.filter(teacher=teacher)
         )
 
+    # pylint: disable-next=missing-function-docstring
     def destroy(self, request, *args, **kwargs):
         klass = self.get_object()
 
