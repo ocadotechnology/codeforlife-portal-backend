@@ -3,10 +3,8 @@
 Created on 23/01/2024 at 11:22:16(+00:00).
 """
 
-from unittest.mock import patch
-
 import pyotp
-from codeforlife.permissions import AllowNone
+from codeforlife.permissions import NOT, AllowNone
 from codeforlife.tests import ModelViewSetTestCase
 from codeforlife.user.models import (
     AdminSchoolTeacherUser,
@@ -18,8 +16,8 @@ from codeforlife.user.models import (
 )
 from codeforlife.user.permissions import IsTeacher
 from django.db.models import Count
-from pyotp import TOTP
 
+from ..permissions import HasAuthFactor
 from .auth_factor import AuthFactorViewSet
 
 # pylint: disable=missing-class-docstring
@@ -103,12 +101,12 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
             request=self.client.request_factory.get(user=user),
         )
 
-    def test_get_queryset__generate_otp_provisioning_uri(self):
-        """Can only generate an OTP provisioning URI yourself."""
+    def test_get_queryset__get_otp_secret(self):
+        """Can only get your own OTP secret."""
         user = self.mfa_non_admin_school_teacher_user
 
         self.assert_get_queryset(
-            action="generate_otp_provisioning_uri",
+            action="get_otp_secret",
             values=list(user.auth_factors.all()),
             request=self.client.request_factory.get(user=user),
         )
@@ -135,10 +133,11 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
         """Only a teacher-user can disable an auth factor."""
         self.assert_get_permissions([IsTeacher()], action="destroy")
 
-    def test_get_permissions__generate_otp_provisioning_uri(self):
-        """Only a teacher-user can generate a OTP provisioning URI."""
+    def test_get_permissions__get_otp_secret(self):
+        """Only a teacher-user can get an OTP secret."""
         self.assert_get_permissions(
-            [IsTeacher()], action="generate_otp_provisioning_uri"
+            [IsTeacher(), NOT(HasAuthFactor(AuthFactor.Type.OTP))],
+            action="get_otp_secret",
         )
 
     # test: actions
@@ -208,7 +207,7 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
         self.client.login_as(user)
         self.client.destroy(auth_factor)
 
-    def test_generate_otp_provisioning_uri(self):
+    def test_get_otp_secret(self):
         """Can successfully generate a OTP provisioning URI."""
         user = TeacherUser.objects.exclude(
             auth_factors__type__in=[AuthFactor.Type.OTP]
@@ -218,17 +217,12 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
         # TODO: normalize password to "password"
         self.client.login_as(user, password="abc123")
 
-        with patch.object(
-            TOTP, "provisioning_uri", return_value=user.totp_provisioning_uri
-        ) as provisioning_uri:
-            response = self.client.get(
-                self.reverse_action("generate_otp_provisioning_uri")
-            )
+        response = self.client.get(self.reverse_action("get_otp_secret"))
 
-            provisioning_uri.assert_called_once_with(
-                name=user.email,
-                issuer_name="Code for Life",
-            )
-
-            assert response.data == provisioning_uri.return_value
-            assert response.content_type == "text/plain"
+        self.assertDictEqual(
+            response.json(),
+            {
+                "secret": user.totp.secret,
+                "provisioning_uri": user.totp_provisioning_uri,
+            },
+        )
