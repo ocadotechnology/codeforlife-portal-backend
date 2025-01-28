@@ -28,13 +28,14 @@ class EmailVerificationTokenGenerator:
         pk = user_or_pk.pk if isinstance(user_or_pk, User) else user_or_pk
         return f"user:{pk}"
 
-    def make_token(self, user_or_pk: t.Union[User, t.Any]):
+    def make_token(self, user_or_pk: t.Union[User, t.Any], email: str):
         """Generate a token used to verify user's email address.
 
         https://pyjwt.readthedocs.io/en/stable/usage.html
 
         Args:
             user: The user to generate a token for.
+            email: The user's email address to be verified.
 
         Returns:
             A token used to verify user's email address.
@@ -46,6 +47,7 @@ class EmailVerificationTokenGenerator:
                     + timedelta(seconds=settings.EMAIL_VERIFICATION_TIMEOUT)
                 ),
                 "aud": [self._get_audience(user_or_pk)],
+                "email": email,
             },
             key=settings.SECRET_KEY,
             algorithm="HS256",
@@ -63,7 +65,7 @@ class EmailVerificationTokenGenerator:
             expired.
         """
         try:
-            jwt.decode(
+            decoded_jwt = jwt.decode(
                 jwt=token,
                 key=settings.SECRET_KEY,
                 audience=self._get_audience(user_or_pk),
@@ -74,9 +76,9 @@ class EmailVerificationTokenGenerator:
             jwt.ExpiredSignatureError,
             jwt.InvalidAudienceError,
         ):
-            return False
+            return None
 
-        return True
+        return decoded_jwt
 
 
 email_verification_token_generator = EmailVerificationTokenGenerator()

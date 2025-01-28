@@ -403,12 +403,17 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         user = User.objects.filter(userprofile__is_verified=False).first()
         assert user
 
+        new_email = "user@newemail.com"
+        assert new_email != user.email
+
         self.client.get(
             self.reverse_action(
                 "verify_email_address",
                 model=user,
                 kwargs={
-                    "token": email_verification_token_generator.make_token(user)
+                    "token": email_verification_token_generator.make_token(
+                        user, new_email
+                    )
                 },
             ),
             status_code_assertion=status.HTTP_303_SEE_OTHER,
@@ -416,6 +421,8 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
 
         user.refresh_from_db()
         assert user.userprofile.is_verified
+        assert user.email == new_email
+        assert user.username == new_email
 
     # test: generic actions
 
@@ -455,7 +462,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
 
         add_contact_to_dot_digital.assert_called_once()
 
-        make_token.assert_called_once_with(user_id)
+        make_token.assert_called_once_with(user_id, data["email"])
 
         send_mail_mock.assert_called_once_with(
             campaign_id=settings.DOTDIGITAL_CAMPAIGN_IDS[
@@ -587,7 +594,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
             with patch(
                 # pylint: disable-next=line-too-long
                 "src.api.views.user.email_verification_token_generator.make_token",
-                side_effect=lambda user_id: user_id,
+                side_effect=lambda user_id, email: user_id,
             ) as make_token:
                 with patch("src.api.views.user.send_mail") as send_mail_mock:
                     self.client.cron_job(action)
@@ -595,7 +602,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
                     if mail_sent:
                         make_token.assert_has_calls(
                             [
-                                call(user.id)
+                                call(user.id, user.email)
                                 for user in teacher_users + indy_users
                             ],
                             any_order=True,

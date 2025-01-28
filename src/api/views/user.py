@@ -253,7 +253,7 @@ class UserViewSet(_UserViewSet):
                     kwargs={
                         "pk": user_fields["id"],
                         "token": email_verification_token_generator.make_token(
-                            user_fields["id"]
+                            user_fields["id"], user_fields["email"]
                         ),
                     },
                 )
