@@ -593,7 +593,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
             with patch(
                 # pylint: disable-next=line-too-long
                 "src.api.views.user.email_verification_token_generator.make_token",
-                side_effect=lambda user_id: user_id,
+                side_effect=lambda user_id, email: user_id,
             ) as make_token:
                 with patch("src.api.views.user.send_mail") as send_mail_mock:
                     self.client.cron_job(action)
