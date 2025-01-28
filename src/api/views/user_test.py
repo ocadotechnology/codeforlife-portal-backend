@@ -404,6 +404,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         assert user
 
         new_email = "user@newemail.com"
+        assert new_email != user.email
 
         self.client.get(
             self.reverse_action(
