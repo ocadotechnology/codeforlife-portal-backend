@@ -1,3 +1,10 @@
+## [1.0.14](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.13...v1.0.14) (2025-01-28)
+
+
+### Bug Fixes
+
+* Add user to AuthFactor serializer, fix email address change flow ([#375](https://github.com/ocadotechnology/codeforlife-portal-backend/issues/375)) ([c56e3d9](https://github.com/ocadotechnology/codeforlife-portal-backend/commit/c56e3d9a1288e9e4b563fa120942f8206170897c))
+
 ## [1.0.13](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.12...v1.0.13) (2025-01-20)
 
 

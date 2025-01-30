@@ -77,7 +77,7 @@ def student__post_save(
             kwargs={
                 "pk": instance.new_user.pk,
                 "token": email_verification_token_generator.make_token(
-                    instance.new_user.pk
+                    instance.new_user.pk, instance.new_user.email
                 ),
             },
         )

@@ -162,7 +162,7 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
             kwargs={
                 "pk": independent_user.pk,
                 "token": email_verification_token_generator.make_token(
-                    independent_user.pk
+                    independent_user.pk, validated_data["email"]
                 ),
             },
         )
@@ -281,6 +281,33 @@ class UpdateUserSerializer(BaseUserSerializer[User], _UserSerializer):
                 #  join request.
                 # TODO: Send email in signal to teacher of selected class to
                 #  notify them of join request.
+
+        email = validated_data.pop("email", None)
+        if email is not None and email.lower() != instance.email.lower():
+            send_mail(
+                settings.DOTDIGITAL_CAMPAIGN_IDS["Email will change"],
+                to_addresses=[instance.email],
+                personalization_values={"NEW_EMAIL_ADDRESS": email},
+            )
+
+            # pylint: disable-next=duplicate-code
+            verify_email_address_link = settings.SERVICE_BASE_URL + reverse(
+                "user-verify-email-address",
+                kwargs={
+                    "pk": instance.pk,
+                    "token": email_verification_token_generator.make_token(
+                        instance.pk, email
+                    ),
+                },
+            )
+
+            send_mail(
+                settings.DOTDIGITAL_CAMPAIGN_IDS["Verify changed user email"],
+                to_addresses=[email],
+                personalization_values={
+                    "VERIFICATION_LINK": verify_email_address_link
+                },
+            )
 
         return super().update(instance, validated_data)
 
@@ -426,19 +453,27 @@ class VerifyUserEmailAddressSerializer(_UserSerializer[User]):
                 "Can only verify the email address of an existing user.",
                 code="user_does_not_exist",
             )
-        if not email_verification_token_generator.check_token(
+
+        token = email_verification_token_generator.check_token(
             self.instance, value
-        ):
+        )
+        if token is None:
             raise serializers.ValidationError(
                 "Does not match the given user.",
                 code="does_not_match",
             )
 
-        return value
+        return token
 
     def update(self, instance, validated_data):
         instance.userprofile.is_verified = True
         instance.userprofile.save(update_fields=["is_verified"])
+
+        email = validated_data["token"]["email"]
+        if email.lower() != instance.email.lower():
+            instance.email = email
+            instance.username = email
+            instance.save(update_fields=["email", "username"])
 
         return instance
 
