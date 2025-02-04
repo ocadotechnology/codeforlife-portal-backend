@@ -8,7 +8,6 @@ import re
 from codeforlife.serializers import ModelSerializer
 from codeforlife.user.models import AuthFactor, User
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 # pylint: disable=missing-class-docstring
 # pylint: disable=too-many-ancestors
@@ -64,19 +63,3 @@ class AuthFactorSerializer(ModelSerializer[User, AuthFactor]):
         validated_data["user_id"] = self.request.auth_user.id
         validated_data.pop("otp", None)
         return super().create(validated_data)
-
-
-class CheckIfAuthFactorExistsSerializer(ModelSerializer[User, AuthFactor]):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Allow duplicate pairs [to the DB] since we're checking if they exist.
-        self.validators = [
-            validator
-            for validator in self.validators
-            if not isinstance(validator, UniqueTogetherValidator)
-        ]
-
-    class Meta:
-        model = AuthFactor
-        fields = ["user", "type"]

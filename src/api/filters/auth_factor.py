@@ -13,7 +13,8 @@ from django_filters import (  # type: ignore[import-untyped] # isort: skip
 # pylint: disable-next=missing-class-docstring
 class AuthFactorFilterSet(FilterSet):
     user = filters.NumberFilter("user")
+    type = filters.ChoiceFilter(choices=AuthFactor.Type.choices)
 
     class Meta:
         model = AuthFactor
-        fields = ["user"]
+        fields = ["user", "type"]

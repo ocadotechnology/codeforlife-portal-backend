@@ -7,9 +7,8 @@ from unittest.mock import Mock, patch
 
 from codeforlife.tests import ModelSerializerTestCase
 from codeforlife.user.models import AuthFactor, TeacherUser, User
-from rest_framework.validators import UniqueTogetherValidator
 
-from .auth_factor import AuthFactorSerializer, CheckIfAuthFactorExistsSerializer
+from .auth_factor import AuthFactorSerializer
 
 # pylint: disable=missing-class-docstring
 # pylint: disable=too-many-ancestors
@@ -100,27 +99,3 @@ class TestAuthFactorSerializer(ModelSerializerTestCase[User, AuthFactor]):
             new_data={"user": user.id},
             context={"request": self.request_factory.post(user=user)},
         )
-
-
-class TestCheckIfAuthFactorExistsSerializer(
-    ModelSerializerTestCase[User, AuthFactor]
-):
-    model_serializer_class = CheckIfAuthFactorExistsSerializer
-    fixtures = ["school_2"]
-
-    def setUp(self):
-        auth_factor = AuthFactor.objects.first()
-        assert auth_factor
-        self.auth_factor = auth_factor
-
-    def test_init(self):
-        """Initializing the serializer removes unique-together validators."""
-        model_serializer = self.model_serializer_class(
-            data={
-                "user": self.auth_factor.user.pk,
-                "type": self.auth_factor.type,
-            }
-        )
-
-        for validator in model_serializer.validators:
-            assert not isinstance(validator, UniqueTogetherValidator)

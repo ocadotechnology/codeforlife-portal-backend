@@ -18,10 +18,6 @@ from codeforlife.user.permissions import IsTeacher
 from django.db.models import Count
 
 from ..permissions import HasAuthFactor
-from ..serializers import (
-    AuthFactorSerializer,
-    CheckIfAuthFactorExistsSerializer,
-)
 from .auth_factor import AuthFactorViewSet
 
 # pylint: disable=missing-class-docstring
@@ -39,22 +35,6 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
             NonAdminSchoolTeacherUser.objects.get(email="teacher@school2.com")
         )
         assert self.mfa_non_admin_school_teacher_user.auth_factors.exists()
-
-    # test: get serializer class
-
-    def test_get_serializer_class__list(self):
-        """Listing auth factors uses the general serializer."""
-        self.assert_get_serializer_class(AuthFactorSerializer, action="list")
-
-    def test_get_serializer_class__create(self):
-        """Creating an auth factor uses the general serializer."""
-        self.assert_get_serializer_class(AuthFactorSerializer, action="create")
-
-    def test_get_serializer_class__check_if_exists(self):
-        """Checking if an auth factor exists uses a dedicated serializer."""
-        self.assert_get_serializer_class(
-            CheckIfAuthFactorExistsSerializer, action="check_if_exists"
-        )
 
     # test: get queryset
 
@@ -238,6 +218,18 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
             filters={"user": str(user.pk)},
         )
 
+    def test_list__type(self):
+        """Can list enabled auth-factors, filtered by type."""
+        user = self.mfa_non_admin_school_teacher_user
+        auth_factor = user.auth_factors.first()
+        assert auth_factor
+
+        self.client.login_as(user)
+        self.client.list(
+            [auth_factor],
+            filters={"type": auth_factor.type},
+        )
+
     def test_create__otp(self):
         """Can enable OTP."""
         teacher_user = TeacherUser.objects.exclude(
@@ -266,24 +258,6 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
 
         self.client.login_as(user)
         self.client.destroy(auth_factor)
-
-    def test_check_if_exists(self):
-        """Can successfully check if the requesting user has an auth factor."""
-        user = self.mfa_non_admin_school_teacher_user
-        auth_factor = user.auth_factors.first()
-        assert auth_factor
-
-        self.client.login_as(user)
-
-        response = self.client.post(
-            self.reverse_action("check_if_exists"),
-            data={
-                "user": auth_factor.user.pk,
-                "type": auth_factor.type,
-            },
-        )
-
-        self.assertDictEqual(response.json(), {"auth_factor_exists": True})
 
     def test_get_otp_secret(self):
         """Can successfully generate a OTP provisioning URI."""

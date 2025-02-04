@@ -13,10 +13,7 @@ from codeforlife.views import ModelViewSet, action
 
 from ..filters import AuthFactorFilterSet
 from ..permissions import HasAuthFactor
-from ..serializers import (
-    AuthFactorSerializer,
-    CheckIfAuthFactorExistsSerializer,
-)
+from ..serializers import AuthFactorSerializer
 
 
 # pylint: disable-next=missing-class-docstring,too-many-ancestors
@@ -25,13 +22,7 @@ class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
     model_class = AuthFactor
     http_method_names = ["get", "post", "delete"]
     filterset_class = AuthFactorFilterSet
-
-    # pylint: disable-next=missing-function-docstring
-    def get_serializer_class(self):
-        if self.action == "check_if_exists":
-            return CheckIfAuthFactorExistsSerializer
-
-        return AuthFactorSerializer
+    serializer_class = AuthFactorSerializer
 
     # pylint: disable-next=missing-function-docstring
     def get_queryset(self):
@@ -39,7 +30,7 @@ class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
         user = self.request.teacher_user
 
         if (
-            self.action in ["list", "destroy", "check_if_exists"]
+            self.action in ["list", "destroy"]
             and user.teacher.school
             and user.teacher.is_admin
         ):
@@ -57,20 +48,6 @@ class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
             return [IsTeacher(), NOT(HasAuthFactor(AuthFactor.Type.OTP))]
 
         return [IsTeacher()]
-
-    @action(detail=False, methods=["post"])
-    def check_if_exists(self, request: Request[User]):
-        """Check if an auth factor exists for the requesting user."""
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        return Response(
-            {
-                "auth_factor_exists": self.get_queryset()
-                .filter(**serializer.validated_data)
-                .exists()
-            }
-        )
 
     @action(detail=False, methods=["get"])
     def get_otp_secret(self, request: Request[User]):
