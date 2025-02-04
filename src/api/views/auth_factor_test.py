@@ -15,7 +15,7 @@ from codeforlife.user.models import (
     User,
 )
 from codeforlife.user.permissions import IsTeacher
-from django.db.models import Count
+from django.db.models import Count, Q
 
 from ..permissions import HasAuthFactor
 from .auth_factor import AuthFactorViewSet
@@ -195,14 +195,19 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
         #  - one admin teacher;
         #  - two teachers with auth factors enabled.
         school = (
-            School.objects.filter(
-                id__in=School.objects.filter(
-                    teacher_school__is_admin=True,
-                ).values_list("id", flat=True)
+            School.objects.annotate(
+                admin_teacher_count=Count(
+                    "teacher_school",
+                    filter=Q(teacher_school__is_admin=True),
+                ),
+                mfa_teacher_count=Count(
+                    "teacher_school",
+                    filter=Q(
+                        teacher_school__new_user__auth_factors__isnull=False
+                    ),
+                ),
             )
-            .filter(teacher_school__new_user__auth_factors__isnull=False)
-            .annotate(teacher_count=Count("teacher_school"))
-            .filter(teacher_count__gte=2)
+            .filter(admin_teacher_count__gte=1, mfa_teacher_count__gte=2)
             .first()
         )
         assert school
