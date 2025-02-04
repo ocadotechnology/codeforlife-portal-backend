@@ -3,25 +3,26 @@
 Created on 23/01/2024 at 11:22:16(+00:00).
 """
 
-from unittest.mock import patch
-
 import pyotp
-from codeforlife.permissions import AllowNone
+from codeforlife.permissions import NOT, AllowNone
 from codeforlife.tests import ModelViewSetTestCase
 from codeforlife.user.models import (
     AdminSchoolTeacherUser,
     AuthFactor,
     NonAdminSchoolTeacherUser,
+    School,
     TeacherUser,
     User,
 )
 from codeforlife.user.permissions import IsTeacher
-from pyotp import TOTP
+from django.db.models import Count, Q
 
+from ..permissions import HasAuthFactor
 from .auth_factor import AuthFactorViewSet
 
 # pylint: disable=missing-class-docstring
 # pylint: disable=too-many-ancestors
+# pylint: disable=too-many-public-methods
 
 
 class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
@@ -101,12 +102,47 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
             request=self.client.request_factory.get(user=user),
         )
 
-    def test_get_queryset__generate_otp_provisioning_uri(self):
-        """Can only generate an OTP provisioning URI yourself."""
+    def test_get_queryset__get_otp_secret(self):
+        """Can only get your own OTP secret."""
         user = self.mfa_non_admin_school_teacher_user
 
         self.assert_get_queryset(
-            action="generate_otp_provisioning_uri",
+            action="get_otp_secret",
+            values=list(user.auth_factors.all()),
+            request=self.client.request_factory.get(user=user),
+        )
+
+    def test_get_queryset__check_if_exists__admin(self):
+        """
+        Can check if a author factor exists for all teachers in your school if
+        you are an admin.
+        """
+        user = self.mfa_non_admin_school_teacher_user
+        admin_school_teacher_user = AdminSchoolTeacherUser.objects.filter(
+            new_teacher__school=user.teacher.school
+        ).first()
+        assert admin_school_teacher_user
+
+        self.assert_get_queryset(
+            action="list",
+            values=list(
+                user.auth_factors.all()
+                | admin_school_teacher_user.auth_factors.all()
+            ),
+            request=self.client.request_factory.get(
+                user=admin_school_teacher_user
+            ),
+        )
+
+    def test_get_queryset__check_if_exists__non_admin(self):
+        """
+        Can check if a author factor exists for only yourself if you are not an
+        admin.
+        """
+        user = self.mfa_non_admin_school_teacher_user
+
+        self.assert_get_queryset(
+            action="list",
             values=list(user.auth_factors.all()),
             request=self.client.request_factory.get(user=user),
         )
@@ -133,11 +169,16 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
         """Only a teacher-user can disable an auth factor."""
         self.assert_get_permissions([IsTeacher()], action="destroy")
 
-    def test_get_permissions__generate_otp_provisioning_uri(self):
-        """Only a teacher-user can generate a OTP provisioning URI."""
+    def test_get_permissions__get_otp_secret(self):
+        """Only a teacher-user can get an OTP secret."""
         self.assert_get_permissions(
-            [IsTeacher()], action="generate_otp_provisioning_uri"
+            [IsTeacher(), NOT(HasAuthFactor(AuthFactor.Type.OTP))],
+            action="get_otp_secret",
         )
+
+    def test_get_permissions__check_if_exists(self):
+        """Only a teacher-user can check if an auth factor exists."""
+        self.assert_get_permissions([IsTeacher()], action="check_if_exists")
 
     # test: actions
 
@@ -147,6 +188,52 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
 
         self.client.login_as(user)
         self.client.list(user.auth_factors.all())
+
+    def test_list__user(self):
+        """Can list enabled auth-factors, filtered by a user's ID."""
+        # Get a school that has at least:
+        #  - one admin teacher;
+        #  - two teachers with auth factors enabled.
+        school = (
+            School.objects.annotate(
+                admin_teacher_count=Count(
+                    "teacher_school",
+                    filter=Q(teacher_school__is_admin=True),
+                ),
+                mfa_teacher_count=Count(
+                    "teacher_school",
+                    filter=Q(
+                        teacher_school__new_user__auth_factors__isnull=False
+                    ),
+                ),
+            )
+            .filter(admin_teacher_count__gte=1, mfa_teacher_count__gte=2)
+            .first()
+        )
+        assert school
+
+        user = AdminSchoolTeacherUser.objects.filter(
+            new_teacher__school=school
+        ).first()
+        assert user
+
+        self.client.login_as(user)
+        self.client.list(
+            user.auth_factors.all(),
+            filters={"user": str(user.pk)},
+        )
+
+    def test_list__type(self):
+        """Can list enabled auth-factors, filtered by type."""
+        user = self.mfa_non_admin_school_teacher_user
+        auth_factor = user.auth_factors.first()
+        assert auth_factor
+
+        self.client.login_as(user)
+        self.client.list(
+            [auth_factor],
+            filters={"type": auth_factor.type},
+        )
 
     def test_create__otp(self):
         """Can enable OTP."""
@@ -177,7 +264,7 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
         self.client.login_as(user)
         self.client.destroy(auth_factor)
 
-    def test_generate_otp_provisioning_uri(self):
+    def test_get_otp_secret(self):
         """Can successfully generate a OTP provisioning URI."""
         user = TeacherUser.objects.exclude(
             auth_factors__type__in=[AuthFactor.Type.OTP]
@@ -187,17 +274,12 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
         # TODO: normalize password to "password"
         self.client.login_as(user, password="abc123")
 
-        with patch.object(
-            TOTP, "provisioning_uri", return_value=user.totp_provisioning_uri
-        ) as provisioning_uri:
-            response = self.client.post(
-                self.reverse_action("generate_otp_provisioning_uri")
-            )
+        response = self.client.get(self.reverse_action("get_otp_secret"))
 
-            provisioning_uri.assert_called_once_with(
-                name=user.email,
-                issuer_name="Code for Life",
-            )
-
-            assert response.data == provisioning_uri.return_value
-            assert response.content_type == "text/plain"
+        self.assertDictEqual(
+            response.json(),
+            {
+                "secret": user.totp.secret,
+                "provisioning_uri": user.totp_provisioning_uri,
+            },
+        )

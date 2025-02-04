@@ -4,13 +4,15 @@ Created on 23/01/2024 at 11:04:44(+00:00).
 """
 
 import pyotp
-from codeforlife.permissions import AllowNone
+from codeforlife.permissions import NOT, AllowNone
 from codeforlife.request import Request
 from codeforlife.response import Response
 from codeforlife.user.models import AuthFactor, User
 from codeforlife.user.permissions import IsTeacher
 from codeforlife.views import ModelViewSet, action
 
+from ..filters import AuthFactorFilterSet
+from ..permissions import HasAuthFactor
 from ..serializers import AuthFactorSerializer
 
 
@@ -19,6 +21,7 @@ class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
     request_user_class = User
     model_class = AuthFactor
     http_method_names = ["get", "post", "delete"]
+    filterset_class = AuthFactorFilterSet
     serializer_class = AuthFactorSerializer
 
     # pylint: disable-next=missing-function-docstring
@@ -41,16 +44,23 @@ class AuthFactorViewSet(ModelViewSet[User, AuthFactor]):
     def get_permissions(self):
         if self.action in ["retrieve", "bulk"]:
             return [AllowNone()]
+        if self.action == "get_otp_secret":
+            return [IsTeacher(), NOT(HasAuthFactor(AuthFactor.Type.OTP))]
 
         return [IsTeacher()]
 
-    @action(detail=False, methods=["post"])
-    def generate_otp_provisioning_uri(self, request: Request[User]):
-        """Generate a time-based one-time-password provisioning URI."""
+    @action(detail=False, methods=["get"])
+    def get_otp_secret(self, request: Request[User]):
+        """Get the secret for the user's one-time-password."""
         # TODO: make otp_secret non-nullable and delete code block
         user = request.auth_user
         if not user.userprofile.otp_secret:
             user.userprofile.otp_secret = pyotp.random_base32()
             user.userprofile.save(update_fields=["otp_secret"])
 
-        return Response(user.totp_provisioning_uri, content_type="text/plain")
+        return Response(
+            {
+                "secret": user.totp.secret,
+                "provisioning_uri": user.totp_provisioning_uri,
+            }
+        )

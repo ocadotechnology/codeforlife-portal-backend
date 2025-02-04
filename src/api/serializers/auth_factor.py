@@ -9,8 +9,10 @@ from codeforlife.serializers import ModelSerializer
 from codeforlife.user.models import AuthFactor, User
 from rest_framework import serializers
 
+# pylint: disable=missing-class-docstring
+# pylint: disable=too-many-ancestors
 
-# pylint: disable-next=missing-class-docstring,too-many-ancestors
+
 class AuthFactorSerializer(ModelSerializer[User, AuthFactor]):
     otp = serializers.CharField(required=False, write_only=True)
 
