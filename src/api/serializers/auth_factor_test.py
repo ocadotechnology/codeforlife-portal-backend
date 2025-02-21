@@ -6,7 +6,12 @@ Created on 15/02/2024 at 15:44:25(+00:00).
 from unittest.mock import Mock, patch
 
 from codeforlife.tests import ModelSerializerTestCase
-from codeforlife.user.models import AuthFactor, TeacherUser, User
+from codeforlife.user.models import (
+    AuthFactor,
+    OtpBypassToken,
+    TeacherUser,
+    User,
+)
 
 from .auth_factor import AuthFactorSerializer
 
@@ -99,3 +104,5 @@ class TestAuthFactorSerializer(ModelSerializerTestCase[User, AuthFactor]):
             new_data={"user": user.id},
             context={"request": self.request_factory.post(user=user)},
         )
+
+        assert user.otp_bypass_tokens.count() == OtpBypassToken.max_count

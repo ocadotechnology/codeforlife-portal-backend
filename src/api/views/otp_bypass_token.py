@@ -33,7 +33,6 @@ class OtpBypassTokenViewSet(ModelViewSet[User, OtpBypassToken]):
     def get_queryset(self):
         return OtpBypassToken.objects.filter(user=self.request.auth_user)
 
-    # TODO: replace this custom action with bulk create and list serializer.
     @action(detail=False, methods=["post"])
     def generate(self, request: Request):
         """
