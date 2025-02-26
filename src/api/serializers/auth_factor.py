@@ -6,7 +6,7 @@ Created on 23/01/2024 at 11:05:37(+00:00).
 import re
 
 from codeforlife.serializers import ModelSerializer
-from codeforlife.user.models import AuthFactor, User
+from codeforlife.user.models import AuthFactor, OtpBypassToken, User
 from rest_framework import serializers
 
 # pylint: disable=missing-class-docstring
@@ -62,4 +62,9 @@ class AuthFactorSerializer(ModelSerializer[User, AuthFactor]):
     def create(self, validated_data):
         validated_data["user_id"] = self.request.auth_user.id
         validated_data.pop("otp", None)
-        return super().create(validated_data)
+        auth_factor = super().create(validated_data)
+
+        if auth_factor.type == AuthFactor.Type.OTP:
+            OtpBypassToken.objects.bulk_create(auth_factor.user)
+
+        return auth_factor

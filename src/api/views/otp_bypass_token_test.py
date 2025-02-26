@@ -7,10 +7,11 @@ from unittest.mock import call, patch
 
 from codeforlife.permissions import AllowNone
 from codeforlife.tests import ModelViewSetTestCase
-from codeforlife.user.models import OtpBypassToken, User
+from codeforlife.user.models import AuthFactor, OtpBypassToken, User
 from codeforlife.user.permissions import IsTeacher
 from rest_framework import status
 
+from ..permissions import HasAuthFactor
 from .otp_bypass_token import OtpBypassTokenViewSet
 
 
@@ -27,6 +28,23 @@ class TestOtpBypassTokenViewSet(ModelViewSetTestCase[User, OtpBypassToken]):
 
     # test: get permissions
 
+    def test_get_permissions__retrieve(self):
+        """No one can retrieve a single otp-bypass-token."""
+        self.assert_get_permissions(
+            permissions=[AllowNone()],
+            action="retrieve",
+        )
+
+    def test_get_permissions__list(self):
+        """
+        Only teachers who have enabled OTP as an auth factor can list
+        otp-bypass-tokens.
+        """
+        self.assert_get_permissions(
+            permissions=[IsTeacher(), HasAuthFactor(AuthFactor.Type.OTP)],
+            action="list",
+        )
+
     def test_get_permissions__create(self):
         """No one can create a single otp-bypass-token."""
         self.assert_get_permissions(
@@ -42,13 +60,31 @@ class TestOtpBypassTokenViewSet(ModelViewSetTestCase[User, OtpBypassToken]):
         )
 
     def test_get_permissions__generate(self):
-        """Only teachers can generate otp-bypass-tokens."""
+        """
+        Only teachers who have enabled OTP as an auth factor can generate
+        otp-bypass-tokens.
+        """
         self.assert_get_permissions(
-            permissions=[IsTeacher()],
+            permissions=[IsTeacher(), HasAuthFactor(AuthFactor.Type.OTP)],
             action="generate",
         )
 
+    # test: get queryset
+
+    def test_get_queryset__list(self):
+        """Users can only list their own OTP bypass tokens."""
+        self.assert_get_queryset(
+            values=self.user.otp_bypass_tokens.all(),
+            action="list",
+            request=self.client.request_factory.get(user=self.user),
+        )
+
     # test: actions
+
+    def test_list(self):
+        """Can list a user's OTP bypass tokens."""
+        self.client.login(email=self.user.email, password="password")
+        self.client.list(self.user.otp_bypass_tokens.all())
 
     def test_generate(self):
         """Generate max number of OTP bypass tokens."""
@@ -91,7 +127,12 @@ class TestOtpBypassTokenViewSet(ModelViewSetTestCase[User, OtpBypassToken]):
             )
 
         # We received the expected tokens.
-        assert set(response.json()) == tokens
+        response_json = response.json()
+        assert isinstance(response_json, list) and tokens == {
+            otp_bypass_token["decrypted_token"]
+            for otp_bypass_token in response_json
+            if isinstance(otp_bypass_token, dict)
+        }
 
         # The user's pre-existing tokens were deleted.
         assert not OtpBypassToken.objects.filter(

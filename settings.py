@@ -20,6 +20,11 @@ BASE_DIR = Path(__file__).resolve().parent
 
 secrets = set_up_settings(BASE_DIR, service_name="portal")
 
+# pylint: disable-next=wrong-import-position,wildcard-import,unused-wildcard-import
+from codeforlife.settings import *
+
+SECRET_KEY = secrets.SECRET_KEY
+
 # ------------------------------------------------------------------------------
 # TODO: Clean settings below
 # ------------------------------------------------------------------------------
@@ -80,7 +85,10 @@ PIPELINE = {}
 
 if os.environ.get("STATIC_MODE", "") == "pipeline":
     STATICFILES_FINDERS = ["pipeline.finders.PipelineFinder"]
-    STATICFILES_STORAGE = "pipeline.storage.PipelineStorage"
+    STORAGES = {
+        **STORAGES,  # type: ignore[has-type]
+        "staticfiles": {"BACKEND": "pipeline.storage.PipelineStorage"},
+    }
 
     PIPELINE = {
         "COMPILERS": ("portal.pipeline_compilers.LibSassCompiler",),
@@ -251,8 +259,6 @@ CSP_MANIFEST_SRC = (f"{domain()}/static/manifest.json",)
 # TODO: Clean settings above
 # ------------------------------------------------------------------------------
 
-# pylint: disable-next=wrong-import-position,wildcard-import,unused-wildcard-import
-from codeforlife.settings import *
 
 ROOT_URLCONF = "src.urls"
 
