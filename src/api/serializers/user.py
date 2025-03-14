@@ -26,6 +26,7 @@ from codeforlife.user.serializers import (
 from codeforlife.user.serializers import ClassSerializer as _ClassSerializer
 from codeforlife.user.serializers import TeacherSerializer as _TeacherSerializer
 from codeforlife.user.serializers import UserSerializer as _UserSerializer
+from codeforlife.validators import AlphaCharSetValidator
 from django.conf import settings
 from django.contrib.auth.password_validation import (
     validate_password as _validate_password,
@@ -128,6 +129,19 @@ class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
 
 
 class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
+    # TODO: add to model validators in new schema.
+    first_name = serializers.CharField(
+        validators=[AlphaCharSetValidator()],
+        max_length=150,
+        min_length=1,
+    )
+    # TODO: add to model validators in new schema.
+    last_name = serializers.CharField(
+        validators=[AlphaCharSetValidator()],
+        max_length=150,
+        min_length=1,
+    )
+
     date_of_birth = serializers.DateField(write_only=True)
     add_to_newsletter = serializers.BooleanField(write_only=True)
 
@@ -321,6 +335,14 @@ class HandleIndependentUserJoinClassRequestSerializer(
     class in question. First name validation is also done to avoid duplicate
     first names within the class (case-insensitive).
     """
+
+    # TODO: add to model validators in new schema.
+    first_name = serializers.CharField(
+        validators=[AlphaCharSetValidator()],
+        max_length=150,
+        min_length=1,
+        required=False,
+    )
 
     accept = serializers.BooleanField(write_only=True)
 

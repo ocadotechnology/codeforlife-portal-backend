@@ -4,7 +4,7 @@ Created on 01/12/2023 at 16:00:24(+00:00).
 """
 
 from codeforlife.forms import BaseLoginForm
-from codeforlife.user.models import User
+from codeforlife.user.models import AuthFactor, OtpBypassToken, User
 from django import forms
 from django.core.validators import RegexValidator
 
@@ -25,11 +25,7 @@ class EmailLoginForm(BaseLoginForm[User]):
 class OtpLoginForm(BaseLoginForm[User]):
     """Log in with an OTP code."""
 
-    otp = forms.CharField(
-        validators=[
-            RegexValidator(r"^[0-9]{6}$", "Must be 6 digits"),
-        ],
-    )
+    otp = forms.CharField(validators=AuthFactor.otp_validators)
 
     def get_invalid_login_error_message(self):
         return "Please enter the correct one-time password."
@@ -38,7 +34,7 @@ class OtpLoginForm(BaseLoginForm[User]):
 class OtpBypassTokenLoginForm(BaseLoginForm[User]):
     """Log in with an OTP-bypass token."""
 
-    token = forms.CharField(min_length=8, max_length=8)
+    token = forms.CharField(validators=OtpBypassToken.validators)
 
     def get_invalid_login_error_message(self):
         return "Must be exactly 8 characters. A token can only be used once."

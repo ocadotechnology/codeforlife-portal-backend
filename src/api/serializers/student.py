@@ -10,6 +10,7 @@ from codeforlife.serializers import ModelListSerializer
 from codeforlife.types import DataDict
 from codeforlife.user.models import Class, Student, StudentUser, User
 from codeforlife.user.serializers import StudentSerializer
+from codeforlife.validators import AlphaCharSetValidator
 from django.db.models.functions import Lower
 from rest_framework import serializers
 
@@ -186,6 +187,13 @@ class CreateStudentSerializer(BaseStudentPasswordSerializer):
     """Create a student user."""
 
     class UserSerializer(BaseUserSerializer):
+        # TODO: add to model validators in new schema.
+        first_name = serializers.CharField(
+            validators=[AlphaCharSetValidator()],
+            max_length=150,
+            required=False,
+        )
+
         class Meta(BaseUserSerializer.Meta):
             extra_kwargs = {
                 **BaseUserSerializer.Meta.extra_kwargs,
@@ -220,6 +228,13 @@ class ReleaseStudentSerializer(BaseStudentSerializer):
     """Convert a student to an independent learner."""
 
     class UserSerializer(BaseUserSerializer):
+        # TODO: add to model validators in new schema.
+        first_name = serializers.CharField(
+            validators=[AlphaCharSetValidator()],
+            max_length=150,
+            required=False,
+        )
+
         class Meta(BaseUserSerializer.Meta):
             extra_kwargs = {
                 **BaseUserSerializer.Meta.extra_kwargs,
@@ -259,6 +274,13 @@ class TransferStudentSerializer(BaseStudentSerializer):
     """Transfer a student to another class."""
 
     class UserSerializer(BaseUserSerializer):
+        # TODO: add to model validators in new schema.
+        first_name = serializers.CharField(
+            validators=[AlphaCharSetValidator()],
+            max_length=150,
+            required=False,
+        )
+
         class Meta(BaseUserSerializer.Meta):
             extra_kwargs = {
                 **BaseUserSerializer.Meta.extra_kwargs,
