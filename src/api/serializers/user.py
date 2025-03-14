@@ -129,6 +129,7 @@ class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
 
 
 class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
+    # pylint: disable=duplicate-code
     # TODO: add to model validators in new schema.
     first_name = serializers.CharField(
         validators=[AlphaCharSetValidator()],
@@ -141,6 +142,7 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
         max_length=150,
         min_length=1,
     )
+    # pylint: enable=duplicate-code
 
     date_of_birth = serializers.DateField(write_only=True)
     add_to_newsletter = serializers.BooleanField(write_only=True)
