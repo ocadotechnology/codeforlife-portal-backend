@@ -7,7 +7,7 @@ on:
 
 jobs:
   main:
-    uses: ocadotechnology/codeforlife-workspace/.github/workflows/backend.yaml@main
+    uses: ocadotechnology/codeforlife-workspace/.github/workflows/backend.yaml@pyproject-toml-config # TODO: set to @main
     secrets: inherit
     with:
       source-path: src
