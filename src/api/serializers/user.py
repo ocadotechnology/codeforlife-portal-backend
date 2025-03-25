@@ -19,6 +19,8 @@ from codeforlife.user.models import (
     Teacher,
     TeacherUser,
     User,
+    user_first_name_validators,
+    user_last_name_validators,
 )
 from codeforlife.user.serializers import (
     BaseUserSerializer as _BaseUserSerializer,
@@ -26,7 +28,6 @@ from codeforlife.user.serializers import (
 from codeforlife.user.serializers import ClassSerializer as _ClassSerializer
 from codeforlife.user.serializers import TeacherSerializer as _TeacherSerializer
 from codeforlife.user.serializers import UserSerializer as _UserSerializer
-from codeforlife.validators import UnicodeAlphaCharSetValidator
 from django.conf import settings
 from django.contrib.auth.password_validation import (
     validate_password as _validate_password,
@@ -132,13 +133,13 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
     # pylint: disable=duplicate-code
     # TODO: add to model validators in new schema.
     first_name = serializers.CharField(
-        validators=[UnicodeAlphaCharSetValidator()],
+        validators=user_first_name_validators,
         max_length=150,
         min_length=1,
     )
     # TODO: add to model validators in new schema.
     last_name = serializers.CharField(
-        validators=[UnicodeAlphaCharSetValidator()],
+        validators=user_last_name_validators,
         max_length=150,
         min_length=1,
     )
@@ -340,7 +341,7 @@ class HandleIndependentUserJoinClassRequestSerializer(
 
     # TODO: add to model validators in new schema.
     first_name = serializers.CharField(
-        validators=[UnicodeAlphaCharSetValidator()],
+        validators=user_first_name_validators,
         max_length=150,
         min_length=1,
         required=False,

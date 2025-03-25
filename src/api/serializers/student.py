@@ -8,9 +8,14 @@ from itertools import groupby
 
 from codeforlife.serializers import ModelListSerializer
 from codeforlife.types import DataDict
-from codeforlife.user.models import Class, Student, StudentUser, User
+from codeforlife.user.models import (
+    Class,
+    Student,
+    StudentUser,
+    User,
+    user_first_name_validators,
+)
 from codeforlife.user.serializers import StudentSerializer
-from codeforlife.validators import UnicodeAlphaCharSetValidator
 from django.db.models.functions import Lower
 from rest_framework import serializers
 
@@ -189,7 +194,7 @@ class CreateStudentSerializer(BaseStudentPasswordSerializer):
     class UserSerializer(BaseUserSerializer):
         # TODO: add to model validators in new schema.
         first_name = serializers.CharField(
-            validators=[UnicodeAlphaCharSetValidator()],
+            validators=user_first_name_validators,
             max_length=150,
             required=False,
         )
@@ -230,7 +235,7 @@ class ReleaseStudentSerializer(BaseStudentSerializer):
     class UserSerializer(BaseUserSerializer):
         # TODO: add to model validators in new schema.
         first_name = serializers.CharField(
-            validators=[UnicodeAlphaCharSetValidator()],
+            validators=user_first_name_validators,
             max_length=150,
             required=False,
         )
@@ -276,7 +281,7 @@ class TransferStudentSerializer(BaseStudentSerializer):
     class UserSerializer(BaseUserSerializer):
         # TODO: add to model validators in new schema.
         first_name = serializers.CharField(
-            validators=[UnicodeAlphaCharSetValidator()],
+            validators=user_first_name_validators,
             max_length=150,
             required=False,
         )

@@ -12,11 +12,11 @@ from codeforlife.user.models import (
     SchoolTeacherUser,
     Teacher,
     User,
+    class_name_validators,
 )
 from codeforlife.user.serializers import BaseUserSerializer
 from codeforlife.user.serializers import ClassSerializer as _ClassSerializer
 from codeforlife.user.serializers import TeacherSerializer as _TeacherSerializer
-from codeforlife.validators import UnicodeAlphaCharSetValidator
 from django.utils.crypto import get_random_string
 from rest_framework import serializers
 
@@ -38,7 +38,7 @@ class WriteClassListSerializer(ModelListSerializer[User, Class]):
 class WriteClassSerializer(_ClassSerializer):
     # TODO: add to model validators in new schema.
     name = serializers.CharField(
-        validators=[UnicodeAlphaCharSetValidator(spaces=True)],
+        validators=class_name_validators,
         max_length=200,
     )
 

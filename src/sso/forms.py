@@ -5,8 +5,8 @@ Created on 01/12/2023 at 16:00:24(+00:00).
 
 from codeforlife.forms import BaseLoginForm
 from codeforlife.user.models import AuthFactor, OtpBypassToken, User
+from codeforlife.user.models.klass import class_access_code_validators
 from django import forms
-from django.core.validators import RegexValidator
 
 
 class EmailLoginForm(BaseLoginForm[User]):
@@ -45,17 +45,7 @@ class StudentLoginForm(BaseLoginForm[User]):
 
     first_name = forms.CharField()
     password = forms.CharField(strip=False)
-    class_id = forms.CharField(
-        validators=[
-            RegexValidator(
-                r"^[A-Z]{2}([0-9]{3}|[A-Z]{3})$",
-                (
-                    "Must be 5 upper case letters or 2 upper case letters"
-                    " followed by 3 digits"
-                ),
-            ),
-        ],
-    )
+    class_id = forms.CharField(validators=class_access_code_validators)
 
     def get_invalid_login_error_message(self):
         return (
