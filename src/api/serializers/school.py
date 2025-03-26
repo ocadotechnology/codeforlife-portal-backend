@@ -3,7 +3,7 @@
 Created on 23/01/2024 at 11:05:41(+00:00).
 """
 
-from codeforlife.user.models import School
+from codeforlife.user.models import School, school_name_validators
 from codeforlife.user.serializers import SchoolSerializer as _SchoolSerializer
 from rest_framework import serializers
 
@@ -393,7 +393,10 @@ class SchoolSerializer(_SchoolSerializer):
     class Meta(_SchoolSerializer.Meta):
         extra_kwargs = {
             **_SchoolSerializer.Meta.extra_kwargs,
-            "name": {"read_only": False},
+            "name": {
+                "read_only": False,
+                "validators": school_name_validators,
+            },
         }
 
     # TODO: set unique=True for model name field in new models.
