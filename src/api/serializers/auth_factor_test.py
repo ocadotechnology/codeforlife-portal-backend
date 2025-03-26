@@ -52,14 +52,6 @@ class TestAuthFactorSerializer(ModelSerializerTestCase[User, AuthFactor]):
             },
         )
 
-    def test_validate_otp__format(self):
-        """OTP must be 6 digits."""
-        self.assert_validate_field(
-            name="otp",
-            value="12345",
-            error_code="format",
-        )
-
     @patch("codeforlife.user.models.user.TOTP.verify", return_value=False)
     def test_validate_otp__invalid(self, totp__verify: Mock):
         """Cannot enable the OTP without providing the current OTP."""

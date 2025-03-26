@@ -3,8 +3,6 @@
 Created on 23/01/2024 at 11:05:37(+00:00).
 """
 
-import re
-
 from codeforlife.serializers import ModelSerializer
 from codeforlife.user.models import AuthFactor, OtpBypassToken, User
 from rest_framework import serializers
@@ -14,7 +12,11 @@ from rest_framework import serializers
 
 
 class AuthFactorSerializer(ModelSerializer[User, AuthFactor]):
-    otp = serializers.CharField(required=False, write_only=True)
+    otp = serializers.CharField(
+        required=False,
+        write_only=True,
+        validators=AuthFactor.otp_validators,
+    )
 
     class Meta:
         model = AuthFactor
@@ -43,8 +45,6 @@ class AuthFactorSerializer(ModelSerializer[User, AuthFactor]):
 
     # pylint: disable-next=missing-function-docstring
     def validate_otp(self, value: str):
-        if not re.match(r"^[0-9]{6}$", value):
-            raise serializers.ValidationError("Must be 6 digits", code="format")
         if not self.request.auth_user.totp.verify(value):
             raise serializers.ValidationError("Invalid OTP.", code="invalid")
 

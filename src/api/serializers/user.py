@@ -19,7 +19,10 @@ from codeforlife.user.models import (
     Teacher,
     TeacherUser,
     User,
+    user_first_name_validators,
+    user_last_name_validators,
 )
+from codeforlife.user.models.klass import class_access_code_validators
 from codeforlife.user.serializers import (
     BaseUserSerializer as _BaseUserSerializer,
 )
@@ -128,6 +131,21 @@ class BaseUserSerializer(_BaseUserSerializer[AnyUser], t.Generic[AnyUser]):
 
 
 class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
+    # pylint: disable=duplicate-code
+    # TODO: add to model validators in new schema.
+    first_name = serializers.CharField(
+        validators=user_first_name_validators,
+        max_length=150,
+        min_length=1,
+    )
+    # TODO: add to model validators in new schema.
+    last_name = serializers.CharField(
+        validators=user_last_name_validators,
+        max_length=150,
+        min_length=1,
+    )
+    # pylint: enable=duplicate-code
+
     date_of_birth = serializers.DateField(write_only=True)
     add_to_newsletter = serializers.BooleanField(write_only=True)
 
@@ -195,6 +213,7 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
 class UpdateUserSerializer(BaseUserSerializer[User], _UserSerializer):
     requesting_to_join_class = serializers.CharField(
         source="new_student.pending_class_request",
+        validators=class_access_code_validators,
         allow_null=True,
     )
     current_password = serializers.CharField(write_only=True)
@@ -203,8 +222,14 @@ class UpdateUserSerializer(BaseUserSerializer[User], _UserSerializer):
         fields = [*_UserSerializer.Meta.fields, "password", "current_password"]
         extra_kwargs = {
             **_UserSerializer.Meta.extra_kwargs,
-            "first_name": {"min_length": 1},
-            "last_name": {"min_length": 1},
+            "first_name": {
+                "min_length": 1,
+                "validators": user_first_name_validators,
+            },
+            "last_name": {
+                "min_length": 1,
+                "validators": user_last_name_validators,
+            },
             "email": {},
             "password": {"write_only": True},
         }
@@ -321,6 +346,14 @@ class HandleIndependentUserJoinClassRequestSerializer(
     class in question. First name validation is also done to avoid duplicate
     first names within the class (case-insensitive).
     """
+
+    # TODO: add to model validators in new schema.
+    first_name = serializers.CharField(
+        validators=user_first_name_validators,
+        max_length=150,
+        min_length=1,
+        required=False,
+    )
 
     accept = serializers.BooleanField(write_only=True)
 

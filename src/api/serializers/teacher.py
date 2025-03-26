@@ -12,6 +12,8 @@ from codeforlife.user.models import (
     Teacher,
     TeacherUser,
     teacher_as_type,
+    user_first_name_validators,
+    user_last_name_validators,
 )
 from codeforlife.user.serializers import TeacherSerializer
 from rest_framework import serializers
@@ -25,6 +27,19 @@ from .user import BaseUserSerializer
 
 class CreateTeacherSerializer(TeacherSerializer[Teacher]):
     class UserSerializer(BaseUserSerializer):
+        # TODO: add to model validators in new schema.
+        first_name = serializers.CharField(
+            validators=user_first_name_validators,
+            max_length=150,
+            min_length=1,
+        )
+        # TODO: add to model validators in new schema.
+        last_name = serializers.CharField(
+            validators=user_last_name_validators,
+            max_length=150,
+            min_length=1,
+        )
+
         add_to_newsletter = serializers.BooleanField(write_only=True)
 
         class Meta(BaseUserSerializer.Meta):

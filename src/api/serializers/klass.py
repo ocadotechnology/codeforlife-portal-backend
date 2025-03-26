@@ -12,6 +12,7 @@ from codeforlife.user.models import (
     SchoolTeacherUser,
     Teacher,
     User,
+    class_name_validators,
 )
 from codeforlife.user.serializers import BaseUserSerializer
 from codeforlife.user.serializers import ClassSerializer as _ClassSerializer
@@ -35,6 +36,12 @@ class WriteClassListSerializer(ModelListSerializer[User, Class]):
 
 
 class WriteClassSerializer(_ClassSerializer):
+    # TODO: add to model validators in new schema.
+    name = serializers.CharField(
+        validators=class_name_validators,
+        max_length=200,
+    )
+
     read_classmates_data = serializers.BooleanField(
         source="classmates_data_viewable",
     )
