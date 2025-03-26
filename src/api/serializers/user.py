@@ -22,6 +22,7 @@ from codeforlife.user.models import (
     user_first_name_validators,
     user_last_name_validators,
 )
+from codeforlife.user.models.klass import class_access_code_validators
 from codeforlife.user.serializers import (
     BaseUserSerializer as _BaseUserSerializer,
 )
@@ -212,6 +213,7 @@ class CreateUserSerializer(BaseUserSerializer[IndependentUser]):
 class UpdateUserSerializer(BaseUserSerializer[User], _UserSerializer):
     requesting_to_join_class = serializers.CharField(
         source="new_student.pending_class_request",
+        validators=class_access_code_validators,
         allow_null=True,
     )
     current_password = serializers.CharField(write_only=True)
@@ -220,8 +222,14 @@ class UpdateUserSerializer(BaseUserSerializer[User], _UserSerializer):
         fields = [*_UserSerializer.Meta.fields, "password", "current_password"]
         extra_kwargs = {
             **_UserSerializer.Meta.extra_kwargs,
-            "first_name": {"min_length": 1},
-            "last_name": {"min_length": 1},
+            "first_name": {
+                "min_length": 1,
+                "validators": user_first_name_validators,
+            },
+            "last_name": {
+                "min_length": 1,
+                "validators": user_last_name_validators,
+            },
             "email": {},
             "password": {"write_only": True},
         }
