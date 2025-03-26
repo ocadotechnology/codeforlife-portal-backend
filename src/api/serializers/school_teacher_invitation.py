@@ -12,6 +12,8 @@ from codeforlife.user.models import (
     NonSchoolTeacherUser,
     SchoolTeacherUser,
     User,
+    user_first_name_validators,
+    user_last_name_validators,
 )
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
@@ -38,6 +40,18 @@ class BaseSchoolTeacherInvitationSerializer(
 
 
 class SchoolTeacherInvitationSerializer(BaseSchoolTeacherInvitationSerializer):
+    # TODO: add to model validators in new schema.
+    invited_teacher_first_name = serializers.CharField(
+        validators=user_first_name_validators,
+        max_length=150,
+    )
+
+    # TODO: add to model validators in new schema.
+    invited_teacher_last_name = serializers.CharField(
+        validators=user_last_name_validators,
+        max_length=150,
+    )
+
     class Meta(BaseSchoolTeacherInvitationSerializer.Meta):
         fields = [
             *BaseSchoolTeacherInvitationSerializer.Meta.fields,
