@@ -5,15 +5,10 @@ Created on 20/01/2024 at 10:58:52(+00:00).
 
 import typing as t
 from datetime import timedelta
-from unittest.mock import Mock, call, patch
+from unittest.mock import Mock, patch
 
 from codeforlife.mail import send_mail
-from codeforlife.permissions import (
-    OR,
-    AllowAny,
-    AllowNone,
-    IsCronRequestFromGoogle,
-)
+from codeforlife.permissions import OR, AllowAny, AllowNone
 from codeforlife.tests import ModelViewSetTestCase
 from codeforlife.user.models import (
     AdminSchoolTeacherUser,
@@ -21,15 +16,9 @@ from codeforlife.user.models import (
     IndependentUser,
     NonAdminSchoolTeacherUser,
     NonSchoolTeacherUser,
-    School,
     SchoolTeacherUser,
-    Student,
-    StudentUser,
-    Teacher,
-    TeacherUser,
     TypedUser,
     User,
-    UserProfile,
 )
 from codeforlife.user.permissions import IsIndependent, IsTeacher
 from django.conf import settings
@@ -138,48 +127,6 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         self.assert_get_permissions(
             permissions=[AllowAny()],
             action="reset_password",
-        )
-
-    def test_get_permissions__send_1st_verify_email_reminder(self):
-        """Only Google can send the 1st verify email reminder."""
-        self.assert_get_permissions(
-            permissions=[IsCronRequestFromGoogle()],
-            action="send_1st_verify_email_reminder",
-        )
-
-    def test_get_permissions__send_2nd_verify_email_reminder(self):
-        """Only Google can send the 2nd verify email reminder."""
-        self.assert_get_permissions(
-            permissions=[IsCronRequestFromGoogle()],
-            action="send_2nd_verify_email_reminder",
-        )
-
-    def test_get_permissions__anonymize_unverified_accounts(self):
-        """Only Google can anonymize unverified accounts."""
-        self.assert_get_permissions(
-            permissions=[IsCronRequestFromGoogle()],
-            action="anonymize_unverified_accounts",
-        )
-
-    def test_get_permissions__send_1st_inactivity_reminder(self):
-        """Only Google can send the 1st inactivity reminder."""
-        self.assert_get_permissions(
-            permissions=[IsCronRequestFromGoogle()],
-            action="send_1st_inactivity_reminder",
-        )
-
-    def test_get_permissions__send_2nd_inactivity_reminder(self):
-        """Only Google can send the 2nd inactivity reminder."""
-        self.assert_get_permissions(
-            permissions=[IsCronRequestFromGoogle()],
-            action="send_2nd_inactivity_reminder",
-        )
-
-    def test_get_permissions__send_final_inactivity_reminder(self):
-        """Only Google can send the final inactivity reminder."""
-        self.assert_get_permissions(
-            permissions=[IsCronRequestFromGoogle()],
-            action="send_final_inactivity_reminder",
         )
 
     def test_get_permissions__register_to_newsletter(self):
@@ -424,7 +371,7 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         assert user.email == new_email
         assert user.username == new_email
 
-    # test: generic actions
+    # test: actions
 
     @patch("codeforlife.mail.send_mail", side_effect=send_mail)
     @patch.object(IndependentUser, "add_contact_to_dot_digital")
@@ -568,257 +515,6 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         self.client.destroy(user, make_assertions=False)
 
         assert self.is_anonymized(user)
-
-    # test: cron actions
-
-    def _test_send_verify_email_reminder(
-        self, action: str, days: int, campaign_name: str
-    ):
-        def test_send_verify_email_reminder(
-            days: int, is_verified: bool, mail_sent: bool
-        ):
-            date_joined = timezone.now() - timedelta(days, hours=12)
-
-            assert StudentUser.objects.update(date_joined=date_joined)
-
-            teacher_users = list(TeacherUser.objects.all())
-            assert teacher_users
-            indy_users = list(IndependentUser.objects.all())
-            assert indy_users
-            for user in teacher_users + indy_users:
-                user.date_joined = date_joined
-                user.save()
-                user.userprofile.is_verified = is_verified
-                user.userprofile.save()
-
-            with patch(
-                # pylint: disable-next=line-too-long
-                "src.api.views.user.email_verification_token_generator.make_token",
-                side_effect=lambda user_id, email: user_id,
-            ) as make_token:
-                with patch("src.api.views.user.send_mail") as send_mail_mock:
-                    self.client.cron_job(action)
-
-                    if mail_sent:
-                        make_token.assert_has_calls(
-                            [
-                                call(user.id, user.email)
-                                for user in teacher_users + indy_users
-                            ],
-                            any_order=True,
-                        )
-                        send_mail_mock.assert_has_calls(
-                            [
-                                call(
-                                    campaign_id=(
-                                        settings.DOTDIGITAL_CAMPAIGN_IDS[
-                                            campaign_name
-                                        ]
-                                    ),
-                                    to_addresses=[user.email],
-                                    personalization_values={
-                                        # pylint: disable-next=line-too-long
-                                        "VERIFICATION_LINK": (
-                                            settings.SERVICE_BASE_URL
-                                            + self.reverse_action(
-                                                "verify-email-address",
-                                                kwargs={
-                                                    "pk": user.id,
-                                                    "token": user.id,
-                                                },
-                                            )
-                                        )
-                                    },
-                                )
-                                for user in teacher_users + indy_users
-                            ],
-                            any_order=True,
-                        )
-                    else:
-                        make_token.assert_not_called()
-                        send_mail_mock.assert_not_called()
-
-        test_send_verify_email_reminder(
-            days=days - 1,
-            is_verified=False,
-            mail_sent=False,
-        )
-        test_send_verify_email_reminder(
-            days=days,
-            is_verified=False,
-            mail_sent=True,
-        )
-        test_send_verify_email_reminder(
-            days=days,
-            is_verified=True,
-            mail_sent=False,
-        )
-        test_send_verify_email_reminder(
-            days=days + 1,
-            is_verified=False,
-            mail_sent=False,
-        )
-
-    def test_send_1st_verify_email_reminder(self):
-        """Can send the 1st verify email reminder."""
-        self._test_send_verify_email_reminder(
-            action="send_1st_verify_email_reminder",
-            days=7,
-            campaign_name="Verify new user email - first reminder",
-        )
-
-    def test_send_2nd_verify_email_reminder(self):
-        """Can send the 2nd verify email reminder."""
-        self._test_send_verify_email_reminder(
-            action="send_2nd_verify_email_reminder",
-            days=14,
-            campaign_name="Verify new user email - second reminder",
-        )
-
-    def test_anonymize_unverified_accounts(self):
-        """Can anonymize unverified accounts."""
-
-        def anonymize_unverified_users(
-            days: int, is_verified: bool, is_anonymized: bool
-        ):
-            date_joined = timezone.now() - timedelta(days=days, hours=12)
-
-            assert StudentUser.objects.update(date_joined=date_joined)
-
-            # Create teacher user.
-            teacher_user = User.objects.create(
-                first_name="Unverified",
-                last_name="Teacher",
-                username="unverified.teacher@codeforlife.com",
-                email="unverified.teacher@codeforlife.com",
-                date_joined=date_joined,
-            )
-            teacher_user_profile = UserProfile.objects.create(
-                user=teacher_user,
-                is_verified=is_verified,
-            )
-            Teacher.objects.create(
-                user=teacher_user_profile,
-                new_user=teacher_user,
-                school=School.objects.get(name="School 1"),
-            )
-
-            # Create independent user.
-            indy_user = User.objects.create(
-                first_name="Unverified",
-                last_name="IndependentStudent",
-                username="unverified.independentstudent@codeforlife.com",
-                email="unverified.independentstudent@codeforlife.com",
-                date_joined=date_joined,
-            )
-            indy_user_profile = UserProfile.objects.create(
-                user=indy_user,
-                is_verified=is_verified,
-            )
-            Student.objects.create(
-                user=indy_user_profile,
-                new_user=indy_user,
-            )
-
-            self.client.cron_job("anonymize_unverified_accounts")
-
-            for student_user in StudentUser.objects.all():
-                assert not self.is_anonymized(student_user)
-
-            assert is_anonymized == self.is_anonymized(teacher_user)
-            assert is_anonymized == self.is_anonymized(indy_user)
-
-            teacher_user.delete()
-            indy_user.delete()
-
-        anonymize_unverified_users(
-            days=18,
-            is_verified=False,
-            is_anonymized=False,
-        )
-        anonymize_unverified_users(
-            days=19,
-            is_verified=False,
-            is_anonymized=True,
-        )
-        anonymize_unverified_users(
-            days=19,
-            is_verified=True,
-            is_anonymized=False,
-        )
-        anonymize_unverified_users(
-            days=20,
-            is_verified=False,
-            is_anonymized=True,
-        )
-
-    def _test_send_inactivity_reminder(
-        self, action: str, days: int, campaign_name: str
-    ):
-        def test_send_inactivity_reminder(days: int, mail_sent: bool):
-            date_joined = timezone.now() - timedelta(days, hours=12)
-            last_login = timezone.now() - timedelta(days, hours=12)
-
-            assert StudentUser.objects.update(date_joined=date_joined)
-
-            TeacherUser.objects.update(date_joined=date_joined, last_login=None)
-            IndependentUser.objects.update(last_login=last_login)
-
-            teacher_users = list(TeacherUser.objects.all())
-            assert teacher_users
-            indy_users = list(IndependentUser.objects.all())
-            assert indy_users
-
-            with patch("src.api.views.user.send_mail") as send_mail_mock:
-                self.client.cron_job(action)
-
-                if mail_sent:
-                    send_mail_mock.assert_has_calls(
-                        [
-                            call(
-                                campaign_id=(
-                                    settings.DOTDIGITAL_CAMPAIGN_IDS[
-                                        campaign_name
-                                    ]
-                                ),
-                                to_addresses=[user.email],
-                            )
-                            for user in teacher_users + indy_users
-                        ],
-                        any_order=True,
-                    )
-                else:
-                    send_mail_mock.assert_not_called()
-
-        test_send_inactivity_reminder(days=days - 1, mail_sent=False)
-        test_send_inactivity_reminder(days=days, mail_sent=True)
-        test_send_inactivity_reminder(days=days + 1, mail_sent=False)
-
-    def test_send_1st_inactivity_reminder(self):
-        """Can send the 1st inactivity reminder."""
-        self._test_send_inactivity_reminder(
-            action="send_1st_inactivity_reminder",
-            days=730,
-            campaign_name="Inactive users on website - first reminder",
-        )
-
-    def test_send_2nd_inactivity_reminder(self):
-        """Can send the 2nd inactivity reminder."""
-        self._test_send_inactivity_reminder(
-            action="send_2nd_inactivity_reminder",
-            days=973,
-            campaign_name="Inactive users on website - second reminder",
-        )
-
-    def test_send_final_inactivity_reminder(self):
-        """Can send the final inactivity reminder."""
-        self._test_send_inactivity_reminder(
-            action="send_final_inactivity_reminder",
-            days=1065,
-            campaign_name="Inactive users on website - final reminder",
-        )
-
-    # test: other actions
 
     def test_register_to_newsletter(self):
         """Can successfully register an email address to our newsletter."""

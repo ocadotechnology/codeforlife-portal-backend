@@ -9,9 +9,8 @@ from unittest.mock import patch
 from urllib.parse import unquote
 
 import pyotp
-from codeforlife.tests import Client, CronTestCase, TestCase
+from codeforlife.tests import Client, TestCase
 from codeforlife.user.models import AuthFactor, User
-from django.core import management
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
@@ -80,14 +79,3 @@ class TestLoginView(TestCase):
         session_metadata = self._get_session_metadata(response)
         assert session_metadata.user_id == self.user.id
         assert session_metadata.auth_factors == []
-
-
-class TestClearExpiredView(CronTestCase):
-    """Test the clear-expired view."""
-
-    def test_clear_expired_view(self):
-        """Test the clear sessions command is called."""
-
-        with patch.object(management, "call_command") as call_command:
-            self.client.get(reverse("session-clear-expired"))
-            call_command.assert_called_once_with("clearsessions")

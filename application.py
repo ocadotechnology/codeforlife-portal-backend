@@ -5,16 +5,10 @@ Created on 11/04/2024 at 16:51:45(+01:00).
 The entrypoint to our app.
 """
 
-import os
+from codeforlife.servers import CeleryServer, DjangoServer
 
-from codeforlife.app import StandaloneApplication
-from django.core.asgi import get_asgi_application
-from django.core.wsgi import get_wsgi_application
+DjangoServer.setup()
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
+celery_app = CeleryServer().app
 
-
-if __name__ == "__main__":
-    StandaloneApplication(app=get_asgi_application()).run()
-else:
-    app = get_wsgi_application()
+django_app = DjangoServer().wsgi_app
