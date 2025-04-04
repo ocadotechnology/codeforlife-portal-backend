@@ -7,18 +7,12 @@ into one folder. If in the future the number of views grows, it's recommended to
 split these views into multiple files.
 """
 
-import logging
 import typing as t
 
-from codeforlife.mixins import CronMixin
 from codeforlife.request import HttpRequest
 from codeforlife.user.models import User
 from codeforlife.views import BaseLoginView
 from common.models import UserSession  # type: ignore
-from django.contrib.sessions.models import Session, SessionManager
-from django.core import management
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from .forms import (
     EmailLoginForm,
@@ -82,26 +76,3 @@ class LoginView(BaseLoginView[HttpRequest[User], User]):
             ),
             "otp_bypass_token_exists": user.otp_bypass_tokens.exists(),
         }
-
-
-# TODO: move to python package and make work on AWS
-class ClearExpiredView(CronMixin, APIView):  # type: ignore
-    """Clear all expired sessions."""
-
-    def get(self, request):
-        # objects is missing type SessionManager
-        session_objects: SessionManager = Session.objects
-
-        before_session_count = session_objects.count()
-        logging.info("Session count before clearance: %d", before_session_count)
-
-        # Clears expired sessions.
-        # https://docs.djangoproject.com/en/3.2/ref/django-admin/#clearsessions
-        management.call_command("clearsessions")
-
-        after_session_count = session_objects.count()
-        logging.info("Session count after clearance: %d", after_session_count)
-        session_clearance_count = before_session_count - after_session_count
-        logging.info("Session clearance count: %d", session_clearance_count)
-
-        return Response()
