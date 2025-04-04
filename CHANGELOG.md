@@ -1,3 +1,10 @@
+## [1.0.19](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.18...v1.0.19) (2025-04-04)
+
+
+### Bug Fixes
+
+* use celery ([#398](https://github.com/ocadotechnology/codeforlife-portal-backend/issues/398)) ([674900a](https://github.com/ocadotechnology/codeforlife-portal-backend/commit/674900a54ab339e33a6a49f111c1f083b3c050d1))
+
 ## [1.0.18](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.17...v1.0.18) (2025-03-26)
 
 
