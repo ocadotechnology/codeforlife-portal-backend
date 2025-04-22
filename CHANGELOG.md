@@ -1,3 +1,11 @@
+## [1.0.20](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.19...v1.0.20) (2025-04-22)
+
+
+### Bug Fixes
+
+* aws sqs ([9efd610](https://github.com/ocadotechnology/codeforlife-portal-backend/commit/9efd6105d97b4287fbb602c23296c8eb0e17a4a0))
+* new cfl package ([0778ea5](https://github.com/ocadotechnology/codeforlife-portal-backend/commit/0778ea540aa814c35e844cc9bde01aef8026dcdb))
+
 ## [1.0.19](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.0.18...v1.0.19) (2025-04-04)
 
 
