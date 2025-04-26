@@ -30,9 +30,9 @@ class TestUser(CeleryTestCase):
     def send_inactivity_email_reminder(self, days: int, campaign_name: str):
         """Test an inactivity email reminder is sent under conditions."""
 
-        def test(days: int, mail_sent: bool):
-            date_joined = timezone.now() - timedelta(days, hours=12)
-            last_login = timezone.now() - timedelta(days, hours=12)
+        def test(_days: int, mail_sent: bool):
+            date_joined = timezone.now() - timedelta(_days, hours=12)
+            last_login = timezone.now() - timedelta(_days, hours=12)
 
             assert StudentUser.objects.update(date_joined=date_joined)
 
@@ -68,9 +68,9 @@ class TestUser(CeleryTestCase):
                 else:
                     send_mail_mock.assert_not_called()
 
-        test(days=days - 1, mail_sent=False)
-        test(days=days, mail_sent=True)
-        test(days=days + 1, mail_sent=False)
+        test(_days=days - 1, mail_sent=False)
+        test(_days=days, mail_sent=True)
+        test(_days=days + 1, mail_sent=False)
 
     def test_send_1st_inactivity_email_reminder(self):
         """Can send the 1st inactivity email reminder."""
@@ -95,8 +95,8 @@ class TestUser(CeleryTestCase):
     def send_verify_email_reminder(self, days: int, campaign_name: str):
         """Test a verify email reminder is sent under conditions."""
 
-        def test(days: int, is_verified: bool, mail_sent: bool):
-            date_joined = timezone.now() - timedelta(days, hours=12)
+        def test(_days: int, is_verified: bool, mail_sent: bool):
+            date_joined = timezone.now() - timedelta(_days, hours=12)
 
             assert StudentUser.objects.update(date_joined=date_joined)
 
@@ -160,10 +160,10 @@ class TestUser(CeleryTestCase):
                         make_token.assert_not_called()
                         send_mail_mock.assert_not_called()
 
-        test(days=days - 1, is_verified=False, mail_sent=False)
-        test(days=days, is_verified=False, mail_sent=True)
-        test(days=days, is_verified=True, mail_sent=False)
-        test(days=days + 1, is_verified=False, mail_sent=False)
+        test(_days=days - 1, is_verified=False, mail_sent=False)
+        test(_days=days, is_verified=False, mail_sent=True)
+        test(_days=days, is_verified=True, mail_sent=False)
+        test(_days=days + 1, is_verified=False, mail_sent=False)
 
     def test_send_1st_verify_email_reminder(self):
         """Can send the 1st verify email reminder."""
