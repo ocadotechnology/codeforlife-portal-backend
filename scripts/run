@@ -1,8 +1,0 @@
-#!/bin/bash
-set -e
-
-cd "${BASH_SOURCE%/*}"
-
-source ./setup
-
-pipenv run python ../manage.py runserver localhost:8000

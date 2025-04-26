@@ -1,6 +1,0 @@
-#!/bin/bash
-set -e
-
-cd "${BASH_SOURCE%/*}/.."
-
-wget -O - https://raw.githubusercontent.com/ocadotechnology/codeforlife-workspace/main/scripts/backend/hard-install | bash
