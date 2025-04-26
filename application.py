@@ -7,8 +7,6 @@ The entrypoint to our app.
 
 from codeforlife.servers import CeleryServer, DjangoServer
 
-DjangoServer.setup()
-
 celery_app = CeleryServer().app
 
 django_app = DjangoServer().wsgi_app

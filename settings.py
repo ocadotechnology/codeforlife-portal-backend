@@ -14,7 +14,6 @@ import os
 from pathlib import Path
 
 from codeforlife import set_up_settings
-from codeforlife.tasks import CeleryBeatScheduleBuilder
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -294,63 +293,7 @@ PAGE_TEACHER_LOGIN = f"{SERVICE_SITE_URL}/login/teacher"
 PAGE_INDY_LOGIN = f"{SERVICE_SITE_URL}/login/independent"
 PAGE_TEACHER_DASHBOARD_SCHOOL = f"{SERVICE_SITE_URL}/teacher/dashboard/school"
 PAGE_REGISTER = f"{SERVICE_SITE_URL}/register"
-PAGE_STUDENT_LOGIN = f"{SERVICE_SITE_URL}/login/student"
-
-# Celery
-# https://docs.celeryq.dev/en/v5.4.0/userguide/configuration.html
-
-CELERY_BEAT_SCHEDULE = CeleryBeatScheduleBuilder(
-    # session
-    clear_sessions={
-        "task": "src.sso.tasks.session.clear",
-        "schedule": CeleryBeatScheduleBuilder.crontab(hour=16),
-    },
-    # user
-    send_1st_verify_email_reminder={
-        "task": "src.api.tasks.user.send_verify_email_reminder",
-        "schedule": CeleryBeatScheduleBuilder.crontab(hour=16),
-        "kwargs": {
-            "days": 7,
-            "campaign_name": "Verify new user email - first reminder",
-        },
-    },
-    send_2nd_verify_email_reminder={
-        "task": "src.api.tasks.user.send_verify_email_reminder",
-        "schedule": CeleryBeatScheduleBuilder.crontab(hour=16),
-        "kwargs": {
-            "days": 14,
-            "campaign_name": "Verify new user email - second reminder",
-        },
-    },
-    anonymize_users_with_unverified_emails={
-        "task": "src.api.tasks.user.anonymize_unverified_emails",
-        "schedule": CeleryBeatScheduleBuilder.crontab(hour=16),
-    },
-    send_1st_inactivity_email_reminder={
-        "task": "src.api.tasks.user.send_inactivity_email_reminder",
-        "schedule": CeleryBeatScheduleBuilder.crontab(hour=16),
-        "kwargs": {
-            "days": 730,
-            "campaign_name": "Inactive users on website - first reminder",
-        },
-    },
-    send_2nd_inactivity_email_reminder={
-        "task": "src.api.tasks.user.send_inactivity_email_reminder",
-        "schedule": CeleryBeatScheduleBuilder.crontab(hour=16),
-        "kwargs": {
-            "days": 973,
-            "campaign_name": "Inactive users on website - second reminder",
-        },
-    },
-    send_final_inactivity_email_reminder={
-        "task": "src.api.tasks.user.send_inactivity_email_reminder",
-        "schedule": CeleryBeatScheduleBuilder.crontab(hour=16),
-        "kwargs": {
-            "days": 1065,
-            "campaign_name": "Inactive users on website - final reminder",
-        },
-    },
-)
+PAGE_STUDENT_LOGIN = f"{SERVICE_SITE_URL}/login/student" 
 
 """RAPID ROUTER SETTINGS"""
 # TODO: The settings in this section are needed for the old Rapid Router

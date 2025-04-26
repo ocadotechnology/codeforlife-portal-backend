@@ -15,5 +15,5 @@ class TestSession(CeleryTestCase):
     @patch("src.sso.tasks.session.call_command", side_effect=_call_command)
     def test_clear_sessions(self, call_command: Mock):
         """Can clear all expired sessions."""
-        self.apply_periodic_task("clear_sessions")
+        self.apply_task("src.sso.tasks.session.clear")
         call_command.assert_called_once_with("clearsessions")
