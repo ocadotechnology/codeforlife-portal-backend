@@ -287,7 +287,7 @@ INSTALLED_APPS = [
     "treebeard",
     *INSTALLED_APPS,
 ]
-INSTALLED_APPS.remove("api")
+INSTALLED_APPS.remove("src")
 
 # Frontend pages.
 PAGE_TEACHER_LOGIN = f"{SERVICE_SITE_URL}/login/teacher"
