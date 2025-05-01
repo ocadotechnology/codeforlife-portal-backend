@@ -293,7 +293,7 @@ PAGE_TEACHER_LOGIN = f"{SERVICE_SITE_URL}/login/teacher"
 PAGE_INDY_LOGIN = f"{SERVICE_SITE_URL}/login/independent"
 PAGE_TEACHER_DASHBOARD_SCHOOL = f"{SERVICE_SITE_URL}/teacher/dashboard/school"
 PAGE_REGISTER = f"{SERVICE_SITE_URL}/register"
-PAGE_STUDENT_LOGIN = f"{SERVICE_SITE_URL}/login/student" 
+PAGE_STUDENT_LOGIN = f"{SERVICE_SITE_URL}/login/student"
 
 """RAPID ROUTER SETTINGS"""
 # TODO: The settings in this section are needed for the old Rapid Router
