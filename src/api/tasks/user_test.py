@@ -6,7 +6,6 @@ Created on 31/03/2025 at 18:31:33(+01:00).
 from datetime import timedelta
 from unittest.mock import call, patch
 
-from codeforlife.tasks import CeleryBeat
 from codeforlife.tests import CeleryTestCase
 from codeforlife.user.models import (
     IndependentUser,
@@ -28,16 +27,12 @@ from django.utils import timezone
 class TestUser(CeleryTestCase):
     fixtures = ["school_1"]
 
-    def send_inactivity_email_reminder(self, beat_name: str):
+    def send_inactivity_email_reminder(self, days: int, campaign_name: str):
         """Test an inactivity email reminder is sent under conditions."""
 
-        beat: CeleryBeat = self.app.conf.beat_schedule[beat_name]
-        days: int = beat["kwargs"]["days"]
-        campaign_name: str = beat["kwargs"]["campaign_name"]
-
-        def test(days: int, mail_sent: bool):
-            date_joined = timezone.now() - timedelta(days, hours=12)
-            last_login = timezone.now() - timedelta(days, hours=12)
+        def test(_days: int, mail_sent: bool):
+            date_joined = timezone.now() - timedelta(_days, hours=12)
+            last_login = timezone.now() - timedelta(_days, hours=12)
 
             assert StudentUser.objects.update(date_joined=date_joined)
 
@@ -50,7 +45,10 @@ class TestUser(CeleryTestCase):
             assert indy_users
 
             with patch("src.api.tasks.user.send_mail") as send_mail_mock:
-                self.apply_periodic_task(beat_name)
+                self.apply_task(
+                    "src.api.tasks.user.send_inactivity_email_reminder",
+                    kwargs={"days": days, "campaign_name": campaign_name},
+                )
 
                 if mail_sent:
                     send_mail_mock.assert_has_calls(
@@ -70,37 +68,35 @@ class TestUser(CeleryTestCase):
                 else:
                     send_mail_mock.assert_not_called()
 
-        test(days=days - 1, mail_sent=False)
-        test(days=days, mail_sent=True)
-        test(days=days + 1, mail_sent=False)
+        test(_days=days - 1, mail_sent=False)
+        test(_days=days, mail_sent=True)
+        test(_days=days + 1, mail_sent=False)
 
     def test_send_1st_inactivity_email_reminder(self):
         """Can send the 1st inactivity email reminder."""
         self.send_inactivity_email_reminder(
-            "send_1st_inactivity_email_reminder"
+            days=730, campaign_name="Inactive users on website - first reminder"
         )
 
     def test_send_2nd_inactivity_email_reminder(self):
         """Can send the 2nd inactivity email reminder."""
         self.send_inactivity_email_reminder(
-            "send_2nd_inactivity_email_reminder"
+            days=973,
+            campaign_name="Inactive users on website - second reminder",
         )
 
     def test_send_final_inactivity_email_reminder(self):
         """Can send the final inactivity email reminder."""
         self.send_inactivity_email_reminder(
-            "send_final_inactivity_email_reminder"
+            days=1065,
+            campaign_name="Inactive users on website - final reminder",
         )
 
-    def send_verify_email_reminder(self, beat_name: str):
+    def send_verify_email_reminder(self, days: int, campaign_name: str):
         """Test a verify email reminder is sent under conditions."""
 
-        beat: CeleryBeat = self.app.conf.beat_schedule[beat_name]
-        days: int = beat["kwargs"]["days"]
-        campaign_name: str = beat["kwargs"]["campaign_name"]
-
-        def test(days: int, is_verified: bool, mail_sent: bool):
-            date_joined = timezone.now() - timedelta(days, hours=12)
+        def test(_days: int, is_verified: bool, mail_sent: bool):
+            date_joined = timezone.now() - timedelta(_days, hours=12)
 
             assert StudentUser.objects.update(date_joined=date_joined)
 
@@ -120,7 +116,10 @@ class TestUser(CeleryTestCase):
                 side_effect=lambda user_id, email: user_id,
             ) as make_token:
                 with patch("src.api.tasks.user.send_mail") as send_mail_mock:
-                    self.apply_periodic_task(beat_name)
+                    self.apply_task(
+                        "src.api.tasks.user.send_verify_email_reminder",
+                        kwargs={"days": days, "campaign_name": campaign_name},
+                    )
 
                     if mail_sent:
                         make_token.assert_has_calls(
@@ -161,18 +160,22 @@ class TestUser(CeleryTestCase):
                         make_token.assert_not_called()
                         send_mail_mock.assert_not_called()
 
-        test(days=days - 1, is_verified=False, mail_sent=False)
-        test(days=days, is_verified=False, mail_sent=True)
-        test(days=days, is_verified=True, mail_sent=False)
-        test(days=days + 1, is_verified=False, mail_sent=False)
+        test(_days=days - 1, is_verified=False, mail_sent=False)
+        test(_days=days, is_verified=False, mail_sent=True)
+        test(_days=days, is_verified=True, mail_sent=False)
+        test(_days=days + 1, is_verified=False, mail_sent=False)
 
     def test_send_1st_verify_email_reminder(self):
         """Can send the 1st verify email reminder."""
-        self.send_verify_email_reminder("send_1st_verify_email_reminder")
+        self.send_verify_email_reminder(
+            days=7, campaign_name="Verify new user email - first reminder"
+        )
 
     def test_send_2nd_verify_email_reminder(self):
         """Can send the 2nd verify email reminder."""
-        self.send_verify_email_reminder("send_2nd_verify_email_reminder")
+        self.send_verify_email_reminder(
+            days=14, campaign_name="Verify new user email - second reminder"
+        )
 
     def test_anonymize_users_with_unverified_emails(self):
         """Can anonymize users with unverified emails."""
@@ -231,7 +234,7 @@ class TestUser(CeleryTestCase):
                 new_user=indy_user,
             )
 
-            self.apply_periodic_task("anonymize_users_with_unverified_emails")
+            self.apply_task("src.api.tasks.user.anonymize_unverified_emails")
 
             for student_user in StudentUser.objects.all():
                 assert not check_anonymized(student_user)
