@@ -3,6 +3,8 @@ name: Main
 on:
   push:
   pull_request:
+  issues:
+  issue_comment:
   workflow_dispatch:
 
 jobs:
