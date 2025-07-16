@@ -7,4 +7,4 @@ The entrypoint to our app.
 
 from codeforlife.server import Server
 
-Server().run()
+Server().run(load_fixtures=None)
