@@ -7,4 +7,7 @@ The entrypoint to our app.
 
 from codeforlife.server import Server
 
-Server().run(load_fixtures=None)
+Server().run(
+    # TODO: delete this when split to micro services and src contains django app
+    load_fixtures=None,
+)
