@@ -13,5 +13,5 @@ from codeforlife.user.models import OtpBypassToken, User
 class OtpBypassTokenSerializer(ModelSerializer[User, OtpBypassToken]):
     class Meta:
         model = OtpBypassToken
-        fields = ["decrypted_token"]
-        extra_kwargs = {"decrypted_token": {"read_only": True}}
+        fields = ["token"]
+        extra_kwargs = {"token": {"read_only": True}}
