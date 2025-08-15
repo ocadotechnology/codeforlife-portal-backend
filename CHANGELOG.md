@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.1.1...v1.1.2) (2025-08-15)
+
+
+### Bug Fixes
+
+* Sso backend 34 ([#409](https://github.com/ocadotechnology/codeforlife-portal-backend/issues/409)) ([7b1a1d7](https://github.com/ocadotechnology/codeforlife-portal-backend/commit/7b1a1d7f8d467f3f8940dbd85fd87a92a44c4e31))
+
 ## [1.1.1](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.1.0...v1.1.1) (2025-07-22)
 
 
