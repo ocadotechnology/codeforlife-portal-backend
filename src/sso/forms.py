@@ -67,5 +67,6 @@ class StudentAutoLoginForm(BaseLoginForm[User]):
             " Code for Life team for support."
         )
 
+
 class GoogleLoginForm(BaseOAuth2LoginForm[User]):
     """Log in with the user's Google account."""
