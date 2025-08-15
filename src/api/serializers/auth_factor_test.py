@@ -6,8 +6,12 @@ Created on 15/02/2024 at 15:44:25(+00:00).
 from unittest.mock import Mock, patch
 
 from codeforlife.tests import ModelSerializerTestCase
-from codeforlife.user.models import (AuthFactor, OtpBypassToken, TeacherUser,
-                                     User)
+from codeforlife.user.models import (
+    AuthFactor,
+    OtpBypassToken,
+    TeacherUser,
+    User,
+)
 
 from .auth_factor import AuthFactorSerializer
 
