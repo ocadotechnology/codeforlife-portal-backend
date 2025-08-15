@@ -129,7 +129,7 @@ class TestOtpBypassTokenViewSet(ModelViewSetTestCase[User, OtpBypassToken]):
         # We received the expected tokens.
         response_json = response.json()
         assert isinstance(response_json, list) and tokens == {
-            otp_bypass_token["decrypted_token"]
+            otp_bypass_token["token"]
             for otp_bypass_token in response_json
             if isinstance(otp_bypass_token, dict)
         }

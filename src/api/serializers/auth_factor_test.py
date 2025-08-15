@@ -52,7 +52,7 @@ class TestAuthFactorSerializer(ModelSerializerTestCase[User, AuthFactor]):
             },
         )
 
-    @patch("codeforlife.user.models.user.TOTP.verify", return_value=False)
+    @patch("codeforlife.user.models.user.user.TOTP.verify", return_value=False)
     def test_validate_otp__invalid(self, totp__verify: Mock):
         """Cannot enable the OTP without providing the current OTP."""
         user = TeacherUser.objects.filter(

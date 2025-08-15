@@ -16,6 +16,7 @@ from common.models import UserSession  # type: ignore
 
 from .forms import (
     EmailLoginForm,
+    GoogleLoginForm,
     OtpBypassTokenLoginForm,
     OtpLoginForm,
     StudentAutoLoginForm,
@@ -45,6 +46,8 @@ class LoginView(BaseLoginView[HttpRequest[User], User]):
             return StudentLoginForm
         if form == "auto-login-as-student":
             return StudentAutoLoginForm
+        if form == "login-with-google":
+            return GoogleLoginForm
 
         raise NameError(f'Unsupported form: "{form}".')
 

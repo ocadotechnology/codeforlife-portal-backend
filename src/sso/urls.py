@@ -14,7 +14,7 @@ urlpatterns = [
             [
                 re_path(
                     # pylint: disable-next=line-too-long
-                    r"^(?P<form>login-with-email|login-with-otp|login-with-otp-bypass-token|login-as-student|auto-login-as-student)/$",
+                    r"^(?P<form>login-with-email|login-with-otp|login-with-otp-bypass-token|login-as-student|auto-login-as-student|login-with-email)/$",
                     LoginView.as_view(),
                     name="session-login",
                 ),
