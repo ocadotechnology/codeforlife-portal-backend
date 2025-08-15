@@ -3,7 +3,7 @@
 Created on 01/12/2023 at 16:00:24(+00:00).
 """
 
-from codeforlife.forms import BaseLoginForm
+from codeforlife.forms import BaseLoginForm, BaseOAuth2LoginForm
 from codeforlife.user.models import AuthFactor, OtpBypassToken, User
 from codeforlife.user.models.klass import class_access_code_validators
 from django import forms
@@ -66,3 +66,6 @@ class StudentAutoLoginForm(BaseLoginForm[User]):
             "Your login link is invalid. Please contact your teacher or the"
             " Code for Life team for support."
         )
+
+class GoogleLoginForm(BaseOAuth2LoginForm[User]):
+    """Log in with the user's Google account."""
