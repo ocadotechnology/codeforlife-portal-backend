@@ -51,7 +51,7 @@ from .user import UserViewSet
 default_token_generator: PasswordResetTokenGenerator = default_token_generator
 
 
-# pylint: disable-next=missing-class-docstring,too-many-public-methods,too-many-ancestors
+# pylint: disable-next=missing-class-docstring,too-many-public-methods,too-many-ancestors,too-many-instance-attributes
 class TestUserViewSet(ModelViewSetTestCase[User, User]):
     basename = "user"
     model_view_set_class = UserViewSet
