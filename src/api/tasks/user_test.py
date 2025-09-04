@@ -8,6 +8,7 @@ from unittest.mock import call, patch
 
 from codeforlife.tests import CeleryTestCase
 from codeforlife.user.models import (
+    GoogleUser,
     IndependentUser,
     School,
     Student,
@@ -25,7 +26,7 @@ from django.utils import timezone
 
 
 class TestUser(CeleryTestCase):
-    fixtures = ["school_1"]
+    fixtures = ["school_1", "google_users"]
 
     def send_inactivity_email_reminder(self, days: int, campaign_name: str):
         """Test an inactivity email reminder is sent under conditions."""
@@ -249,3 +250,17 @@ class TestUser(CeleryTestCase):
         test(days=19, is_verified=False, is_anonymized=True)
         test(days=19, is_verified=True, is_anonymized=False)
         test(days=20, is_verified=False, is_anonymized=True)
+
+    def test_sync_google_users(self):
+        """Can sync all Google-users."""
+        with patch.object(GoogleUser.objects, "sync") as sync:
+            self.apply_task("src.api.tasks.user.sync_google_users")
+
+            sync.assert_has_calls(
+                [
+                    call(id=user_id)
+                    for user_id in GoogleUser.objects.values_list(
+                        "id", flat=True
+                    )
+                ]
+            )

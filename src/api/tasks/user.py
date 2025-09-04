@@ -8,7 +8,7 @@ from datetime import timedelta
 
 from codeforlife.mail import send_mail
 from codeforlife.tasks import shared_task
-from codeforlife.user.models import User
+from codeforlife.user.models import GoogleUser, User
 from django.conf import settings
 from django.db.models import F, Q
 from django.urls import reverse
@@ -191,3 +191,17 @@ def anonymize_unverified_emails():
         )
         + indy_count,
     )
+
+
+@shared_task
+def sync_google_users():
+    """Sync all users have linked their account with Google."""
+    for user_id in GoogleUser.objects.values_list("id", flat=True).iterator(
+        chunk_size=2000
+    ):
+        try:
+            GoogleUser.objects.sync(id=user_id)
+        # pylint: disable-next=broad-exception-caught
+        except Exception as ex:
+            logging.error("Failed to sync Google-user with id: %d", user_id)
+            logging.exception(ex)

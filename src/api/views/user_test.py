@@ -13,6 +13,7 @@ from codeforlife.tests import ModelViewSetTestCase
 from codeforlife.user.models import (
     AdminSchoolTeacherUser,
     Class,
+    GoogleUser,
     IndependentUser,
     NonAdminSchoolTeacherUser,
     NonSchoolTeacherUser,
@@ -20,7 +21,11 @@ from codeforlife.user.models import (
     TypedUser,
     User,
 )
-from codeforlife.user.permissions import IsIndependent, IsTeacher
+from codeforlife.user.permissions import (
+    IsIndependent,
+    IsTeacher,
+    SyncedWithGoogle,
+)
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.tokens import (
@@ -46,11 +51,17 @@ from .user import UserViewSet
 default_token_generator: PasswordResetTokenGenerator = default_token_generator
 
 
-# pylint: disable-next=missing-class-docstring,too-many-public-methods,too-many-ancestors
+# pylint: disable-next=missing-class-docstring,too-many-public-methods,too-many-ancestors,too-many-instance-attributes
 class TestUserViewSet(ModelViewSetTestCase[User, User]):
     basename = "user"
     model_view_set_class = UserViewSet
-    fixtures = ["independent", "non_school_teacher", "school_1", "school_2"]
+    fixtures = [
+        "independent",
+        "non_school_teacher",
+        "school_1",
+        "school_2",
+        "google_users",
+    ]
 
     def setUp(self):
         self.non_school_teacher_user = NonSchoolTeacherUser.objects.get(
@@ -74,11 +85,21 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
 
         self.class_1_at_school_1 = Class.objects.get(name="Class 1 @ School 1")
 
+        self.google_user = GoogleUser.objects.get(
+            email="google.teacher@noschool.com"
+        )
+
     # test: get permissions
 
     def test_get_permissions__bulk(self):
         """No one can perform bulk actions."""
         self.assert_get_permissions(permissions=[AllowNone()], action="bulk")
+
+    def test_get_permissions__sync(self):
+        """Only Google-users can sync their account."""
+        self.assert_get_permissions(
+            permissions=[SyncedWithGoogle()], action="sync"
+        )
 
     def test_get_permissions__partial_update__requesting_to_join_class(
         self,
@@ -208,6 +229,13 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
         )
 
     # test: get serializer class
+
+    def test_get_serializer_class__sync(self):
+        """SyncinGoogle-user uses the read serializer."""
+        self.assert_get_serializer_class(
+            serializer_class=ReadUserSerializer,
+            action="sync",
+        )
 
     def test_get_serializer_class__request_password_reset(self):
         """Requesting a password reset has a dedicated serializer."""
@@ -527,3 +555,29 @@ class TestUserViewSet(ModelViewSetTestCase[User, User]):
             )
 
             add_contact.assert_called_once_with(email)
+
+    def test_sync(self):
+        """Can successfully sync a Google-user."""
+        user = self.google_user
+        first_name = f"new{user.first_name}"
+
+        self.client.login_as(user)
+
+        def update(_):
+            user.first_name = first_name
+            user.save(update_fields=["first_name"])
+
+        with patch.object(
+            GoogleUser.objects, "sync", side_effect=update
+        ) as sync:
+            response = self.client.get(self.reverse_action("sync"))
+            assert response.status_code == status.HTTP_200_OK
+
+            sync.assert_called_once_with(user.id)
+
+            self.assert_serialized_model_equals_json_model(
+                user,
+                response.json(),
+                action="sync",
+                request_method="get",
+            )

@@ -7,7 +7,11 @@ from codeforlife.permissions import OR, AllowAny, AllowNone
 from codeforlife.request import Request
 from codeforlife.response import Response
 from codeforlife.user.models import User
-from codeforlife.user.permissions import IsIndependent, IsTeacher
+from codeforlife.user.permissions import (
+    IsIndependent,
+    IsTeacher,
+    SyncedWithGoogle,
+)
 from codeforlife.user.views import UserViewSet as _UserViewSet
 from codeforlife.views import action
 from django.conf import settings
@@ -34,6 +38,8 @@ class UserViewSet(_UserViewSet):
     def get_permissions(self):
         if self.action == "bulk":
             return [AllowNone()]
+        if self.action == "sync":
+            return [SyncedWithGoogle()]
         if self.action in [
             "create",
             "request_password_reset",
@@ -186,3 +192,10 @@ class UserViewSet(_UserViewSet):
     handle_join_class_request = _UserViewSet.update_action(
         "handle_join_class_request"
     )
+
+    @action(detail=False, methods=["get"])
+    def sync(self, request: Request):
+        """Syncs a user to their Google account."""
+        request.google_user.sync()
+        serializer = self.get_serializer(instance=request.google_user)
+        return Response(data=serializer.data)
