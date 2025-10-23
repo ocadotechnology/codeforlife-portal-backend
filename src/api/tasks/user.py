@@ -7,8 +7,9 @@ import logging
 from datetime import timedelta
 
 from codeforlife.mail import send_mail
-from codeforlife.tasks import shared_task
+from codeforlife.tasks import DataWarehouseTask, shared_task
 from codeforlife.user.models import GoogleUser, User
+from common.models import UserSession  # type: ignore[import-untyped]
 from django.conf import settings
 from django.db.models import F, Q
 from django.urls import reverse
@@ -205,3 +206,44 @@ def sync_google_users():
         except Exception as ex:
             logging.error("Failed to sync Google-user with id: %d", user_id)
             logging.exception(ex)
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=1000,
+        fields=["user_id", "school_id", "login_time", "country"],
+        id_field="user_id",
+    )
+)
+def teacher_logins():
+    """
+    Collects data from the UserSession table mainly. Used to report on login
+    data for teachers (in annual report).
+
+    https://console.cloud.google.com/bigquery?tc=europe:674837bb-0000-25c8-a14c-f40304387e64&project=decent-digit-629&ws=!1m0
+    """
+    return UserSession.objects.filter(user__new_teacher__isnull=False).annotate(
+        country=F("school__country"),
+    )
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=1000,
+        fields=["user_id", "login_time"],
+        id_field="user_id",
+    )
+)
+def independent_logins():
+    """
+    Collects data from the UserSession table mainly. Used to report on login
+    data for independents (in annual report).
+
+    https://console.cloud.google.com/bigquery?tc=europe:67483b33-0000-25c8-a14c-f40304387e64&project=decent-digit-629&ws=!1m0
+    """
+    return UserSession.objects.filter(
+        user__new_student__isnull=False,
+        user__new_student__class_field__isnull=True,
+    )
