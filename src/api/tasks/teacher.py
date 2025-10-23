@@ -5,6 +5,7 @@ Created on 31/03/2025 at 18:06:49(+01:00).
 
 from codeforlife.tasks import DataWarehouseTask
 from codeforlife.user.models import Teacher
+from common.models import UserSession
 from django.db.models import Count, F
 
 
@@ -32,4 +33,24 @@ def classes_per_teacher():
         )
         .annotate(class_count=Count("class_teacher"))
         .order_by("-class_count")
+    )
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=1000,
+        fields=["user_id", "school_id", "login_time", "country"],
+        id_field="user_id",
+    )
+)
+def teacher_logins():
+    """
+    Collects data from the UserSession table mainly. Used to report on login
+    data for teachers (in annual report).
+
+    https://console.cloud.google.com/bigquery?tc=europe:674837bb-0000-25c8-a14c-f40304387e64&project=decent-digit-629&ws=!1m0
+    """
+    return UserSession.objects.filter(user__new_teacher__isnull=False).annotate(
+        country=F("school__country"),
     )
