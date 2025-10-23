@@ -41,3 +41,20 @@ def students_per_class():
         .annotate(student_count=Count("students"))
         .order_by("-student_count")
     )
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=1000,
+        fields=["id", "teacher_id", "creation_time", "is_active"],
+    )
+)
+def common_class():
+    """
+    Collects information about Class objects. Used to report on whether the
+    class is still active or not.
+
+    https://console.cloud.google.com/bigquery?tc=europe:617de7e9-0000-253d-9bff-089e08213e78&project=decent-digit-629&ws=!1m0
+    """
+    return Class.objects.all()
