@@ -236,7 +236,7 @@ def teacher_logins():
         id_field="user_id",
     )
 )
-def independent_logins():
+def independents_login():
     """
     Collects data from the UserSession table mainly. Used to report on login
     data for independents (in annual report).
