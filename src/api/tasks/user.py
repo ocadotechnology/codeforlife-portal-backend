@@ -247,3 +247,28 @@ def independents_login():
         user__new_student__isnull=False,
         user__new_student__class_field__isnull=True,
     )
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=1000,
+        fields=["user_id", "student_class_field_id", "login_time", "country"],
+        id_field="user_id",
+    )
+)
+def student_logins():
+    """
+    Collects data from the UserSession table mainly. Used to report on login
+    data for students (in annual report).
+
+    https://console.cloud.google.com/bigquery?tc=europe:6745c711-0000-20b8-bfe2-001a114b66f2&project=decent-digit-629&ws=!1m0
+    """
+    return UserSession.objects.filter(
+        user__new_student__isnull=False,
+        user__new_student__class_field__isnull=False,
+    ).annotate(
+        # TODO: rename column in BQ!!!
+        student_class_field_id=F("user__new_student__class_field_id"),
+        country=F("user__new_student__class_field__teacher__school__country"),
+    )
