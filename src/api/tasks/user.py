@@ -15,7 +15,7 @@ from common.models import (  # type: ignore[import-untyped]
     UserSession,
 )
 from django.conf import settings
-from django.db.models import CharField, F, Q, Value
+from django.db.models import Case, CharField, F, Q, Value, When
 from django.urls import reverse
 from django.utils import timezone
 
@@ -430,4 +430,61 @@ def user_lockout_resets():
 
     return qs_teacher_lockout_resets.union(
         qs_indy_lockout_reset, qs_school_student_lockout_resets, all=True
+    )
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=1000,
+        fields=[
+            "id",
+            "teacher_id",
+            "student_id",
+            "type",
+            "school_id",
+            "class_field_id",
+            "is_active",
+            "is_verified",
+            "last_login",
+            "date_joined",
+        ],
+    )
+)
+def user_teacher_student_1():
+    """
+    Duplicate of query 6 with the added functionality of getting data from the
+    UserProfile table. Used for reports on verified / unverified users. As
+    mentioned above in query 6, this query can probably be used to completely
+    replace query 6, as it has the same functionality and more. Before we delete
+    query 6, we need to make sure we update the graphs in LS so the source is
+    updated to this query instead (we currently still have 10 charts still using
+    query 6).
+
+    https://console.cloud.google.com/bigquery?project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_58975a27_19a15c43016!3sEU
+    """
+    user_type_case = Case(
+        When(new_teacher__id__isnull=False, then=Value("teacher")),
+        When(
+            Q(new_student__id__isnull=False)
+            & Q(new_student__class_field_id__isnull=False),
+            then=Value("student"),
+        ),
+        When(
+            Q(new_student__id__isnull=False)
+            & Q(new_student__class_field_id__isnull=True),
+            then=Value("independent"),
+        ),
+        output_field=CharField(),
+    )
+
+    return User.objects.exclude(
+        Q(email__contains="@ocado.com") | Q(email__contains="@codeforlife.com")
+    ).annotate(
+        teacher_id=F("new_teacher__id"),
+        student_id=F("new_student__id"),
+        type=user_type_case,
+        school_id=F("new_teacher__school_id"),
+        class_field_id=F("new_student__class_field_id"),
+        is_verified=F("userprofile__is_verified"),
     )
