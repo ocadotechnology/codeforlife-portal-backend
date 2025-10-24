@@ -46,3 +46,22 @@ def teachers_per_school():
         .filter(teacher_count__gt=0)  # Caveat: Mimics INNER JOIN of SQL query
         .order_by("-teacher_count")
     )
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=1000,
+        fields=["id", "creation_time"],
+    )
+)
+def active_gb_schools():
+    """
+    Collects data from the School table. Used to report on how many schools are
+    active in the UK.
+
+    https://console.cloud.google.com/bigquery?tc=europe:661ce230-0000-2130-a661-14223bc76db6&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_5ca8c2e0_19a156fbb6f!3sEU
+    """
+    return School.objects.filter(
+        country="GB", is_active=True, creation_time__isnull=False
+    )
