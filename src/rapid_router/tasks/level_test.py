@@ -10,6 +10,7 @@ from .level import (
     level_control_submits,
     levels_created,
     rapid_router_attempts,
+    shared_levels_played,
 )
 
 # pylint: disable=missing-class-docstring
@@ -33,3 +34,7 @@ class TestLevel(CeleryTestCase):
     def test_levels_created(self):
         """Assert the queryset returns the expected fields."""
         self.assert_data_warehouse_task(task=levels_created)
+
+    def test_shared_levels_played(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=shared_levels_played)

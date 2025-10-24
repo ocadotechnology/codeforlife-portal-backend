@@ -150,3 +150,36 @@ def levels_created():
             counts["total_games_created"], output_field=IntegerField()
         ),
     )
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=10,  # There's only ever 1 row.
+        fields=["shared_levels_played", "total_levels_shared"],
+        id_field="shared_levels_played",  # There's only ever 1 row.
+    )
+)
+def shared_levels_played():
+    """
+    Collects data from the Attempt table. Used to report on how many times
+    custom levels have been played.
+
+    https://console.cloud.google.com/bigquery?tc=europe:64e364e3-0000-2d1b-a651-f403045ceefa&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_11877f8a_19a16acf667!3sEU
+    """
+    # pylint: disable-next=import-outside-toplevel
+    from game.models import Attempt  # type: ignore[import-untyped]
+
+    count_played = Attempt.objects.filter(level__owner__isnull=False).aggregate(
+        shared_levels_played=Count("level_id", distinct=True)
+    )["shared_levels_played"]
+
+    count_shared = Level.shared_with.through.objects.aggregate(
+        total_levels_shared=Count("level_id", distinct=True)
+    )["total_levels_shared"]
+
+    # Hacky solution to return a queryset of 1 row.
+    return Level.objects.all()[:1].annotate(
+        shared_levels_played=Value(count_played, output_field=IntegerField()),
+        total_levels_shared=Value(count_shared, output_field=IntegerField()),
+    )
