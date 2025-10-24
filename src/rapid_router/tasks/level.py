@@ -6,6 +6,7 @@ Created on 24/10/2025 at 14:02:48(+01:00).
 from datetime import date, timedelta
 
 from codeforlife.tasks import DataWarehouseTask
+from django.db.models import Count, IntegerField, Q, Value
 from django.utils import timezone
 
 from ..models import Level
@@ -80,4 +81,72 @@ def level_control_submits():
 
     return DailyActivity.objects.filter(
         date__gt=date(year=2022, month=12, day=9)
+    )
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=10,  # There's only ever 1 row.
+        fields=[
+            "teacher_levels",
+            "school_student_levels",
+            "independent_student_levels",
+            "unallocated_users",
+            "total_games_created",
+        ],
+        id_field="teacher_levels",  # There's only ever 1 row.
+    )
+)
+def levels_created():
+    """
+    Collects data from the Level table. Used to report on how many levels have
+    been created, sorted by user type.
+
+    https://console.cloud.google.com/bigquery?tc=europe:64e35e2c-0000-2e19-87e8-94eb2c1b0db0&project=decent-digit-629&ws=!1m0
+    """
+    student_filter = Q(owner__student__isnull=False)
+
+    counts = Level.objects.filter(
+        episode_id__isnull=True, owner__isnull=False
+    ).aggregate(
+        teacher_levels=Count("id", filter=Q(owner__teacher__isnull=False)),
+        school_student_levels=Count(
+            "id",
+            filter=(
+                student_filter & Q(owner__student__class_field_id__isnull=False)
+            ),
+        ),
+        independent_student_levels=Count(
+            "id",
+            filter=(
+                student_filter & Q(owner__student__class_field_id__isnull=True)
+            ),
+        ),
+        unallocated_users=Count(
+            "id",
+            filter=(
+                Q(owner__student__isnull=True) & Q(owner__teacher__isnull=True)
+            ),
+        ),
+        total_games_created=Count("id"),
+    )
+
+    # Hacky solution to return a queryset of 1 row.
+    return Level.objects.all()[:1].annotate(
+        teacher_levels=Value(
+            counts["teacher_levels"], output_field=IntegerField()
+        ),
+        school_student_levels=Value(
+            counts["school_student_levels"], output_field=IntegerField()
+        ),
+        independent_student_levels=Value(
+            counts["independent_student_levels"], output_field=IntegerField()
+        ),
+        unallocated_users=Value(
+            counts["unallocated_users"], output_field=IntegerField()
+        ),
+        total_games_created=Value(
+            counts["total_games_created"], output_field=IntegerField()
+        ),
     )

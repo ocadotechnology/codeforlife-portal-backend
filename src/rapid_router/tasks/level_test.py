@@ -8,6 +8,7 @@ from codeforlife.tests import CeleryTestCase
 from .level import (
     game_level_shared_with,
     level_control_submits,
+    levels_created,
     rapid_router_attempts,
 )
 
@@ -28,3 +29,7 @@ class TestLevel(CeleryTestCase):
     def test_level_control_submits(self):
         """Assert the queryset returns the expected fields."""
         self.assert_data_warehouse_task(task=level_control_submits)
+
+    def test_levels_created(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=levels_created)
