@@ -328,3 +328,25 @@ def login_shares():
     )
 
     return qs_csv.union(qs_login_cards, all=True)
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=1000,
+        fields=[
+            "anonymised_unverified_teachers",
+            "anonymised_unverified_independents",
+        ],
+    )
+)
+def total_unverified_anonymisations():
+    """
+    Collects data from the TotalActivity table. Used to report on the total
+    number of unverified user anonymisations, by user type. (That is, for
+    example, when a teacher creates an account, but never verifies, then gets
+    anonymised after 19 days).
+
+    https://console.cloud.google.com/bigquery?tc=europe:650b4cd4-0000-2eb3-b1a5-f403045deba8&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_1a0241e8_19a15af685c!3sEU
+    """
+    return TotalActivity.objects.all()
