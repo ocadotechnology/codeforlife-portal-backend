@@ -5,7 +5,7 @@ Created on 24/10/2025 at 14:03:00(+01:00).
 
 from codeforlife.tests import CeleryTestCase
 
-from .level import rapid_router_attempts
+from .level import game_level_shared_with, rapid_router_attempts
 
 # pylint: disable=missing-class-docstring
 
@@ -16,3 +16,7 @@ class TestClass(CeleryTestCase):
     def test_rapid_router_attempts(self):
         """Assert the queryset returns the expected fields."""
         self.assert_data_warehouse_task(task=rapid_router_attempts)
+
+    def test_game_level_shared_with(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=game_level_shared_with)

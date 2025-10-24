@@ -8,6 +8,8 @@ from datetime import timedelta
 from codeforlife.tasks import DataWarehouseTask
 from django.utils import timezone
 
+from ..models import Level
+
 
 @DataWarehouseTask.shared(
     DataWarehouseTask.Settings(
@@ -38,3 +40,20 @@ def rapid_router_attempts():
     one_day_ago = timezone.now() - timedelta(days=1)
 
     return Attempt.objects.filter(finish_time__gte=one_day_ago)
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=1000,
+        fields=["id", "level_id", "user_id"],
+    )
+)
+def game_level_shared_with():
+    """
+    Collects data from the Level table. Used to report on number of levels
+    shared and how many times a level was shared (not 100% how this one works).
+
+    https://console.cloud.google.com/bigquery?tc=europe:62bc89fc-0000-23a7-b082-001a114be4b0&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_33469129_19a165a8ef4!3sEU
+    """
+    return Level.shared_with.through.objects.all()
