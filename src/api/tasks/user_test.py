@@ -30,6 +30,7 @@ from .user import (
     teacher_logins,
     total_registrations,
     total_unverified_anonymisations,
+    user_lockout_resets,
 )
 
 # pylint: disable=missing-class-docstring
@@ -304,3 +305,7 @@ class TestUser(CeleryTestCase):
     def test_daily_unverified_anonymisations(self):
         """Assert the queryset returns the expected fields."""
         self.assert_data_warehouse_task(task=daily_unverified_anonymisations)
+
+    def test_user_lockout_resets(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=user_lockout_resets)

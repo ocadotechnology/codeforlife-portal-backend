@@ -382,3 +382,52 @@ def daily_unverified_anonymisations():
     )
 
     return qs_teachers.union(qs_independents, all=True)
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=1000,
+        fields=["date", "reset_type", "resets"],
+        id_field="date",
+    )
+)
+def user_lockout_resets():
+    """
+    Collects data from the DailyActivity table to count how many times the
+    password reset feature is used, sorted by user type. This could be achieved
+    in GA too but doing it this way in the DB ensures we get 100% of the data.
+
+    https://console.cloud.google.com/bigquery?tc=europe:63e601eb-0000-24e4-87e1-f403043da2dc&project=decent-digit-629&ws=!1m0
+    """
+    min_date = date(year=2023, month=1, day=19)
+
+    qs_teacher_lockout_resets = DailyActivity.objects.filter(
+        date__gt=min_date
+    ).values(
+        "date",
+        reset_type=Value("teacher_lockout_resets", output_field=CharField()),
+        resets=F("teacher_lockout_resets"),
+    )
+
+    qs_indy_lockout_reset = DailyActivity.objects.filter(
+        date__gt=min_date
+    ).values(
+        "date",
+        reset_type=Value("indy_lockout_reset", output_field=CharField()),
+        resets=F("indy_lockout_resets"),
+    )
+
+    qs_school_student_lockout_resets = DailyActivity.objects.filter(
+        date__gt=min_date
+    ).values(
+        "date",
+        reset_type=Value(
+            "school_student_lockout_resets", output_field=CharField()
+        ),
+        resets=F("school_student_lockout_resets"),
+    )
+
+    return qs_teacher_lockout_resets.union(
+        qs_indy_lockout_reset, qs_school_student_lockout_resets, all=True
+    )
