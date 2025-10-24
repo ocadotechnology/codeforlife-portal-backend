@@ -291,6 +291,7 @@ def student_logins():
             "student_registrations",
             "independent_registrations",
         ],
+        id_field="teacher_registrations",  # There's only ever 1 row.
     )
 )
 def total_registrations():
@@ -348,6 +349,7 @@ def login_shares():
             "anonymised_unverified_teachers",
             "anonymised_unverified_independents",
         ],
+        id_field="anonymised_unverified_teachers",  # There's only ever 1 row.
     )
 )
 def total_unverified_anonymisations():
