@@ -3,7 +3,7 @@
 Created on 24/10/2025 at 14:02:48(+01:00).
 """
 
-from datetime import timedelta
+from datetime import date, timedelta
 
 from codeforlife.tasks import DataWarehouseTask
 from django.utils import timezone
@@ -57,3 +57,27 @@ def game_level_shared_with():
     https://console.cloud.google.com/bigquery?tc=europe:62bc89fc-0000-23a7-b082-001a114be4b0&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_33469129_19a165a8ef4!3sEU
     """
     return Level.shared_with.through.objects.all()
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=1000,
+        fields=["date", "level_control_submits"],
+        id_field="date",
+    )
+)
+def level_control_submits():
+    """
+    Collects data from the DailyActivity table to report on how often the level
+    access control feature gets used. This could be achieved in GA too but doing
+    it this way in the DB ensures we get 100% of the data.
+
+    https://console.cloud.google.com/bigquery?tc=europe:63dc3efb-0000-2aed-b0b8-001a114be98a&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_69eca5da_19a166735d3!3sEU
+    """
+    # pylint: disable-next=import-outside-toplevel
+    from common.models import DailyActivity  # type: ignore[import-untyped]
+
+    return DailyActivity.objects.filter(
+        date__gt=date(year=2022, month=12, day=9)
+    )
