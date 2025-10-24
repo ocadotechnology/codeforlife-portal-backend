@@ -23,6 +23,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .user import (
+    daily_unverified_anonymisations,
     independents_login,
     login_shares,
     student_logins,
@@ -299,3 +300,7 @@ class TestUser(CeleryTestCase):
     def test_total_unverified_anonymisations(self):
         """Assert the queryset returns the expected fields."""
         self.assert_data_warehouse_task(task=total_unverified_anonymisations)
+
+    def test_daily_unverified_anonymisations(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=daily_unverified_anonymisations)

@@ -4,7 +4,7 @@ Created on 31/03/2025 at 18:06:49(+01:00).
 """
 
 import logging
-from datetime import timedelta
+from datetime import date, timedelta
 
 from codeforlife.mail import send_mail
 from codeforlife.tasks import DataWarehouseTask, shared_task
@@ -333,7 +333,7 @@ def login_shares():
 @DataWarehouseTask.shared(
     DataWarehouseTask.Settings(
         bq_table_write_mode="overwrite",
-        chunk_size=1000,
+        chunk_size=10,  # There's only ever 1 row.
         fields=[
             "anonymised_unverified_teachers",
             "anonymised_unverified_independents",
@@ -350,3 +350,35 @@ def total_unverified_anonymisations():
     https://console.cloud.google.com/bigquery?tc=europe:650b4cd4-0000-2eb3-b1a5-f403045deba8&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_1a0241e8_19a15af685c!3sEU
     """
     return TotalActivity.objects.all()
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=1000,
+        fields=["date", "user_type", "anonymisations"],
+        id_field="date",
+    )
+)
+def daily_unverified_anonymisations():
+    """
+    Collects data from the DailyActivity table to count how many unverified
+    users get anonymised per day, by user type.
+
+    https://console.cloud.google.com/bigquery?tc=europe:650b5179-0000-2134-b04b-f403045e8e10&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_c26905e_19a15b21153!3sEU
+    """
+    min_date = date(year=2023, month=9, day=19)
+
+    qs_teachers = DailyActivity.objects.filter(date__gt=min_date).values(
+        "date",
+        user_type=Value("teacher", output_field=CharField()),
+        anonymisations=F("anonymised_unverified_teachers"),
+    )
+
+    qs_independents = DailyActivity.objects.filter(date__gt=min_date).values(
+        "date",
+        user_type=Value("independent", output_field=CharField()),
+        anonymisations=F("anonymised_unverified_independents"),
+    )
+
+    return qs_teachers.union(qs_independents, all=True)
