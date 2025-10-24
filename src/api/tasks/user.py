@@ -9,11 +9,6 @@ from datetime import date, timedelta
 from codeforlife.mail import send_mail
 from codeforlife.tasks import DataWarehouseTask, shared_task
 from codeforlife.user.models import GoogleUser, User
-from common.models import (  # type: ignore[import-untyped]
-    DailyActivity,
-    TotalActivity,
-    UserSession,
-)
 from django.conf import settings
 from django.db.models import Case, CharField, F, Q, Value, When
 from django.urls import reverse
@@ -227,6 +222,9 @@ def teacher_logins():
 
     https://console.cloud.google.com/bigquery?tc=europe:674837bb-0000-25c8-a14c-f40304387e64&project=decent-digit-629&ws=!1m0
     """
+    # pylint: disable-next=import-outside-toplevel
+    from common.models import UserSession  # type: ignore[import-untyped]
+
     return UserSession.objects.filter(user__new_teacher__isnull=False).annotate(
         country=F("school__country"),
     )
@@ -247,6 +245,9 @@ def independents_login():
 
     https://console.cloud.google.com/bigquery?tc=europe:67483b33-0000-25c8-a14c-f40304387e64&project=decent-digit-629&ws=!1m0
     """
+    # pylint: disable-next=import-outside-toplevel
+    from common.models import UserSession  # type: ignore[import-untyped]
+
     return UserSession.objects.filter(
         user__new_student__isnull=False,
         user__new_student__class_field__isnull=True,
@@ -268,6 +269,9 @@ def student_logins():
 
     https://console.cloud.google.com/bigquery?tc=europe:6745c711-0000-20b8-bfe2-001a114b66f2&project=decent-digit-629&ws=!1m0
     """
+    # pylint: disable-next=import-outside-toplevel
+    from common.models import UserSession  # type: ignore[import-untyped]
+
     return UserSession.objects.filter(
         user__new_student__isnull=False,
         user__new_student__class_field__isnull=False,
@@ -296,6 +300,9 @@ def total_registrations():
 
     https://console.cloud.google.com/bigquery?tc=europe:64fbaa08-0000-2d55-ad0f-94eb2c1b59b8&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_6ab2ce2c_19a15650f3a!3sEU
     """
+    # pylint: disable-next=import-outside-toplevel
+    from common.models import TotalActivity  # type: ignore[import-untyped]
+
     return TotalActivity.objects.all()
 
 
@@ -315,6 +322,9 @@ def login_shares():
 
     https://console.cloud.google.com/bigquery?tc=europe:66d4e4aa-0000-2a15-a7f1-f403043db68c&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_26f0079_19a159255ae!3sEU
     """
+    # pylint: disable-next=import-outside-toplevel
+    from common.models import DailyActivity  # type: ignore[import-untyped]
+
     qs_csv = DailyActivity.objects.values(
         "date",
         login_share_type=Value("csv", output_field=CharField()),
@@ -349,6 +359,9 @@ def total_unverified_anonymisations():
 
     https://console.cloud.google.com/bigquery?tc=europe:650b4cd4-0000-2eb3-b1a5-f403045deba8&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_1a0241e8_19a15af685c!3sEU
     """
+    # pylint: disable-next=import-outside-toplevel
+    from common.models import TotalActivity  # type: ignore[import-untyped]
+
     return TotalActivity.objects.all()
 
 
@@ -367,6 +380,9 @@ def daily_unverified_anonymisations():
 
     https://console.cloud.google.com/bigquery?tc=europe:650b5179-0000-2134-b04b-f403045e8e10&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_c26905e_19a15b21153!3sEU
     """
+    # pylint: disable-next=import-outside-toplevel
+    from common.models import DailyActivity  # type: ignore[import-untyped]
+
     min_date = date(year=2023, month=9, day=19)
 
     qs_teachers = DailyActivity.objects.filter(date__gt=min_date).values(
@@ -400,6 +416,9 @@ def user_lockout_resets():
 
     https://console.cloud.google.com/bigquery?tc=europe:63e601eb-0000-24e4-87e1-f403043da2dc&project=decent-digit-629&ws=!1m0
     """
+    # pylint: disable-next=import-outside-toplevel
+    from common.models import DailyActivity  # type: ignore[import-untyped]
+
     min_date = date(year=2023, month=1, day=19)
 
     qs_teacher_lockout_resets = DailyActivity.objects.filter(
