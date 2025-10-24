@@ -10,11 +10,12 @@ from codeforlife.mail import send_mail
 from codeforlife.tasks import DataWarehouseTask, shared_task
 from codeforlife.user.models import GoogleUser, User
 from common.models import (  # type: ignore[import-untyped]
+    DailyActivity,
     TotalActivity,
     UserSession,
 )
 from django.conf import settings
-from django.db.models import F, Q
+from django.db.models import CharField, F, Q, Value
 from django.urls import reverse
 from django.utils import timezone
 
@@ -296,3 +297,34 @@ def total_registrations():
     https://console.cloud.google.com/bigquery?tc=europe:64fbaa08-0000-2d55-ad0f-94eb2c1b59b8&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_6ab2ce2c_19a15650f3a!3sEU
     """
     return TotalActivity.objects.all()
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=1000,
+        fields=["date", "login_share_type", "login_shares"],
+        id_field="date",  # uniquely identifies each row
+    )
+)
+def login_shares():
+    """
+    Collects data from the DailyActivity table to compare both methods of saving
+    student login details: by login card PDF or CSV file. This could be achieved
+    in GA too but doing it this way in the DB ensures we get 100% of the data.
+
+    https://console.cloud.google.com/bigquery?tc=europe:66d4e4aa-0000-2a15-a7f1-f403043db68c&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_26f0079_19a159255ae!3sEU
+    """
+    qs_csv = DailyActivity.objects.values(
+        "date",
+        login_share_type=Value("csv", output_field=CharField()),
+        login_shares=F("csv_click_count"),
+    )
+
+    qs_login_cards = DailyActivity.objects.values(
+        "date",
+        login_share_type=Value("login_cards", output_field=CharField()),
+        login_shares=F("login_cards_click_count"),
+    )
+
+    return qs_csv.union(qs_login_cards, all=True)

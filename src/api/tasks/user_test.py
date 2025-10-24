@@ -24,6 +24,7 @@ from django.utils import timezone
 
 from .user import (
     independents_login,
+    login_shares,
     student_logins,
     teacher_logins,
     total_registrations,
@@ -289,3 +290,7 @@ class TestUser(CeleryTestCase):
     def test_total_registrations(self):
         """Assert the queryset returns the expected fields."""
         self.assert_data_warehouse_task(task=total_registrations)
+
+    def test_login_shares(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=login_shares)
