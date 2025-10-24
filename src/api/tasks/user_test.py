@@ -22,7 +22,12 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 
-from .user import independents_login, student_logins, teacher_logins
+from .user import (
+    independents_login,
+    student_logins,
+    teacher_logins,
+    total_registrations,
+)
 
 # pylint: disable=missing-class-docstring
 
@@ -267,6 +272,8 @@ class TestUser(CeleryTestCase):
                 ]
             )
 
+    # data warehouse tasks
+
     def test_teacher_logins(self):
         """Assert the queryset returns the expected fields."""
         self.assert_data_warehouse_task(task=teacher_logins)
@@ -278,3 +285,7 @@ class TestUser(CeleryTestCase):
     def test_student_logins(self):
         """Assert the queryset returns the expected fields."""
         self.assert_data_warehouse_task(task=student_logins)
+
+    def test_total_registrations(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=total_registrations)

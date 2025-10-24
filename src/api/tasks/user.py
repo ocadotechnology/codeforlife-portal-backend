@@ -9,7 +9,10 @@ from datetime import timedelta
 from codeforlife.mail import send_mail
 from codeforlife.tasks import DataWarehouseTask, shared_task
 from codeforlife.user.models import GoogleUser, User
-from common.models import UserSession  # type: ignore[import-untyped]
+from common.models import (  # type: ignore[import-untyped]
+    TotalActivity,
+    UserSession,
+)
 from django.conf import settings
 from django.db.models import F, Q
 from django.urls import reverse
@@ -272,3 +275,24 @@ def student_logins():
         student_class_field_id=F("user__new_student__class_field_id"),
         country=F("user__new_student__class_field__teacher__school__country"),
     )
+
+
+@DataWarehouseTask.shared(
+    DataWarehouseTask.Settings(
+        bq_table_write_mode="overwrite",
+        chunk_size=10,  # There's only ever 1 row.
+        fields=[
+            "teacher_registrations",
+            "student_registrations",
+            "independent_registrations",
+        ],
+    )
+)
+def total_registrations():
+    """
+    Collects data from the TotalActivity table. Used to report on the total
+    number of registrations, by user type.
+
+    https://console.cloud.google.com/bigquery?tc=europe:64fbaa08-0000-2d55-ad0f-94eb2c1b59b8&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_6ab2ce2c_19a15650f3a!3sEU
+    """
+    return TotalActivity.objects.all()
