@@ -22,7 +22,7 @@ def common_school():
 
     https://console.cloud.google.com/bigquery?tc=europe:60643198-0000-2efe-8b5f-f403043816d8&project=decent-digit-629&ws=!1m0
     """
-    return School.objects.all()
+    return School.objects.get_original_queryset().all()
 
 
 @DataWarehouseTask.shared(
@@ -41,7 +41,8 @@ def teachers_per_school():
     https://console.cloud.google.com/bigquery?tc=europe:608bfedc-0000-2064-9e7f-94eb2c139c38&project=decent-digit-629&ws=!1m0
     """
     return (
-        School.objects.values("id", "name", "country")
+        School.objects.get_original_queryset()
+        .values("id", "name", "country")
         .annotate(teacher_count=Count("teacher_school"))
         .filter(teacher_count__gt=0)  # Caveat: Mimics INNER JOIN of SQL query
         .order_by("-teacher_count")
@@ -62,6 +63,6 @@ def active_gb_schools():
 
     https://console.cloud.google.com/bigquery?tc=europe:661ce230-0000-2130-a661-14223bc76db6&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_5ca8c2e0_19a156fbb6f!3sEU
     """
-    return School.objects.filter(
+    return School.objects.get_original_queryset().filter(
         country="GB", is_active=True, creation_time__isnull=False
     )

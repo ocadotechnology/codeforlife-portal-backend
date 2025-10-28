@@ -25,7 +25,8 @@ def classes_per_teacher():
     https://console.cloud.google.com/bigquery?tc=europe:608c84a6-0000-2064-9e7f-94eb2c139c38&project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_58c2d693_19a112df8a4!3sEU
     """
     return (
-        Teacher.objects.values(
+        Teacher.objects.get_original_queryset()
+        .values(
             teacher_id=F("id"),
             is_active=F("new_user__is_active"),
             last_login=F("new_user__last_login"),

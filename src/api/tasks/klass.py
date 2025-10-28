@@ -30,7 +30,8 @@ def students_per_class():
     https://console.cloud.google.com/bigquery?tc=europe:6096e7a6-0000-2232-8ae8-f403045cee38&project=decent-digit-629&ws=!1m0
     """
     return (
-        Class.objects.filter(students__isnull=False)
+        Class.objects.get_original_queryset()
+        .filter(students__isnull=False)
         .values(
             "id",
             "name",
@@ -57,4 +58,4 @@ def common_class():
 
     https://console.cloud.google.com/bigquery?tc=europe:617de7e9-0000-253d-9bff-089e08213e78&project=decent-digit-629&ws=!1m0
     """
-    return Class.objects.all()
+    return Class.objects.get_original_queryset().all()

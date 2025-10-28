@@ -23,7 +23,7 @@ name = "pypi"
 # 5. Run `pipenv install --dev` in your terminal.
 
 [packages]
-codeforlife = "==0.30.1"
+codeforlife = "==0.30.2"
 # 🚫 Don't add [packages] below that are inherited from the CFL package.
 # TODO: Needed by RR. Remove when RR has moved to new system.
 django-treebeard = "==4.7.1"
@@ -31,7 +31,7 @@ django-sekizai = "==4.1.0"
 django-classy-tags = "==4.1.0"
 
 [dev-packages]
-codeforlife = {version = "==0.30.1", extras = ["dev"]}
+codeforlife = {version = "==0.30.2", extras = ["dev"]}
 # codeforlife = {file = "../codeforlife-package-python", editable = true, extras = ["dev"]}
 # 🚫 Don't add [dev-packages] below that are inherited from the CFL package.
 
