@@ -211,8 +211,13 @@ def sync_google_users():
     DataWarehouseTask.Settings(
         bq_table_write_mode="overwrite",
         chunk_size=1000,
-        fields=["user_id", "school_id", "login_time", "country"],
-        id_field="user_id",
+        fields=[
+            "id",  # Adding ID. TODO: use server-side tagging for user logins.
+            "user_id",
+            "school_id",
+            "login_time",
+            "country",
+        ],
     )
 )
 def teacher_logins():
@@ -234,8 +239,11 @@ def teacher_logins():
     DataWarehouseTask.Settings(
         bq_table_write_mode="overwrite",
         chunk_size=1000,
-        fields=["user_id", "login_time"],
-        id_field="user_id",
+        fields=[
+            "id",  # Adding ID. TODO: use server-side tagging for user logins.
+            "user_id",
+            "login_time",
+        ],
     )
 )
 def independents_login():
@@ -258,8 +266,13 @@ def independents_login():
     DataWarehouseTask.Settings(
         bq_table_write_mode="overwrite",
         chunk_size=1000,
-        fields=["user_id", "student_class_field_id", "login_time", "country"],
-        id_field="user_id",
+        fields=[
+            "id",  # Adding ID. TODO: use server-side tagging for user logins.
+            "user_id",
+            "student_class_field_id",
+            "login_time",
+            "country",
+        ],
     )
 )
 def student_logins():
@@ -474,13 +487,11 @@ def user_lockout_resets():
 )
 def user_teacher_student_1():
     """
-    Duplicate of query 6 with the added functionality of getting data from the
-    UserProfile table. Used for reports on verified / unverified users. As
-    mentioned above in query 6, this query can probably be used to completely
-    replace query 6, as it has the same functionality and more. Before we delete
-    query 6, we need to make sure we update the graphs in LS so the source is
-    updated to this query instead (we currently still have 10 charts still using
-    query 6).
+    Probably the most fundamental query. Collects data from the User,
+    UserProfile, Teacher and Student tables. It only selects active users and
+    also filters out ocado.com based accounts. Used to report on things like
+    number of active users, last logins, date registered, etc... Used for
+    reports on verified / unverified users.
 
     https://console.cloud.google.com/bigquery?project=decent-digit-629&ws=!1m5!1m4!1m3!1sdecent-digit-629!2sbquxjob_58975a27_19a15c43016!3sEU
     """

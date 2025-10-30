@@ -26,6 +26,7 @@ def classes_per_teacher():
     """
     return (
         Teacher.objects.get_original_queryset()
+        .filter(class_teacher__isnull=False, new_user__isnull=False)
         .values(
             teacher_id=F("id"),
             is_active=F("new_user__is_active"),

@@ -42,9 +42,9 @@ def teachers_per_school():
     """
     return (
         School.objects.get_original_queryset()
+        .filter(teacher_school__isnull=False)
         .values("id", "name", "country")
         .annotate(teacher_count=Count("teacher_school"))
-        .filter(teacher_count__gt=0)  # Caveat: Mimics INNER JOIN of SQL query
         .order_by("-teacher_count")
     )
 
