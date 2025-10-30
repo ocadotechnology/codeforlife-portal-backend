@@ -22,6 +22,18 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 
+from .user import (
+    daily_unverified_anonymisations,
+    independents_login,
+    login_shares,
+    student_logins,
+    teacher_logins,
+    total_registrations,
+    total_unverified_anonymisations,
+    user_lockout_resets,
+    user_teacher_student_1,
+)
+
 # pylint: disable=missing-class-docstring
 
 
@@ -264,3 +276,41 @@ class TestUser(CeleryTestCase):
                     )
                 ]
             )
+
+    # data warehouse tasks
+
+    def test_teacher_logins(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=teacher_logins)
+
+    def test_independents_login(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=independents_login)
+
+    def test_student_logins(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=student_logins)
+
+    def test_total_registrations(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=total_registrations)
+
+    def test_login_shares(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=login_shares)
+
+    def test_total_unverified_anonymisations(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=total_unverified_anonymisations)
+
+    def test_daily_unverified_anonymisations(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=daily_unverified_anonymisations)
+
+    def test_user_lockout_resets(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=user_lockout_resets)
+
+    def test_user_teacher_student_1(self):
+        """Assert the queryset returns the expected fields."""
+        self.assert_data_warehouse_task(task=user_teacher_student_1)
