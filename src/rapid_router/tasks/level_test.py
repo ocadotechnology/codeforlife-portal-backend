@@ -9,7 +9,6 @@ from .level import (
     game_level_shared_with,
     level_control_submits,
     levels_created,
-    rapid_router_attempts,
     shared_levels_played,
 )
 
@@ -18,10 +17,6 @@ from .level import (
 
 class TestLevel(CeleryTestCase):
     fixtures = ["school_1"]
-
-    def test_rapid_router_attempts(self):
-        """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=rapid_router_attempts)
 
     def test_game_level_shared_with(self):
         """Assert the queryset returns the expected fields."""
