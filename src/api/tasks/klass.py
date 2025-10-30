@@ -31,7 +31,11 @@ def students_per_class():
     """
     return (
         Class.objects.get_original_queryset()
-        .filter(students__isnull=False)
+        .filter(
+            students__isnull=False,
+            teacher__isnull=False,
+            teacher__new_user__isnull=False,
+        )
         .values(
             "id",
             "name",
