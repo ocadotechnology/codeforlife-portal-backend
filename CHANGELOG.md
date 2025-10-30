@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.1.4...v1.2.0) (2025-10-30)
+
+
+### Features
+
+* Workspace 301 ([#413](https://github.com/ocadotechnology/codeforlife-portal-backend/issues/413)) ([e1c84f8](https://github.com/ocadotechnology/codeforlife-portal-backend/commit/e1c84f8cc21750b3d501d7efae6eba1251082e1a))
+
 ## [1.1.4](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.1.3...v1.1.4) (2025-10-14)
 
 
