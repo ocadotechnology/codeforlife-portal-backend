@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.2.0...v1.2.1) (2025-11-11)
+
+
+### Bug Fixes
+
+* Install latest package ([314e506](https://github.com/ocadotechnology/codeforlife-portal-backend/commit/314e5060e83b512f8662f212cf7305a53eeebd6f))
+
 # [1.2.0](https://github.com/ocadotechnology/codeforlife-portal-backend/compare/v1.1.4...v1.2.0) (2025-10-30)
 
 
