@@ -20,16 +20,16 @@ class TestLevel(CeleryTestCase):
 
     def test_game_level_shared_with(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=game_level_shared_with)
+        self.assert_bigquery_task(task=game_level_shared_with)
 
     def test_level_control_submits(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=level_control_submits)
+        self.assert_bigquery_task(task=level_control_submits)
 
     def test_levels_created(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=levels_created)
+        self.assert_bigquery_task(task=levels_created)
 
     def test_shared_levels_played(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=shared_levels_played)
+        self.assert_bigquery_task(task=shared_levels_played)

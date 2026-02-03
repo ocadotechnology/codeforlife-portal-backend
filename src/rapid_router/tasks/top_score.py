@@ -5,15 +5,15 @@ Created on 30/10/2025 at 17:09:18(+00:00).
 
 from datetime import timedelta
 
-from codeforlife.tasks import DataWarehouseTask
+from codeforlife.tasks import BigQueryTask
 from django.utils import timezone
 
 from ..models import Attempt
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="append",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_APPEND",
         chunk_size=1000,
         fields=[
             "id",

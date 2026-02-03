@@ -15,4 +15,4 @@ class TestTopScore(CeleryTestCase):
 
     def test_rapid_router_attempts(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=rapid_router_attempts)
+        self.assert_bigquery_task(task=rapid_router_attempts)

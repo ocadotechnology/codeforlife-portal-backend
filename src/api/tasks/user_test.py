@@ -281,36 +281,36 @@ class TestUser(CeleryTestCase):
 
     def test_teacher_logins(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=teacher_logins)
+        self.assert_bigquery_task(task=teacher_logins)
 
     def test_independents_login(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=independents_login)
+        self.assert_bigquery_task(task=independents_login)
 
     def test_student_logins(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=student_logins)
+        self.assert_bigquery_task(task=student_logins)
 
     def test_total_registrations(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=total_registrations)
+        self.assert_bigquery_task(task=total_registrations)
 
     def test_login_shares(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=login_shares)
+        self.assert_bigquery_task(task=login_shares)
 
     def test_total_unverified_anonymisations(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=total_unverified_anonymisations)
+        self.assert_bigquery_task(task=total_unverified_anonymisations)
 
     def test_daily_unverified_anonymisations(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=daily_unverified_anonymisations)
+        self.assert_bigquery_task(task=daily_unverified_anonymisations)
 
     def test_user_lockout_resets(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=user_lockout_resets)
+        self.assert_bigquery_task(task=user_lockout_resets)
 
     def test_user_teacher_student_1(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=user_teacher_student_1)
+        self.assert_bigquery_task(task=user_teacher_student_1)

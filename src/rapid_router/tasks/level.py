@@ -5,15 +5,15 @@ Created on 24/10/2025 at 14:02:48(+01:00).
 
 from datetime import date
 
-from codeforlife.tasks import DataWarehouseTask
+from codeforlife.tasks import BigQueryTask
 from django.db.models import Count, IntegerField, Q, Value
 
 from ..models import Level
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=1000,
         fields=["id", "level_id", "user_id"],
     )
@@ -28,9 +28,9 @@ def game_level_shared_with():
     return Level.shared_with.through.objects.all()
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=1000,
         fields=["date", "level_control_submits"],
         id_field="date",
@@ -52,9 +52,9 @@ def level_control_submits():
     )
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=10,  # There's only ever 1 row.
         fields=[
             "teacher_levels",
@@ -120,9 +120,9 @@ def levels_created():
     )
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=10,  # There's only ever 1 row.
         fields=["shared_levels_played", "total_levels_shared"],
         id_field="shared_levels_played",  # There's only ever 1 row.

@@ -7,7 +7,7 @@ import logging
 from datetime import date, timedelta
 
 from codeforlife.mail import send_mail
-from codeforlife.tasks import DataWarehouseTask, shared_task
+from codeforlife.tasks import BigQueryTask, shared_task
 from codeforlife.user.models import GoogleUser, User
 from django.conf import settings
 from django.db.models import Case, CharField, F, Q, Value, When
@@ -207,9 +207,9 @@ def sync_google_users():
             logging.exception(ex)
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=1000,
         fields=[
             "id",  # Adding ID. TODO: use server-side tagging for user logins.
@@ -235,9 +235,9 @@ def teacher_logins():
     )
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=1000,
         fields=[
             "id",  # Adding ID. TODO: use server-side tagging for user logins.
@@ -262,9 +262,9 @@ def independents_login():
     )
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=1000,
         fields=[
             "id",  # Adding ID. TODO: use server-side tagging for user logins.
@@ -295,9 +295,9 @@ def student_logins():
     )
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=10,  # There's only ever 1 row.
         fields=[
             "teacher_registrations",
@@ -320,9 +320,9 @@ def total_registrations():
     return TotalActivity.objects.all()
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=1000,
         fields=["date", "login_share_type", "login_shares"],
         id_field="date",  # uniquely identifies each row
@@ -354,9 +354,9 @@ def login_shares():
     return qs_csv.union(qs_login_cards, all=True)
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=10,  # There's only ever 1 row.
         fields=[
             "anonymised_unverified_teachers",
@@ -380,9 +380,9 @@ def total_unverified_anonymisations():
     return TotalActivity.objects.all()
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=1000,
         fields=["date", "user_type", "anonymisations"],
         id_field="date",
@@ -415,9 +415,9 @@ def daily_unverified_anonymisations():
     return qs_teachers.union(qs_independents, all=True)
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=1000,
         fields=["date", "reset_type", "resets"],
         id_field="date",
@@ -467,9 +467,9 @@ def user_lockout_resets():
     )
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=1000,
         fields=[
             "id",

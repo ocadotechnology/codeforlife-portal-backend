@@ -187,7 +187,8 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
         user = self.mfa_non_admin_school_teacher_user
 
         self.client.login_as(user)
-        self.client.list(user.auth_factors.all())
+        # TODO: Remove the below mypy ignore after upgrading django-stubs
+        self.client.list(user.auth_factors.all())  # type: ignore[arg-type]
 
     def test_list__user(self):
         """Can list enabled auth-factors, filtered by a user's ID."""
@@ -218,8 +219,10 @@ class TestAuthFactorViewSet(ModelViewSetTestCase[User, AuthFactor]):
         assert user
 
         self.client.login_as(user)
+
         self.client.list(
-            user.auth_factors.all(),
+            # TODO: Remove the below mypy ignore after upgrading django-stubs
+            user.auth_factors.all(),  # type: ignore[arg-type]
             filters={"user": str(user.pk)},
         )
 

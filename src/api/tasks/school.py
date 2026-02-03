@@ -3,14 +3,14 @@
 Created on 23/10/2025 at 17:13:48(+01:00).
 """
 
-from codeforlife.tasks import DataWarehouseTask
+from codeforlife.tasks import BigQueryTask
 from codeforlife.user.models import School
 from django.db.models import Count
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=1000,
         fields=["id", "country", "creation_time", "is_active", "county"],
     )
@@ -25,9 +25,9 @@ def common_school():
     return School.objects.get_original_queryset().all()
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=1000,
         fields=["id", "name", "country", "teacher_count"],
     )
@@ -49,9 +49,9 @@ def teachers_per_school():
     )
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=1000,
         fields=["id", "creation_time"],
     )

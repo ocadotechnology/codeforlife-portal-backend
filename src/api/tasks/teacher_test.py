@@ -15,4 +15,4 @@ class TestTeacher(CeleryTestCase):
 
     def test_classes_per_teacher(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=classes_per_teacher)
+        self.assert_bigquery_task(task=classes_per_teacher)

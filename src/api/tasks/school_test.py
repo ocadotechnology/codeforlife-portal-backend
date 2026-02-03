@@ -15,12 +15,12 @@ class TestSchool(CeleryTestCase):
 
     def test_common_school(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=common_school)
+        self.assert_bigquery_task(task=common_school)
 
     def test_teachers_per_school(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=teachers_per_school)
+        self.assert_bigquery_task(task=teachers_per_school)
 
     def test_active_gb_schools(self):
         """Assert the queryset returns the expected fields."""
-        self.assert_data_warehouse_task(task=active_gb_schools)
+        self.assert_bigquery_task(task=active_gb_schools)

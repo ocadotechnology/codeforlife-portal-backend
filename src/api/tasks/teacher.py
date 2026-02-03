@@ -3,14 +3,14 @@
 Created on 31/03/2025 at 18:06:49(+01:00).
 """
 
-from codeforlife.tasks import DataWarehouseTask
+from codeforlife.tasks import BigQueryTask
 from codeforlife.user.models import Teacher
 from django.db.models import Count, F
 
 
-@DataWarehouseTask.shared(
-    DataWarehouseTask.Settings(
-        bq_table_write_mode="overwrite",
+@BigQueryTask.shared(
+    BigQueryTask.Settings(
+        write_disposition="WRITE_TRUNCATE",
         chunk_size=1000,
         fields=["teacher_id", "is_active", "last_login", "class_count"],
         id_field="teacher_id",

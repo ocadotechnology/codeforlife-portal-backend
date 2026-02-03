@@ -74,7 +74,8 @@ class TestOtpBypassTokenViewSet(ModelViewSetTestCase[User, OtpBypassToken]):
     def test_get_queryset__list(self):
         """Users can only list their own OTP bypass tokens."""
         self.assert_get_queryset(
-            values=self.user.otp_bypass_tokens.all(),
+            # TODO: Remove the below mypy ignore after upgrading django-stubs
+            values=self.user.otp_bypass_tokens.all(),  # type: ignore[arg-type]
             action="list",
             request=self.client.request_factory.get(user=self.user),
         )
@@ -84,7 +85,9 @@ class TestOtpBypassTokenViewSet(ModelViewSetTestCase[User, OtpBypassToken]):
     def test_list(self):
         """Can list a user's OTP bypass tokens."""
         self.client.login(email=self.user.email, password="password")
-        self.client.list(self.user.otp_bypass_tokens.all())
+        # TODO: Remove the below mypy ignore after upgrading django-stubs
+        # pylint: disable-next=line-too-long
+        self.client.list(self.user.otp_bypass_tokens.all())  # type: ignore[arg-type]
 
     def test_generate(self):
         """Generate max number of OTP bypass tokens."""
@@ -148,4 +151,5 @@ class TestOtpBypassTokenViewSet(ModelViewSetTestCase[User, OtpBypassToken]):
                     tokens.remove(token)
                     break
 
+            assert found_token
             assert found_token

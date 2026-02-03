@@ -76,7 +76,7 @@ class TestTeacherViewSet(ModelViewSetTestCase[User, Teacher]):
             class_names: The original class names.
         """
         # TODO: remove when using new data strategy
-        queryset = QuerySet(
+        queryset: QuerySet["Class"] = QuerySet(
             model=Class.objects.model,
             # pylint: disable-next=protected-access
             using=Class.objects._db,
