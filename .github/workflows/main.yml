@@ -9,5 +9,7 @@ on:
 
 jobs:
   main:
-    uses: ocadotechnology/codeforlife-workspace/.github/workflows/backend.yaml@main
+    uses: codeforlife-education/codeforlife-workspace/.github/workflows/backend.yaml@main
     secrets: inherit
+    permissions:
+      id-token: write

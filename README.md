@@ -14,7 +14,7 @@ time) are owned by Ocado Innovation Limited.
 
 The source code of the Code for Life portal, the Rapid Router application
 and the Kurono/aimmo application are [licensed under the GNU Affero General
-Public License](https://github.com/ocadotechnology/codeforlife-workspace/blob/main/LICENSE.md).
+Public License](https://github.com/codeforlife-education/codeforlife-workspace/blob/main/LICENSE.md).
 All other assets including images, logos, sounds etc., are not covered by
 this licence and no-one may copy, modify, distribute, show in public or
 create any derivative work from these assets.
@@ -27,4 +27,4 @@ Portal is deployed on 3 live environments:
 1. [staging](https://staging-portal-dot-decent-digit-629.appspot.com/)
 1. [production](https://production-portal-dot-decent-digit-629.appspot.com/)
 
-To understand more about these environments read our [code promotion strategy](https://github.com/ocadotechnology/codeforlife-workspace/blob/main/docs/CODE-PROMOTION.md).
+To understand more about these environments read our [code promotion strategy](https://github.com/codeforlife-education/codeforlife-workspace/blob/main/docs/CODE-PROMOTION.md).
